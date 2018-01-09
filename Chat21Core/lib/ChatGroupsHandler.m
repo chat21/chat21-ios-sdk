@@ -1,0 +1,150 @@
+//
+//  ChatGroupsHandler.m
+//  Smart21
+//
+//  Created by Andrea Sponziello on 02/05/15.
+//
+//
+
+#import "ChatGroupsHandler.h"
+//#import "SHPFirebaseTokenDC.h"
+//#import "SHPUser.h"
+#import "ChatUtil.h"
+#import <Firebase/Firebase.h>
+#import "ChatGroup.h"
+#import "ChatGroupsDB.h"
+#import "ChatManager.h"
+#import "ChatUser.h"
+#import "ChatGroupsSubscriber.h"
+
+@implementation ChatGroupsHandler
+
+-(id)initWithTenant:(NSString *)tenant user:(ChatUser *)user {
+    if (self = [super init]) {
+//        self.firebaseRef = firebaseRef;
+        self.rootRef = [[FIRDatabase database] reference];
+        self.tenant = tenant;
+        self.loggeduser = user;
+        self.me = user.userId;
+        self.groups = [[NSMutableDictionary alloc] init];
+    }
+    return self;
+}
+
+-(void)addSubcriber:(id<ChatGroupsSubscriber>)subscriber {
+    if (!self.subcribers) {
+        self.subcribers = [[NSMutableArray alloc] init];
+    }
+    [self.subcribers addObject:subscriber];
+}
+
+-(void)removeSubcriber:(id<ChatGroupsSubscriber>)subscriber {
+    if (!self.subcribers) {
+        return;
+    }
+    [self.subcribers removeObject:subscriber];
+}
+
+-(void)notifySubscribers:(ChatGroup *)group {
+    NSLog(@"ChatConversationHandler: This group was added or changed: %@. Notifying to subscribers...", group.name);
+    for (id<ChatGroupsSubscriber> subscriber in self.subcribers) {
+        [subscriber groupAddedOrChanged:group];
+    }
+}
+
+//-(id)initWithFirebaseRef:(NSString *)firebaseRef tenant:(NSString *)tenant user:(SHPUser *)user {
+//    if (self = [super init]) {
+//        NSLog(@"OOO");
+//        self.firebaseRef = firebaseRef;
+//        self.tenant = tenant;
+//        self.loggeduser = user;
+//        self.me = user.username;
+////        self.groups = [[NSMutableArray alloc] init];
+//    }
+//    return self;
+//}
+
+-(void)dispose{
+//    [self.groupsRef removeObserverWithHandle:self.groups_ref_handle_added];
+//    [self.groupsRef removeObserverWithHandle:self.groups_ref_handle_changed];
+//    [self.groupsRef removeObserverWithHandle:self.groups_ref_handle_removed];
+    [self.groupsRef removeAllObservers];
+}
+
+-(void)connect {
+//    self.groupsRef = [ChatUtil groupsRefWithBase:self.firebaseRef];
+    FIRDatabaseReference *rootRef = [[FIRDatabase database] reference];
+    NSString *groups_path = [ChatUtil groupsPath];
+    NSLog(@"Synch Groups on path: %@", groups_path);
+    self.groupsRef = [rootRef child:groups_path];
+    
+//    self.groupsRef = [ChatUtil groupsRefWithBase:GROUPS_BASE_URL];
+    
+    self.groups_ref_handle_added = [self.groupsRef observeEventType:FIRDataEventTypeChildAdded withBlock:^(FIRDataSnapshot *snapshot) {
+        NSLog(@"NEW GROUP SNAPSHOT: %@", snapshot);
+        ChatGroup *group = [ChatManager groupFromSnapshotFactory:snapshot];
+        [self insertOrUpdateGroup:group completion:^{
+            // nothing
+        }];
+    } withCancelBlock:^(NSError *error) {
+        NSLog(@"%@", error.description);
+    }];
+    
+    self.groups_ref_handle_changed =
+    [self.groupsRef observeEventType:FIRDataEventTypeChildChanged withBlock:^(FIRDataSnapshot *snapshot) {
+        NSLog(@"UPDATED GROUP SNAPSHOT: %@", snapshot);
+        ChatGroup *group = [ChatManager groupFromSnapshotFactory:snapshot];
+        [self insertOrUpdateGroup:group completion:^{
+            // nothing
+        }];
+    } withCancelBlock:^(NSError *error) {
+        NSLog(@"%@", error.description);
+    }];
+}
+
+-(void)insertInMemory:(ChatGroup *)group {
+    if (group && group.groupId) {
+        [self.groups setObject:group forKey:group.groupId];
+    }
+    else {
+        NSLog(@"ERROR: CAN'T INSERT A GROUP WITH NIL ID");
+    }
+}
+
+-(ChatGroup *)groupById:(NSString *)groupId {
+    return self.groups[groupId];
+}
+
+-(void)insertOrUpdateGroup:(ChatGroup *)group completion:(void(^)()) callback {
+    NSLog(@"INSERTING OR UPDATING GROUP WITH NAME: %@", group.name);
+    group.user = self.me;
+    [self insertInMemory:group];
+    [[ChatGroupsDB getSharedInstance] insertOrUpdateGroupSyncronized:group completion:^{
+        [self notifySubscribers:group];
+        callback();
+    }];
+}
+
+-(void)restoreGroupsFromDB {
+    NSLog(@"Restoring all groups from DB...");
+    NSArray *groups_array = [[ChatGroupsDB getSharedInstance] getAllGroupsForUser:self.me];
+    if (!self.groups) {
+        self.groups = [[NSMutableDictionary alloc] init];
+    }
+    for (ChatGroup *g in groups_array) {
+        [self.groups setValue:g forKey:g.groupId];
+    }
+}
+
+//-(void)updateGroup:(ChatGroup *)group1 withGroup:(ChatGroup *)group2 {
+//    group1.createdOn = group2.createdOn;
+//    group1.members = group2.members;
+//    group1.key = group2.key;
+//    group1.groupId = group2.groupId;
+//    group1.user = group2.user;
+//    group1.name = group2.name;
+//    group1.owner = group2.owner;
+////    group1.iconURL = group2.iconURL;
+//}
+
+@end
