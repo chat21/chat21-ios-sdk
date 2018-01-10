@@ -789,8 +789,8 @@
 //}
 
 - (IBAction)newGroupAction:(id)sender {
-    NSLog(@"Nuovo gruppo");
-//    [self performSegueWithIdentifier:@"CreateGroup" sender:self];
+    NSLog(@"New Group Action");
+    [self performSegueWithIdentifier:@"CreateGroup" sender:self];
 }
 
 - (IBAction)groupsAction:(id)sender {
@@ -946,20 +946,20 @@
 
 - (void)setupViewController:(UIViewController *)controller didFinishSetupWithInfo:(NSDictionary *)setupInfo {
     NSLog(@"setupViewController...");
-    if([controller isKindOfClass:[ChatSelectUserLocalVC class]])
-    {
-        ChatUser *user = nil;
-        if ([setupInfo objectForKey:@"user"]) {
-            user = [setupInfo objectForKey:@"user"];
-            NSLog(@">>>>>> SELECTED: user %@", user.userId);
-        }
-        [self dismissViewControllerAnimated:YES completion:^{
-            if (user) {
-//                self.selectedRecipientFullname = user.fullname;
-                [self openConversationWithUser:user];
-            }
-        }];
-    }
+//    if([controller isKindOfClass:[ChatSelectUserLocalVC class]])
+//    {
+//        ChatUser *user = nil;
+//        if ([setupInfo objectForKey:@"user"]) {
+//            user = [setupInfo objectForKey:@"user"];
+//            NSLog(@">>>>>> SELECTED: user %@", user.userId);
+//        }
+//        [self dismissViewControllerAnimated:YES completion:^{
+//            if (user) {
+////                self.selectedRecipientFullname = user.fullname;
+//                [self openConversationWithUser:user];
+//            }
+//        }];
+//    }
     if([controller isKindOfClass:[ChatSelectGroupLocalTVC class]])
     {
         ChatGroup *group = nil;
@@ -1040,7 +1040,16 @@
 }
 
 - (IBAction)writeToAction:(id)sender {
-    [self performSegueWithIdentifier:@"SelectUser" sender:self];
+//    [self performSegueWithIdentifier:@"SelectUser" sender:self];
+    [[ChatUIManager getInstance] openSelectContactViewAsModal:self withCompletionBlock:^(ChatUser *contact, BOOL canceled) {
+        if (canceled) {
+            NSLog(@"Select Contact canceled");
+        }
+        else {
+            NSLog(@"Selected contact: %@/%@", contact.fullname, contact.userId);
+            [self openConversationWithUser:contact];
+        }
+    }];
 }
 
 //- (IBAction)helpAction:(id)sender {
