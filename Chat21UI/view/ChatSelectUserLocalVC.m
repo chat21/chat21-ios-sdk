@@ -7,13 +7,12 @@
 //
 
 #import "ChatSelectUserLocalVC.h"
-#import "ChatModalCallerDelegate.h"
 #import "ChatImageCache.h"
 #import "ChatImageWrapper.h"
 #import "ChatGroup.h"
 #import "ChatDB.h"
 #import "ChatUser.h"
-#import "ContactsDB.h"
+#import "ChatContactsDB.h"
 #import "ChatManager.h"
 #import "ChatContactsSynchronizer.h"
 #import "ChatUtil.h"
@@ -339,9 +338,6 @@
     NSMutableDictionary *options = [[NSMutableDictionary alloc] init];
     [options setObject:selectedUser forKey:@"user"];
     [self.view endEditing:YES];
-    if (self.modalCallerDelegate) {
-        [self.modalCallerDelegate setupViewController:self didFinishSetupWithInfo:options];
-    }
     if (self.completionCallback) {
         [self dismissViewControllerAnimated:YES completion:^{
             self.completionCallback(selectedUser, NO);
@@ -416,7 +412,7 @@
 -(void)search {
     NSString *text = self.searchBar.text;
     self.textToSearch = [self prepareTextToSearch:text];
-    ContactsDB *db = [ContactsDB getSharedInstance];
+    ChatContactsDB *db = [ChatContactsDB getSharedInstance];
     [db searchContactsByFullnameSynchronized:self.textToSearch completion:^(NSArray<ChatUser *> *users) {
         dispatch_async(dispatch_get_main_queue(), ^{
             self.users = users;
@@ -459,9 +455,6 @@
 - (IBAction)CancelAction:(id)sender {
     [self disposeResources];
     [self.view endEditing:YES];
-    if (self.modalCallerDelegate) {
-        [self.modalCallerDelegate setupViewController:self didCancelSetupWithInfo:nil];
-    }
     if (self.completionCallback) {
         [self dismissViewControllerAnimated:YES completion:^{
             self.completionCallback(nil, YES);

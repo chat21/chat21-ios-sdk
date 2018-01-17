@@ -15,7 +15,14 @@
 #import "ChatDB.h"
 #import "ChatUser.h"
 #import "ChatManager.h"
-#import "ContactsDB.h"
+#import "ChatContactsDB.h"
+#import "ChatGroup.h"
+#import "MBProgressHUD.h"
+
+@interface ChatSelectGroupMembersLocal () {
+    MBProgressHUD *HUD;
+}
+@end
 
 @implementation ChatSelectGroupMembersLocal
 
@@ -36,11 +43,7 @@
     self.tableView.delegate = self;
     self.tableView.dataSource = self;
     
-//    [self restoreMembers];
-    //    NSLog(@"Current RECENTS...");
-    //    for (SHPUser *u in self.members) {
-    //        NSLog(@"recent-user %@", u.username);
-    //    }
+    self.members = [[NSMutableArray alloc] init];
     self.createButton.title = NSLocalizedString(@"create", nil);
     self.searchBar.placeholder = NSLocalizedString(@"contact name", nil);
     
@@ -321,7 +324,7 @@
     NSString *text = self.searchBar.text;
     self.textToSearch = [self prepareTextToSearch:text];
     NSLog(@"timer on userPaused: searching for %@", self.textToSearch);
-    ContactsDB *db = [ContactsDB getSharedInstance];
+    ChatContactsDB *db = [ChatContactsDB getSharedInstance];
     [db searchContactsByFullnameSynchronized:self.textToSearch completion:^(NSArray<ChatUser *> *users) {
         dispatch_async(dispatch_get_main_queue(), ^{
             NSLog(@"USERS LOADED! %lu", (unsigned long)users.count);
@@ -413,8 +416,13 @@
 // dismiss modal
 
 - (IBAction)CancelAction:(id)sender {
-    NSLog(@"dismiss %@", self.modalCallerDelegate);
-    [self.modalCallerDelegate setupViewController:self didCancelSetupWithInfo:nil];
+//    NSLog(@"dismiss %@", self.modalCallerDelegate);
+//    [self.modalCallerDelegate setupViewController:self didCancelSetupWithInfo:nil];
+    if (self.completionCallback) {
+        [self dismissViewControllerAnimated:YES completion:^{
+            self.completionCallback(nil, YES);
+        }];
+    }
 }
 
 // IMAGE HANDLING
@@ -496,9 +504,10 @@
 //}
 
 -(void)addGroupMember:(ChatUser *)user {
-    NSLog(@"............ADDING.... member %@/%@", user.userId, user.fullname);
+    NSLog(@"Adding member: %@/%@", user.userId, user.fullname);
     [self.members addObject:user];
     [self enableCreateButton];
+    [self.tableView reloadData];
 }
 
 -(BOOL)userIsMember:(ChatUser *) user {
@@ -564,31 +573,66 @@
 }
 
 - (IBAction)createGroupAction:(id)sender {
-//    NSLog(@"Creating group... %@", self.applicationContext);
-//
-//    NSMutableDictionary *options = [[NSMutableDictionary alloc] init];
-//    NSString *iconID = (NSString *)[self.applicationContext getVariable:@"groupIconID"];  //groupImageUrl
-//    NSLog(@"Group iconID %@, URL: %@", iconID, [ChatUtil groupImageUrlById:iconID]);
-//
-//
-//    // set options
-//    if (iconID) {
-//        [options setObject:iconID forKey:@"groupIconID"];
-//    }
-//    [options setObject:self.members forKey:@"groupMembers"];
-//    [options setObject:[self.applicationContext getVariable:@"newGroupId"] forKey:@"newGroupId"];
-//    [options setObject:[self.applicationContext getVariable:@"groupName"] forKey:@"groupName"];
-//
-//    // clean context
-//    [self.applicationContext removeVariable:@"groupMembers"];
-//    [self.applicationContext removeVariable:@"groupName"];
-//    [self.applicationContext removeVariable:@"newGroupId"];
-//    if (iconID) {
-//        [self.applicationContext removeVariable:@"groupIconID"];
-//    }
-//    
-//    [self.view endEditing:YES]; // or [self.searchBar resignFirstResponder];
-//    [self.modalCallerDelegate setupViewController:self didFinishSetupWithInfo:options];
+    if (self.completionCallback) {
+        ChatGroup *group = [[ChatGroup alloc] init];
+        group.groupId = [[ChatManager getInstance] newGroupId];
+        NSMutableArray *membersIDs = [[NSMutableArray alloc] init];
+        for (ChatUser *u in self.members) {
+            [membersIDs addObject:u.userId];
+        }
+        NSString *me = [ChatManager getInstance].loggedUser.userId;
+        [membersIDs addObject:me];
+        group.members = [ChatGroup membersArray2Dictionary:membersIDs];
+        group.name = self.groupName;
+        group.owner = me;
+        group.user = me;
+        group.createdOn = [[NSDate alloc] init];
+        ChatManager *chat = [ChatManager getInstance];
+        NSLog(@"Creating group: %@", group.name);
+        [self showWaiting:@"Creo gruppo..."];
+        [chat createGroup:group withCompletionBlock:^(ChatGroup *group, NSError *error) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self hideWaiting];
+                if (error) {
+                    [self alert:NSLocalizedString(@"Group creation error", nil)];
+                }
+                else {
+                    [self dismissViewControllerAnimated:YES completion:^{
+                        self.completionCallback(group, NO);
+                    }];
+                }
+            });
+        }];
+    }
+}
+
+-(void)showWaiting:(NSString *)label {
+    if (!HUD) {
+        HUD = [[MBProgressHUD alloc] initWithWindow:self.view.window];
+        [self.view.window addSubview:HUD];
+    }
+    HUD.center = self.view.center;
+    HUD.labelText = label;
+    HUD.animationType = MBProgressHUDAnimationZoom;
+    [HUD show:YES];
+}
+
+-(void)hideWaiting {
+    [HUD hide:YES];
+}
+
+-(void)alert:(NSString *)msg {
+    UIAlertController *view = [UIAlertController
+                               alertControllerWithTitle:msg
+                               message:nil
+                               preferredStyle:UIAlertControllerStyleAlert];
+    
+    UIAlertAction *confirm = [UIAlertAction
+                              actionWithTitle:@"OK"
+                              style:UIAlertActionStyleDefault
+                              handler:nil];
+    [view addAction:confirm];
+    [self presentViewController:view animated:YES completion:nil];
 }
 
 @end

@@ -8,11 +8,11 @@
 
 #import <UIKit/UIKit.h>
 #import "ChatGroupsDB.h"
-#import "ChatModalCallerDelegate.h"
+//#import "ChatModalCallerDelegate.h"
 
-@class ChatImageCache;
+//@class ChatImageCache;
 @class ChatGroup;
-@class ChatUser;
+//@class ChatUser;
 
 @interface ChatSelectGroupLocalTVC : UITableViewController
 
@@ -20,7 +20,8 @@
 @property (nonatomic, retain) NSMutableDictionary *imageDownloadsInProgress;
 
 @property (strong, nonatomic) NSMutableArray<ChatGroup *> *groups;
-@property (strong, nonatomic) id <ChatModalCallerDelegate> modalCallerDelegate;
+//@property (strong, nonatomic) id <ChatModalCallerDelegate> modalCallerDelegate;
+@property (nonatomic, copy) void (^completionCallback)(ChatGroup *group, BOOL canceled);
 
 - (IBAction)CancelAction:(id)sender;
 

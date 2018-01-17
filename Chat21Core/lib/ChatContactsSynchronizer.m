@@ -10,7 +10,7 @@
 #import "ChatUser.h"
 #import "ChatUtil.h"
 #import "ChatManager.h"
-#import "ContactsDB.h"
+#import "ChatContactsDB.h"
 @import Firebase;
 
 @interface ChatContactsSynchronizer () {
@@ -163,7 +163,7 @@
 }
 
 -(NSInteger)lastQueryTime {
-    ChatUser *most_recent = [[ContactsDB getSharedInstance] getMostRecentContact];
+    ChatUser *most_recent = [[ChatContactsDB getSharedInstance] getMostRecentContact];
     if (most_recent) {
         NSInteger lasttime = most_recent.createdon * 1000; // objc return time in seconds, firebase saves time in milliseconds. queryStartingAtValue: will respond to events at nodes with a value greater than or equal to startValue. So seconds is always < then milliseconds. Multplying by 1000 translates seconds in millis and so the query is ok.
         return lasttime;
@@ -216,7 +216,7 @@ static NSString *FIRST_SYNCHRO_KEY = @"first-contacts-synchro";
     for (NSString* key in contacts_dict) {
         ChatUser *user = [ChatContactsSynchronizer contactFromDictionaryFactory:contacts_dict[key]];
 //        NSLog(@"name: %@, id: %@", user.lastname, user.userId);
-        [[ContactsDB getSharedInstance] insertContact:user];
+        [[ChatContactsDB getSharedInstance] insertContact:user];
     }
     [self setFirstSynchroOver:YES];
     callback();
@@ -225,7 +225,7 @@ static NSString *FIRST_SYNCHRO_KEY = @"first-contacts-synchro";
 -(void)insertOrUpdateContactOnDB:(ChatUser *)user {
 //    NSLog(@"INSERTING OR UPDATING CONTACT WITH NAME: %@ (%@ %@)", user.userId, user.firstname, user.lastname);
     __block ChatUser *_user = user;
-    [[ContactsDB getSharedInstance] insertOrUpdateContactSyncronized:_user completion:^{
+    [[ChatContactsDB getSharedInstance] insertOrUpdateContactSyncronized:_user completion:^{
         self.synchronizing ? NSLog(@"SYNCHRONIZING") : NSLog(@"NO-SYNCHRONIZING");
         _user = nil;
         [self startSynchTimer];
@@ -234,7 +234,7 @@ static NSString *FIRST_SYNCHRO_KEY = @"first-contacts-synchro";
 
 -(void)removeContactOnDB:(ChatUser *)user {
     NSLog(@"REMOVING CONTACT: %@ (%@ %@)", user.userId, user.firstname, user.lastname);
-    [[ContactsDB getSharedInstance] removeContactSynchronized:user.userId];
+    [[ChatContactsDB getSharedInstance] removeContactSynchronized:user.userId];
 }
 
 -(void)dispose {

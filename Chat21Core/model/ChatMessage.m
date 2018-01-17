@@ -45,11 +45,12 @@
 +(ChatMessage *)messageFromSnapshotFactory:(FIRDataSnapshot *)snapshot {
     NSString *conversationId = snapshot.value[MSG_FIELD_CONVERSATION_ID];
     NSString *type = snapshot.value[MSG_FIELD_TYPE];
+    NSString *channel_type = snapshot.value[MSG_FIELD_CHANNEL_TYPE];
     NSString *text = snapshot.value[MSG_FIELD_TEXT];
     NSString *sender = snapshot.value[MSG_FIELD_SENDER];
     NSString *senderFullname = snapshot.value[MSG_FIELD_SENDER_FULLNAME];
     NSString *recipient = snapshot.value[MSG_FIELD_RECIPIENT];
-    NSString *recipientGroupId = snapshot.value[MSG_FIELD_RECIPIENT_GROUP_ID];
+//    NSString *recipientGroupId = snapshot.value[MSG_FIELD_RECIPIENT_GROUP_ID];
     NSString *lang = snapshot.value[MSG_FIELD_LANG];
     NSNumber *timestamp = snapshot.value[MSG_FIELD_TIMESTAMP];
     NSMutableDictionary *attributes = snapshot.value[MSG_FIELD_ATTRIBUTES];
@@ -67,6 +68,7 @@
     message.text = text;
     message.lang = lang;
     message.mtype = type;
+    message.channel_type = channel_type;
     NSLog(@"DECODED TYPE %@", message.mtype);
     message.sender = sender;
     message.senderFullname = senderFullname;
@@ -74,8 +76,12 @@
     NSLog(@"Message date %@", message.date);
     message.status = [(NSNumber *)snapshot.value[MSG_FIELD_STATUS] intValue];
     message.recipient = recipient;
-    message.recipientGroupId = recipientGroupId;
+//    message.recipientGroupId = recipientGroupId;
     return message;
+}
+
+-(BOOL)isDirect {
+    return [self.channel_type isEqualToString:MSG_CHANNEL_TYPE_DIRECT] ? YES : NO;
 }
 
 @end

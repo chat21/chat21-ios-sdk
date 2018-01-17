@@ -23,12 +23,12 @@
 @property (strong, nonatomic) ChatUser *user;
 @property (strong, nonatomic) NSString *recipientId;
 @property (strong, nonatomic) NSString *recipientFullname;
-@property (strong, nonatomic) NSString *groupName;
-@property (strong, nonatomic) NSString *groupId;
+//@property (strong, nonatomic) NSString *groupName;
+//@property (strong, nonatomic) NSString *groupId;
 
 @property (strong, nonatomic) NSString *senderId;
 
-@property (strong, nonatomic) NSString *conversationId; // Intelocutor-id
+@property (strong, nonatomic) NSString *conversationId;
 @property (strong, nonatomic) NSMutableArray<ChatMessage *> *messages;
 @property (strong, nonatomic) NSString *firebaseToken;
 @property (strong, nonatomic) FIRDatabaseReference *messagesRef;
@@ -37,6 +37,7 @@
 @property (assign, nonatomic) FIRDatabaseHandle messages_ref_handle;
 @property (assign, nonatomic) FIRDatabaseHandle updated_messages_ref_handle;
 @property (strong, nonatomic) FirebaseCustomAuthHelper *authHelper;
+@property (strong, nonatomic) NSString *channel_type;
 //@property (assign, nonatomic) id <SHPChatDelegate> delegateView;
 
 // subscribers
@@ -54,7 +55,7 @@
 @property (assign, nonatomic) double lastSentReadNotificationTime;
 
 -(id)initWithRecipient:(NSString *)recipientId recipientFullName:(NSString *)recipientFullName;
--(id)initWithGroupId:(NSString *)groupId;
+-(id)initWithGroupId:(NSString *)groupId groupName:(NSString *)groupName;
 -(void)connect;
 -(void)dispose;
 - (void)sendMessage:(NSString *)text;

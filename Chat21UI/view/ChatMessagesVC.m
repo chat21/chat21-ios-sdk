@@ -16,7 +16,7 @@
 #import "ChatConversationHandler.h"
 #import "ChatConversationsVC.h"
 #import "ChatStringUtil.h"
-#import "GroupInfoVC.h"
+#import "ChatGroupInfoVC.h"
 #import "QBPopupMenu.h"
 #import "QBPopupMenuItem.h"
 #import "ChatTitleVC.h"
@@ -29,6 +29,7 @@
 #import "ChatUIManager.h"
 #import "ChatConnectionStatusHandler.h"
 #import "ChatPresenceHandler.h"
+#import "ChatContactsDB.h"
 
 @interface ChatMessagesVC (){
     SystemSoundID soundID;
@@ -59,19 +60,18 @@
     self.bottomReached = YES;
     
     [self setupLabels];
-    //    [self initImageCache];
     [self buildUnreadBadge];
     
     //    self.group.name = nil; // TEST DOWNLOAD GRUPPO METADATI PARZIALI
     if (self.recipient) { // online status only in DM mode
         [self setupForDirectMessageMode];
     }
-    else if (self.group && !self.group.completeData) {
-        // group's metadata not available, downloading
-        // the conversationHandler object needs all group's metadata (members)
-        // so it can't be initialized without completing group's info
-        [self loadGroupInfo];
-    }
+//    else if (self.group && !self.group.completeData) {
+//        // group's metadata not available, downloading
+//        // the conversationHandler object needs all group's metadata (members)
+//        // so it can't be initialized without completing group's info
+//        [self loadGroupInfo];
+//    }
     else if (self.group) { // all group metadata ok
         [self setupForGroupMode];
     }
@@ -114,33 +114,38 @@
     }
     //    [self.usernameButton setTitle:self.group.name forState:UIControlStateNormal];
     [self setTitle:self.group.name];
-    [self setSubTitle:[ChatUtil groupMembersAsStringForUI:self.group.members]];
-}
-
--(void)loadGroupInfo {
-    self.usernameButton.hidden = YES;
-    self.activityIndicator.hidden = NO;
-    [self.activityIndicator startAnimating];
-    [self setSubTitle:@""];
-    //    self.statusLabel.text = @"";
-    ChatManager *chatm = [ChatManager getInstance];
-    NSString *group_id = self.group.groupId;
-    __weak ChatMessagesVC *weakSelf = self;
-    [chatm loadGroup:group_id completion:^(ChatGroup *group, BOOL error) {
-        NSLog(@"Group %@ info loaded", group.name);
-        weakSelf.usernameButton.hidden = NO;
-        weakSelf.activityIndicator.hidden = YES;
-        [weakSelf.activityIndicator stopAnimating];
-        if (error) {
-            [weakSelf setSubTitle:@"Errore gruppo"];
-            //            weakSelf.statusLabel.text = @"Errore gruppo";
-        }
-        else {
-            weakSelf.group = group;
-            [weakSelf setupForGroupMode];
-        }
+    ChatContactsDB *db = [ChatContactsDB getSharedInstance];
+    NSArray<NSString *> *contact_ids = [self.group.members allKeys];
+    [db getMultipleContactsByIdsSyncronized:contact_ids completion:^(NSArray<ChatUser *> *contacts) {
+        self.group.membersFull = contacts;
+        [self setSubTitle:[ChatUtil groupMembersFullnamesAsStringForUI:contacts]];
     }];
 }
+
+//-(void)loadGroupInfo {
+//    self.usernameButton.hidden = YES;
+//    self.activityIndicator.hidden = NO;
+//    [self.activityIndicator startAnimating];
+//    [self setSubTitle:@""];
+//    //    self.statusLabel.text = @"";
+//    ChatManager *chatm = [ChatManager getInstance];
+//    NSString *group_id = self.group.groupId;
+//    __weak ChatMessagesVC *weakSelf = self;
+//    [chatm loadGroup:group_id completion:^(ChatGroup *group, BOOL error) {
+//        NSLog(@"Group %@ info loaded", group.name);
+//        weakSelf.usernameButton.hidden = NO;
+//        weakSelf.activityIndicator.hidden = YES;
+//        [weakSelf.activityIndicator stopAnimating];
+//        if (error) {
+//            [weakSelf setSubTitle:@"Errore gruppo"];
+//            //            weakSelf.statusLabel.text = @"Errore gruppo";
+//        }
+//        else {
+//            weakSelf.group = group;
+//            [weakSelf setupForGroupMode];
+//        }
+//    }];
+//}
 
 //-(void)loadGroupInfo:(ChatGroup *)group completion:(void (^)(BOOL error))callback {
 //    FIRDatabaseReference *rootRef = [[FIRDatabase database] reference];
@@ -892,33 +897,33 @@
     [self.conversationHandler sendMessageWithText:text type:MSG_TYPE_DROPBOX attributes:attributes];
 }
 
--(void)sendAlfrescoMessage:(NSString *)name link:(NSString *)link {
-    
-    // check: if in a group, are you still a member?
-    if (self.group) {
-        if ([self.group isMember:self.me.userId]) {
-        } else {
-            [self hideBottomView:YES];
-            [self.messageTextField resignFirstResponder];
-            return;
-        }
-    }
-    
-    NSMutableDictionary *attributes = [[NSMutableDictionary alloc] init];
-    NSLog(@"alfresco.link: %@", link);
-    
-    [attributes setValue:link forKey:@"link"];
-    [attributes setValue:name forKey:@"name"];
-    
-    //    NSString *text = [NSString stringWithFormat:@"%@ %@", name, link];
-    NSString *text = link;
-    [self.conversationHandler sendMessageWithText:text type:MSG_TYPE_ALFRESCO attributes:attributes];
-}
+//-(void)sendAlfrescoMessage:(NSString *)name link:(NSString *)link {
+//
+//    // check: if in a group, are you still a member?
+//    if (self.group) {
+//        if ([self.group isMember:self.me.userId]) {
+//        } else {
+//            [self hideBottomView:YES];
+//            [self.messageTextField resignFirstResponder];
+//            return;
+//        }
+//    }
+//
+//    NSMutableDictionary *attributes = [[NSMutableDictionary alloc] init];
+//    NSLog(@"alfresco.link: %@", link);
+//
+//    [attributes setValue:link forKey:@"link"];
+//    [attributes setValue:name forKey:@"name"];
+//
+//    //    NSString *text = [NSString stringWithFormat:@"%@ %@", name, link];
+//    NSString *text = link;
+//    [self.conversationHandler sendMessageWithText:text type:MSG_TYPE_ALFRESCO attributes:attributes];
+//}
 
-- (IBAction)prindb:(id)sender {
-    NSLog(@"Printing messages...");
-    //    [self printDBMessages];
-}
+//- (IBAction)prindb:(id)sender {
+//    NSLog(@"Printing messages...");
+//    //    [self printDBMessages];
+//}
 
 //-(void)printDBMessages {
 //    NSLog(@"--- all messages for conv %@", self.conversationId);
@@ -1057,10 +1062,10 @@
 // In a storyboard-based application, you will often want to do a little preparation before navigation
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
     if ([[segue identifier] isEqualToString:@"GroupInfo"]) {
-        GroupInfoVC *vc = (GroupInfoVC *)[segue destinationViewController];
+        ChatGroupInfoVC *vc = (ChatGroupInfoVC *)[segue destinationViewController];
         NSLog(@"vc %@", vc);
         //        vc.applicationContext = self.applicationContext;
-        vc.groupId = self.group.groupId;
+        vc.group = self.group;
     }
 }
 

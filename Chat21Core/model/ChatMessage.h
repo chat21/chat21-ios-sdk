@@ -19,6 +19,9 @@ static int const MSG_STATUS_SEEN = 300;
 // firebase fields
 static NSString* const MSG_FIELD_CONVERSATION_ID = @"conversationId";
 static NSString* const MSG_FIELD_TYPE = @"type";
+static NSString* const MSG_FIELD_CHANNEL_TYPE = @"channel_type";
+static NSString* const MSG_CHANNEL_TYPE_DIRECT = @"direct";
+static NSString* const MSG_CHANNEL_TYPE_GROUP = @"group";
 static NSString* const MSG_FIELD_TEXT = @"text";
 static NSString* const MSG_FIELD_SENDER = @"sender";
 static NSString* const MSG_FIELD_SENDER_FULLNAME = @"sender_fullname";
@@ -53,7 +56,8 @@ static NSString* const MSG_DROPBOX_ICONURL = @"dropbox_iconURL";
 @property (nonatomic, strong) NSString *senderFullname; // firebase
 @property (nonatomic, strong) NSString *recipient; // firebase
 @property (nonatomic, strong) NSString *recipientFullName; // firebase
-@property (nonatomic, strong) NSString *recipientGroupId; // firebase
+//@property (nonatomic, strong) NSString *recipientGroupId; // firebase
+@property (nonatomic, strong) NSString *channel_type; // firebase
 @property (nonatomic, strong) NSString *conversationId;
 @property (nonatomic, strong) NSString *lang;
 @property (nonatomic, strong) NSDate *date; // firebase (converted to timestamp)
@@ -61,6 +65,8 @@ static NSString* const MSG_DROPBOX_ICONURL = @"dropbox_iconURL";
 @property (nonatomic, assign) int status; // firebase
 @property (nonatomic, strong) NSString *mtype; // firebase
 @property (nonatomic, strong) NSDictionary *attributes; // firebase
+
+@property (nonatomic, assign) BOOL isDirect;
 
 -(NSString *)dateFormattedForListView;
 -(void)updateStatusOnFirebase:(int)status;

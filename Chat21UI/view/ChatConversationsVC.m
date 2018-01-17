@@ -4,7 +4,6 @@
 //
 //  Created by Andrea Sponziello on 07/11/14.
 //
-//
 
 #import "ChatConversationsVC.h"
 #import "ChatConversation.h"
@@ -29,6 +28,7 @@
 //#import "HelpFacade.h"
 #import "ChatConnectionStatusHandler.h"
 #import "ChatUIManager.h"
+#import "ChatMessage.h"
 
 @interface ChatConversationsVC ()
 - (IBAction)writeToAction:(id)sender;
@@ -466,7 +466,7 @@
     // STUDIARE: since iOS 5, you can do the move like so:
     // [tableView moveRowAtIndexPath:indexPathOfRowToMove toIndexPath:indexPathOfTopRow];
     
-    NSLog(@"New conversation received %@ by %@ (sender: %@)", conversation.last_message_text, conversation.conversWith_fullname, conversation.sender);
+//    NSLog(@"New conversation received %@ by %@ (sender: %@)", conversation.last_message_text, conversation.conversWith_fullname, conversation.sender);
     [self showNotificationWindow:conversation];
     [self.tableView reloadData];
 //    [self printAllConversations];
@@ -484,38 +484,13 @@
     });
 }
 
-//-(void)printAllConversations {
-//    NSLog(@"====== CONVERSATIONS DUMP ======");
-//    NSMutableArray *conversations = [[[ChatDB getSharedInstance] getAllConversations] mutableCopy];
-//    for (ChatConversation *c in conversations) {
-//        NSLog(@"user: %@ id:%@ converswith:%@ sender:%@ recipient:%@",c.user, c.conversationId, c.conversWith, c.sender, c.recipient);
-//    }
-//    NSLog(@"====== END.");
-//    
-//    NSLog(@"-------- CONVERSATIONS DUMP 2 --------");
-//    NSMutableArray *_conversations = self.conversationsHandler.conversations;
-//    for (ChatConversation *c in _conversations) {
-//        NSLog(@"user: %@ id:%@ converswith:%@ sender:%@ recipient:%@",c.user, c.conversationId, c.conversWith, c.sender, c.recipient);
-//    }
-//    NSLog(@"-------- END.");
-//    
-//    NSLog(@"########## CONVERSATIONS DUMP 2 ##########");
-//    
-//    NSMutableArray *__conversations = [[[ChatDB getSharedInstance] getAllConversationsForUser:self.me] mutableCopy];
-//    for (ChatConversation *c in __conversations) {
-//        NSLog(@"user: %@ id:%@ converswith:%@ sender:%@ recipient:%@",c.user, c.conversationId, c.conversWith, c.sender, c.recipient);
-//    }
-//    NSLog(@"########## END.");
-//    
-//}
-
 -(void)showNotificationWindow:(ChatConversation *)conversation {
     NSString *currentConversationId = self.conversationsHandler.currentOpenConversationId;
-    NSLog(@"conversation.is_new: %d", conversation.is_new);
-    NSLog(@"!self.view.window: %d", !self.view.window);
-    NSLog(@"conversation.conversationId: %@", conversation.conversationId);
-    NSLog(@"currentConversationId: %@", currentConversationId);
-    NSLog(@"conversation.is_new && !self.view.window && conversation.conversationId != currentConversationId");
+//    NSLog(@"conversation.is_new: %d", conversation.is_new);
+//    NSLog(@"!self.view.window: %d", !self.view.window);
+//    NSLog(@"conversation.conversationId: %@", conversation.conversationId);
+//    NSLog(@"currentConversationId: %@", currentConversationId);
+//    NSLog(@"conversation.is_new && !self.view.window && conversation.conversationId != currentConversationId");
     if ( conversation.is_new
          && !self.view.window // conversationsview hidden
          && conversation.conversationId != currentConversationId ) {
@@ -661,12 +636,13 @@
     NSArray *conversations = self.conversationsHandler.conversations;
     ChatConversation *selectedConversation = (ChatConversation *)[conversations objectAtIndex:indexPath.row];
     self.selectedConversationId = selectedConversation.conversationId;
-    if (selectedConversation.groupId) {
-        self.selectedGroupId = selectedConversation.groupId;
-    }
-    else {
+    if (selectedConversation.isDirect) {
         self.selectedRecipientId = selectedConversation.conversWith;
         self.selectedRecipientFullname = selectedConversation.conversWith_fullname;
+    }
+    else {
+        self.selectedGroupId = selectedConversation.recipient;
+        self.selectedGroupName = selectedConversation.recipientFullname;
     }
     if (selectedConversation.status == CONV_STATUS_FAILED) {
         // TODO
@@ -674,9 +650,9 @@
         return;
     }
     
-    ChatManager *chat = [ChatManager getInstance];
     selectedConversation.is_new = NO;
-    [chat updateConversationIsNew:selectedConversation.ref is_new:selectedConversation.is_new];
+    ChatManager *chatm = [ChatManager getInstance];
+    [chatm updateConversationIsNew:selectedConversation.ref is_new:selectedConversation.is_new];
     
     
     [self performSegueWithIdentifier:@"CHAT_SEGUE" sender:self];
@@ -688,8 +664,6 @@
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
     if ([[segue identifier] isEqualToString:@"CHAT_SEGUE"]) {
         NSLog(@"Preparing chat_segue...");
-        
-//        MessagesViewController *vc = (MessagesViewController *)[segue destinationViewController];
         ChatMessagesVC *vc = (ChatMessagesVC *)[segue destinationViewController];
         
         NSLog(@"vc %@", vc);
@@ -697,9 +671,6 @@
         self.conversationsHandler.currentOpenConversationId = self.selectedConversationId;
         NSLog(@"self.selectedConversationId = %@", self.selectedConversationId);
         NSLog(@"self.conversationsHandler.currentOpenConversationId = %@", self.selectedConversationId);
-//        vc.conversationsVC = self;
-        
-//        vc.conversationId = self.selectedConversationId;
         NSLog(@"self.selectedRecipient: %@", self.selectedRecipientId);
         if (self.selectedRecipientId) {
             ChatUser *recipient = [[ChatUser alloc] init:self.selectedRecipientId fullname:self.selectedRecipientFullname];
@@ -714,7 +685,8 @@
             if (!vc.group) {
                 NSLog(@"INFO X GRUPPO %@ NON TROVATE. PROBABILMENTE GRUPPI NON ANCORA SINCRONIZZATI. CARICO INFO GRUPPO DIRETTAMENTE DA VISTA MESSAGGI (CON ID GRUPPO)", self.selectedGroupId);
                 ChatGroup *emptyGroup = [[ChatGroup alloc] init];
-                emptyGroup.name = nil; // signals no group metadata
+                emptyGroup.name = self.selectedGroupName;
+                emptyGroup.members = nil; // signals no group metadata
                 emptyGroup.groupId = self.selectedGroupId;
                 vc.group = emptyGroup;
             }
@@ -724,16 +696,16 @@
         vc.attributesToSendAsChatOpens = self.selectedRecipientAttributesToSend;
         [self resetSelectedConversationStatus];
     }
-    else if ([[segue identifier] isEqualToString:@"SelectUser"]) {
-        UINavigationController *navigationController = [segue destinationViewController];
-        ChatSelectUserLocalVC *vc = (ChatSelectUserLocalVC *)[[navigationController viewControllers] objectAtIndex:0];
-        vc.modalCallerDelegate = self;
-    }
+//    else if ([[segue identifier] isEqualToString:@"SelectUser"]) {
+//        UINavigationController *navigationController = [segue destinationViewController];
+//        ChatSelectUserLocalVC *vc = (ChatSelectUserLocalVC *)[[navigationController viewControllers] objectAtIndex:0];
+//        vc.modalCallerDelegate = self;
+//    }
 //    else if ([[segue identifier] isEqualToString:@"CreateGroup"]) {
 //        NSLog(@"CreateGroup");
-//        NSString *newGroupId = [[ChatManager getInstance] newGroupId];
-//        [self.applicationContext setVariable:@"newGroupId" withValue:newGroupId];
-//        NSLog(@"Creating group with ID: %@", newGroupId);
+////        NSString *newGroupId = [[ChatManager getInstance] newGroupId];
+////        [self.applicationContext setVariable:@"newGroupId" withValue:newGroupId];
+////        NSLog(@"Creating group with ID: %@", newGroupId);
 //        UINavigationController *navigationController = [segue destinationViewController];
 //        SHPChatCreateGroupVC *vc = (SHPChatCreateGroupVC *)[[navigationController viewControllers] objectAtIndex:0];
 //        vc.modalCallerDelegate = self;
@@ -741,7 +713,6 @@
 //    else if ([[segue identifier] isEqualToString:@"ChooseGroup"]) {
 //        UINavigationController *navigationController = [segue destinationViewController];
 //        ChatSelectGroupLocalTVC *vc = (ChatSelectGroupLocalTVC *)[[navigationController viewControllers] objectAtIndex:0];
-//        vc.applicationContext = self.applicationContext;
 //        vc.modalCallerDelegate = self;
 //    }
 }
@@ -750,22 +721,21 @@
     [self openConversationWithUser:user orGroup:nil sendMessage:nil attributes:nil];
 }
 
--(void)openConversationWithUser:(ChatUser *)user orGroup:(NSString *)groupid sendMessage:(NSString *)text attributes:(NSDictionary *)attributes {
-    NSLog(@"Opening conversation with recipient: %@ or group: %@", user.userId, groupid);
+-(void)openConversationWithUser:(ChatUser *)user orGroup:(ChatGroup *)group sendMessage:(NSString *)text attributes:(NSDictionary *)attributes {
+    NSLog(@"Opening conversation with recipient: %@ or group: %@", user.userId, group.groupId);
     [self loadViewIfNeeded];
     [self.navigationController popToRootViewControllerAnimated:NO];
     self.selectedRecipientTextToSend = text;
     if (user) {
         self.selectedRecipientId = user.userId;
         self.selectedRecipientFullname = user.fullname;
-//        ChatUser *loggedUser = [ChatManager getInstance].loggedUser;
-        self.selectedConversationId = user.userId; //[ChatUtil conversationIdWithSender:loggedUser.userId receiver:user.userId];
-        NSLog(@"Auto Generated Conversation ID: %@", self.selectedConversationId);
+        self.selectedConversationId = user.userId;
         self.selectedRecipientAttributesToSend = attributes;
     }
     else {
-        self.selectedGroupId = groupid;
-        self.selectedConversationId = groupid; //[ChatUtil conversationIdForGroup:groupid];
+        self.selectedGroupId = group.groupId;
+        self.selectedGroupName = group.name;
+        self.selectedConversationId = group.groupId;
     }
     [self performSegueWithIdentifier:@"CHAT_SEGUE" sender:self];
 }
@@ -790,12 +760,31 @@
 
 - (IBAction)newGroupAction:(id)sender {
     NSLog(@"New Group Action");
-    [self performSegueWithIdentifier:@"CreateGroup" sender:self];
+    [[ChatUIManager getInstance] openCreateGroupViewAsModal:self withCompletionBlock:^(ChatGroup *group, BOOL canceled) {
+        if (canceled) {
+            NSLog(@"Create group canceled");
+        }
+        else {
+            NSLog(@"Group created. Opening conversation...");
+            [self openConversationWithUser:nil orGroup:group sendMessage:nil attributes:nil];
+        }
+    }];
 }
 
 - (IBAction)groupsAction:(id)sender {
 //    [self printDBGroups];
 //    [self performSegueWithIdentifier:@"ChooseGroup" sender:self];
+    [[ChatUIManager getInstance] openSelectGroupViewAsModal:self withCompletionBlock:^(ChatGroup *group, BOOL canceled) {
+        if (canceled) {
+            NSLog(@"Select group canceled.");
+        }
+        else {
+            if (group) {
+                self.selectedGroupId = group.groupId;
+                [self openConversationWithUser:nil orGroup:group sendMessage:nil attributes:nil];
+            }
+        }
+    }];
 }
 
 // images
@@ -944,8 +933,8 @@
 //    }
 //}
 
-- (void)setupViewController:(UIViewController *)controller didFinishSetupWithInfo:(NSDictionary *)setupInfo {
-    NSLog(@"setupViewController...");
+//- (void)setupViewController:(UIViewController *)controller didFinishSetupWithInfo:(NSDictionary *)setupInfo {
+//    NSLog(@"setupViewController...");
 //    if([controller isKindOfClass:[ChatSelectUserLocalVC class]])
 //    {
 //        ChatUser *user = nil;
@@ -960,56 +949,57 @@
 //            }
 //        }];
 //    }
-    if([controller isKindOfClass:[ChatSelectGroupLocalTVC class]])
-    {
-        ChatGroup *group = nil;
-        if ([setupInfo objectForKey:@"group"]) {
-            group = [setupInfo objectForKey:@"group"];
-            NSLog(@">>>>>> SELECTED: group %@", group.groupId);
-        }
-        [self dismissViewControllerAnimated:YES completion:^{
-            if (group) {
-                self.selectedGroupId = group.groupId;
-                [self openConversationWithUser:nil orGroup:group.groupId sendMessage:nil attributes:nil];
-            }
-        }];
-    }
-    else if([controller isKindOfClass:[ChatSelectGroupMembersLocal class]])
-    {
-        [self dismissViewControllerAnimated:YES completion:nil];
-        NSMutableArray<ChatUser *> *groupMembers = (NSMutableArray<ChatUser *> *)[setupInfo objectForKey:@"groupMembers"];
-        NSMutableArray *membersIDs = [[NSMutableArray alloc] init];
-        for (ChatUser *u in groupMembers) {
-            [membersIDs addObject:u.userId];
-        }
-        // adding group's owner to members
-        [membersIDs addObject:self.me.userId];
-        NSString *groupId = (NSString *)[setupInfo objectForKey:@"newGroupId"];
-        NSLog(@"New Group ID: %@", groupId);
-        NSString *groupName = (NSString *)[setupInfo objectForKey:@"groupName"];
-        NSLog(@"New Group Name: %@", groupName);
-        ChatManager *chat = [ChatManager getInstance];
-        [chat createGroup:groupId name:groupName owner:self.me.userId members:membersIDs];
-    }
-}
+//    if([controller isKindOfClass:[ChatSelectGroupLocalTVC class]])
+//    {
+//        ChatGroup *group = nil;
+//        if ([setupInfo objectForKey:@"group"]) {
+//            group = [setupInfo objectForKey:@"group"];
+//            NSLog(@">>>>>> SELECTED: group %@", group.groupId);
+//        }
+//        [self dismissViewControllerAnimated:YES completion:^{
+//            if (group) {
+//                self.selectedGroupId = group.groupId;
+//                [self openConversationWithUser:nil orGroup:group.groupId sendMessage:nil attributes:nil];
+//            }
+//        }];
+//    }
+//    else if([controller isKindOfClass:[ChatSelectGroupMembersLocal class]])
+//    {
+//        [self dismissViewControllerAnimated:YES completion:nil];
+//        NSMutableArray<ChatUser *> *groupMembers = (NSMutableArray<ChatUser *> *)[setupInfo objectForKey:@"groupMembers"];
+//        NSMutableArray *membersIDs = [[NSMutableArray alloc] init];
+//        for (ChatUser *u in groupMembers) {
+//            [membersIDs addObject:u.userId];
+//        }
+//        // adding group's owner to members
+//        [membersIDs addObject:self.me.userId];
+//        NSString *groupId = (NSString *)[setupInfo objectForKey:@"newGroupId"];
+//        NSLog(@"New Group ID: %@", groupId);
+//        NSString *groupName = (NSString *)[setupInfo objectForKey:@"groupName"];
+//        NSLog(@"New Group Name: %@", groupName);
+//        ChatManager *chat = [ChatManager getInstance];
+//        [chat createGroup:groupId name:groupName owner:self.me.userId members:membersIDs];
+//    }
+//}
 
-- (void)setupViewController:(UIViewController *)controller didCancelSetupWithInfo:(NSDictionary *)setupInfo {
-    if([controller isKindOfClass:[ChatSelectUserLocalVC class]])
-    {
-        NSLog(@"User selection Canceled.");
-        [self dismissViewControllerAnimated:YES completion:nil];
-    }
+//- (void)setupViewController:(UIViewController *)controller didCancelSetupWithInfo:(NSDictionary *)setupInfo {
+//    if([controller isKindOfClass:[ChatSelectUserLocalVC class]])
+//    {
+//        NSLog(@"User selection Canceled.");
+//        [self dismissViewControllerAnimated:YES completion:nil];
+//    }
 //    else if([controller isKindOfClass:[SHPChatCreateGroupVC class]])
 //    {
 //        NSLog(@"Group creation canceled.");
 //        [self dismissViewControllerAnimated:YES completion:nil];
 //    }
-    else if([controller isKindOfClass:[ChatSelectGroupLocalTVC class]])
-    {
-        NSLog(@"Group selection canceled.");
-        [self dismissViewControllerAnimated:YES completion:nil];
-    }
-}
+//    else
+//    if([controller isKindOfClass:[ChatSelectGroupLocalTVC class]])
+//    {
+//        NSLog(@"Group selection canceled.");
+//        [self dismissViewControllerAnimated:YES completion:nil];
+//    }
+//}
 
 - (IBAction)cancelAction:(id)sender {
     NSLog(@"Dismissing Conversations View.");

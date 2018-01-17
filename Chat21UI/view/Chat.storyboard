@@ -161,7 +161,7 @@
         <!--Navigation Controller-->
         <scene sceneID="UMO-qt-ZTs">
             <objects>
-                <navigationController id="YRA-7f-UEv" sceneMemberID="viewController">
+                <navigationController storyboardIdentifier="CreateGroupNavController" id="YRA-7f-UEv" sceneMemberID="viewController">
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="tav-WO-9re">
                         <rect key="frame" x="0.0" y="20" width="375" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
@@ -526,7 +526,7 @@
         <!--Nuovo Gruppo-->
         <scene sceneID="QIY-04-Nkb">
             <objects>
-                <viewController title="Nuovo Gruppo" id="R1p-8Q-0D5" customClass="SHPChatCreateGroupVC" sceneMemberID="viewController">
+                <viewController title="Nuovo Gruppo" id="R1p-8Q-0D5" customClass="ChatCreateGroupVC" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="AZu-Ug-cci">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -794,7 +794,7 @@
         <!--Info gruppo-->
         <scene sceneID="102-rg-dg6">
             <objects>
-                <tableViewController title="Info gruppo" id="AwH-i1-wi5" customClass="GroupInfoVC" sceneMemberID="viewController">
+                <tableViewController title="Info gruppo" id="AwH-i1-wi5" customClass="ChatGroupInfoVC" sceneMemberID="viewController">
                     <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="static" style="plain" separatorStyle="none" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" id="yhe-gW-eVP">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -997,10 +997,10 @@
             </objects>
             <point key="canvasLocation" x="-9864" y="1078"/>
         </scene>
-        <!--Group MembersVC-->
+        <!--Chat Group MembersVC-->
         <scene sceneID="CyY-G4-pwM">
             <objects>
-                <tableViewController id="Pnw-n7-YYL" customClass="GroupMembersVC" sceneMemberID="viewController">
+                <tableViewController id="Pnw-n7-YYL" customClass="ChatGroupMembersVC" sceneMemberID="viewController">
                     <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" id="IGl-lA-CF5">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -1065,7 +1065,7 @@
         <!--Navigation Controller-->
         <scene sceneID="zB9-p4-jel">
             <objects>
-                <navigationController id="tP0-4h-8Pm" sceneMemberID="viewController">
+                <navigationController storyboardIdentifier="SelectGroupNavController" id="tP0-4h-8Pm" sceneMemberID="viewController">
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="vM9-59-P62">
                         <rect key="frame" x="0.0" y="20" width="375" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>

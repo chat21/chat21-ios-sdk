@@ -21,7 +21,7 @@
 +(UITableViewCell *)configureConversationCell:(ChatConversation *)conversation tableView:(UITableView *)tableView indexPath:(NSIndexPath *)indexPath conversationsVC:(ChatConversationsVC *)vc {
     //    NSLog(@"CNF CELL groupname: %@, groupId: %@, text: %@", conversation.groupName, conversation.groupId, conversation.last_message_text);
     UITableViewCell *cell;
-    if (conversation.groupId) {
+    if (!conversation.isDirect) {
         cell = [CellConfigurator configureGroupConversationCell:conversation tableView:tableView indexPath:indexPath conversationsVC:vc];
     } else {
         cell = [CellConfigurator configureDirectConversationCell:conversation tableView:tableView indexPath:indexPath conversationsVC:vc];
@@ -33,7 +33,7 @@
     
     //    NSLog(@"Configuring group cell.");
     
-    ChatGroup *group = [[ChatManager getInstance] groupById:conversation.groupId];
+    ChatGroup *group = [[ChatManager getInstance] groupById:conversation.recipient];
     
     NSString *me = [ChatManager getInstance].loggedUser.userId;
     static NSString *conversationCellName = @"conversationGroupCell";
@@ -48,10 +48,8 @@
     
     // SUBJECT LABEL
     
-    NSString *groupName = conversation.groupName; // this is sometimes blank if got from the group object
+    NSString *groupName = conversation.recipientFullname;
     subject_label.text = groupName;
-    //    NSLog(@"subject_label %@/ convid:", subject_label.text);
-    
     
     if (conversation.status == CONV_STATUS_FAILED) {
         message_label.hidden = NO;

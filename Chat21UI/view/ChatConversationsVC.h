@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 #import "ChatPresenceHandler.h"
-#import "ChatModalCallerDelegate.h"
+//#import "ChatModalCallerDelegate.h"
 #import "ChatUser.h"
 
 @import FirebaseDatabase;
@@ -19,8 +19,9 @@
 @class ChatPresenceHandler;
 @class SHPUserDC;
 @class ChatContactsSynchronizer;
+@class ChatGroup;
 
-@interface ChatConversationsVC : UITableViewController <ChatPresenceViewDelegate, UIActionSheetDelegate, ChatModalCallerDelegate>
+@interface ChatConversationsVC : UITableViewController <ChatPresenceViewDelegate, UIActionSheetDelegate>
 - (IBAction)newGroupAction:(id)sender;
 - (IBAction)groupsAction:(id)sender;
 
@@ -31,6 +32,7 @@
 @property (strong, nonatomic) NSDictionary *selectedRecipientAttributesToSend;
 @property (assign, nonatomic) BOOL groupsMode;
 @property (strong, nonatomic) NSString *selectedGroupId;
+@property (strong, nonatomic) NSString *selectedGroupName;
 @property (strong, nonatomic) ChatUser *me;
 @property (strong, nonatomic) NSIndexPath *removingConversationAtIndexPath;
 @property (strong, nonatomic) UIBarButtonItem *backButton;
@@ -73,7 +75,7 @@
 - (IBAction)unwindToConversationsView:(UIStoryboardSegue*)sender;
 
 -(void)openConversationWithUser:(ChatUser *)user;
--(void)openConversationWithUser:(ChatUser *)user orGroup:(NSString *)groupid sendMessage:(NSString *)text attributes:(NSDictionary *)attributes;
+-(void)openConversationWithUser:(ChatUser *)user orGroup:(ChatGroup *)group sendMessage:(NSString *)text attributes:(NSDictionary *)attributes;
 
 -(void)setUIStatusDisconnected;
 -(void)setUIStatusConnected;

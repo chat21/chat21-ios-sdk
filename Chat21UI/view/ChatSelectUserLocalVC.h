@@ -7,7 +7,6 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "ChatModalCallerDelegate.h"
 #import "ChatSynchDelegate.h"
 
 @class ChatImageCache;
@@ -21,7 +20,6 @@
 @property (strong, nonatomic) NSMutableArray<ChatUser *> *recentUsers;
 @property (strong, nonatomic) NSMutableArray *allUsers;
 @property (nonatomic, retain) NSMutableDictionary *imageDownloadsInProgress;
-@property (strong, nonatomic) id <ChatModalCallerDelegate> modalCallerDelegate;
 @property (nonatomic, copy) void (^completionCallback)(ChatUser *contact, BOOL canceled);
 @property (weak, nonatomic) IBOutlet UITableView *tableView;
 @property (weak, nonatomic) IBOutlet UISearchBar *searchBar;

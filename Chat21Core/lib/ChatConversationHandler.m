@@ -28,6 +28,7 @@
 -(id)initWithRecipient:(NSString *)recipientId recipientFullName:(NSString *)recipientFullName {
     if (self = [super init]) {
         self.lastEventHandle = 1;
+        self.channel_type = MSG_CHANNEL_TYPE_DIRECT;
         self.recipientId = recipientId;
         self.recipientFullname = recipientFullName;
         self.user = [ChatManager getInstance].loggedUser;
@@ -38,13 +39,16 @@
     return self;
 }
 
--(id)initWithGroupId:(NSString *)groupId {
+-(id)initWithGroupId:(NSString *)groupId groupName:(NSString *)groupName {
     if (self = [super init]) {
         self.lastEventHandle = 1;
-        self.groupId = groupId;
+//        self.groupId = groupId;
+        self.channel_type = MSG_CHANNEL_TYPE_GROUP;
+        self.recipientId = groupId;
+        self.recipientFullname = groupName;
         self.user = [ChatManager getInstance].loggedUser;
         self.senderId = self.user.userId;
-        self.conversationId = groupId; //conversationId;
+        self.conversationId = groupId;
         self.messages = [[NSMutableArray alloc] init];
     }
     return self;
@@ -161,21 +165,21 @@
         NSLog(@"self.senderId: %@", self.senderId);
         if (message.status < MSG_STATUS_RECEIVED && ![message.sender isEqualToString:self.senderId]) { // CONTROLLO "message.status < MSG_STATUS_RECEIVED &&" IN MODO DA EVITARE IL COSTO DI RI-AGGIORNARE CONTINUAMENTE LO STATO DI MESSAGGI CHE HANNO GIA LO STATO RECEIVED (MAGARI E' LA SINCRONIZZAZIONE DI UN NUOVO DISPOSITIVO CHE NON DEVE PIU' COMUNICARE NULLA AL MITTENTE MA SOLO SCARICARE I MESSAGGI NELLO STATO IN CUI SI TROVANO).
             // NOT RECEIVED = NEW!
-            NSLog(@"NEW MESSAGE!!!!! %@ group %@", message.text, message.recipientGroupId);
-            if (!message.recipientGroupId) {
+//            NSLog(@"NEW MESSAGE!!!!! %@ group %@", message.text, message.recipientGroupId);
+//            if (!message.recipientGroupId) {
+            if (message.isDirect) {
                 [message updateStatusOnFirebase:MSG_STATUS_RECEIVED]; // firebase
             } else {
-                NSLog(@"No received status for group's messages");
+                // Implement received status for group's messages
             }
         }
         // updates or insert new messages
-        // Note: a last message is always resent. So this check to avoid this notified as new (...playing sound etc.)
+        // Note: we always got the last message sent. So this check is necessary to avoid this notified as new (...playing sound etc.)
         ChatMessage *message_archived = [[ChatDB getSharedInstance] getMessageById:message.messageId];
         if (!message_archived) {
             [self insertMessageInMemory:message]; // memory
-//            [self finishedReceivingMessage:message];
-            [self notifyEvent:ChatEventMessageAdded message:message];
             [self insertMessageOnDBIfNotExists:message];
+            [self notifyEvent:ChatEventMessageAdded message:message];
         }
     } withCancelBlock:^(NSError *error) {
         NSLog(@"%@", error.description);
@@ -264,12 +268,17 @@
     }
     message.mtype = type;
     message.attributes = attributes;
-    if (self.groupId) {
+//    if (self.groupId) {
+    if ([self.channel_type isEqualToString:MSG_CHANNEL_TYPE_GROUP]) {
         NSLog(@"SENDING MESSAGE IN GROUP MODE. User: %@", [FIRAuth auth].currentUser.uid);
-        message.recipientGroupId = self.groupId;
+//        message.recipientGroupId = self.groupId;
+        message.channel_type = MSG_CHANNEL_TYPE_GROUP;
+        message.recipient = self.recipientId;
+        message.recipientFullName = self.recipientFullname;
         [self sendMessageToGroup:message];
     } else {
         NSLog(@"SENDING MESSAGE DIRECT MODE. User: %@", [FIRAuth auth].currentUser.uid);
+        message.channel_type = MSG_CHANNEL_TYPE_DIRECT;
         message.recipient = self.recipientId;
         message.recipientFullName = self.recipientFullname;
         [self sendDirect:message];
@@ -392,6 +401,7 @@
     // always
 //    [message_dict setObject:message.conversationId forKey:MSG_FIELD_CONVERSATION_ID];
     [message_dict setObject:message.text forKey:MSG_FIELD_TEXT];
+    [message_dict setObject:message.channel_type forKey:MSG_FIELD_CHANNEL_TYPE];
 //    [message_dict setObject:[FIRServerValue timestamp] forKey:MSG_FIELD_TIMESTAMP];
 //    [message_dict setObject:[NSNumber numberWithInt:message.status] forKey:MSG_FIELD_STATUS];
     

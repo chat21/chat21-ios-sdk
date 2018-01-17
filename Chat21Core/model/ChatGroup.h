@@ -19,6 +19,7 @@ static NSString* const GROUP_ICON_ID = @"iconID";
 
 @class FDataSnapshot;
 @class HelloApplicationContext;
+@class ChatUser;
 
 @interface ChatGroup : NSObject
 
@@ -32,6 +33,7 @@ static NSString* const GROUP_ICON_ID = @"iconID";
 //@property (nonatomic, strong) NSString *iconID;
 @property (nonatomic, strong) NSDate *createdOn;
 @property (nonatomic, strong) NSMutableDictionary *members;
+@property (nonatomic, strong) NSArray<ChatUser *> *membersFull;
 @property (assign, nonatomic) BOOL completeData;
 
 -(NSString *)iconUrl;
@@ -44,6 +46,7 @@ static NSString* const GROUP_ICON_ID = @"iconID";
 +(NSMutableArray *)membersDictionary2Array:(NSDictionary *)membersDict;
 +(NSString *)membersDictionary2String:(NSDictionary *)membersDictionary;
 +(NSMutableDictionary *)membersString2Dictionary:(NSString *)membersString;
+-(NSString *)ownerFullname;
 
 
 @end

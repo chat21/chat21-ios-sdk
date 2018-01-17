@@ -20,6 +20,8 @@
 @property (strong, nonatomic) ChatUser *userSelected;
 @property (strong, nonatomic) NSArray<ChatUser *> *users;
 @property (strong, nonatomic) NSMutableArray<ChatUser *> *members;
+@property (strong, nonatomic) NSString *groupName;
+@property (nonatomic, copy) void (^completionCallback)(ChatGroup *group, BOOL canceled);
 
 @property (nonatomic, retain) NSMutableDictionary *imageDownloadsInProgress;
 

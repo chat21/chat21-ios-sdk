@@ -30,6 +30,7 @@
 +(NSMutableDictionary *)groupMembersAsDictionary:(NSArray *)membersArray;
 +(NSMutableArray *)groupMembersAsArray:(NSDictionary *)membersDictionary;
 +(NSString *)groupMembersAsStringForUI:(NSDictionary *)membersDictionary;
++(NSString *)groupMembersFullnamesAsStringForUI:(NSArray<ChatUser *> *)members;
 +(NSString *)randomString:(NSInteger)length;
 
 +(NSString *)groupImagesRelativePath;

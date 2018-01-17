@@ -7,7 +7,7 @@
 //
 
 #import "ChatSelectGroupLocalTVC.h"
-#import "ChatModalCallerDelegate.h"
+//#import "ChatModalCallerDelegate.h"
 #import "ChatImageCache.h"
 #import "ChatImageWrapper.h"
 #import "ChatGroup.h"
@@ -92,9 +92,14 @@
 }
 
 -(void)selectGroup:(ChatGroup *)selectedGroup {
-    NSMutableDictionary *options = [[NSMutableDictionary alloc] init];
-    [options setObject:selectedGroup forKey:@"group"];
-    [self.modalCallerDelegate setupViewController:self didFinishSetupWithInfo:options];
+//    NSMutableDictionary *options = [[NSMutableDictionary alloc] init];
+//    [options setObject:selectedGroup forKey:@"group"];
+//    [self.modalCallerDelegate setupViewController:self didFinishSetupWithInfo:options];
+    if (self.completionCallback) {
+        [self dismissViewControllerAnimated:YES completion:^{
+            self.completionCallback(selectedGroup, NO);
+        }];
+    }
 }
 
 -(void)loadGroups {
@@ -113,10 +118,15 @@
 // dismiss modal
 
 - (IBAction)CancelAction:(id)sender {
-    NSLog(@"dismissing %@", self.modalCallerDelegate);
+//    NSLog(@"dismissing %@", self.modalCallerDelegate);
     [self disposeResources];
     [self.view endEditing:YES];
-    [self.modalCallerDelegate setupViewController:self didCancelSetupWithInfo:nil];
+//    [self.modalCallerDelegate setupViewController:self didCancelSetupWithInfo:nil];
+    if (self.completionCallback) {
+        [self dismissViewControllerAnimated:YES completion:^{
+            self.completionCallback(nil, YES);
+        }];
+    }
 }
 
 -(void)dealloc {
