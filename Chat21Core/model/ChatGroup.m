@@ -7,9 +7,9 @@
 //
 
 #import "ChatGroup.h"
-//#import "Firebase/Firebase.h"
 #import "ChatUtil.h"
 #import "ChatUser.h"
+#import "ChatContactsDB.h"
 
 @implementation ChatGroup
 
@@ -155,6 +155,15 @@
     BOOL complete = (self.members != nil);
     NSLog(@"complete: %d", complete);
     return complete;
+}
+
+-(void)completeGroupMembersMetadataWithCompletionBlock:(void(^)())callback {
+    ChatContactsDB *db = [ChatContactsDB getSharedInstance];
+    NSArray<NSString *> *contact_ids = [self.members allKeys];
+    [db getMultipleContactsByIdsSyncronized:contact_ids completion:^(NSArray<ChatUser *> *contacts) {
+        self.membersFull = contacts;
+        callback();
+    }];
 }
 
 @end

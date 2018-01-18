@@ -114,12 +114,15 @@
     }
     //    [self.usernameButton setTitle:self.group.name forState:UIControlStateNormal];
     [self setTitle:self.group.name];
-    ChatContactsDB *db = [ChatContactsDB getSharedInstance];
-    NSArray<NSString *> *contact_ids = [self.group.members allKeys];
-    [db getMultipleContactsByIdsSyncronized:contact_ids completion:^(NSArray<ChatUser *> *contacts) {
-        self.group.membersFull = contacts;
-        [self setSubTitle:[ChatUtil groupMembersFullnamesAsStringForUI:contacts]];
+    [self.group completeGroupMembersMetadataWithCompletionBlock:^() {
+        [self setSubTitle:[ChatUtil groupMembersFullnamesAsStringForUI:self.group.membersFull]];
     }];
+//    ChatContactsDB *db = [ChatContactsDB getSharedInstance];
+//    NSArray<NSString *> *contact_ids = [self.group.members allKeys];
+//    [db getMultipleContactsByIdsSyncronized:contact_ids completion:^(NSArray<ChatUser *> *contacts) {
+//        self.group.membersFull = contacts;
+//        [self setSubTitle:[ChatUtil groupMembersFullnamesAsStringForUI:contacts]];
+//    }];
 }
 
 //-(void)loadGroupInfo {
@@ -970,7 +973,9 @@
         [self checkImGroupMember];
         [self writeBoxEnabled];
         [self setTitle:self.group.name];
-        [self setSubTitle:[ChatUtil groupMembersAsStringForUI:self.group.members]];
+        [self.group completeGroupMembersMetadataWithCompletionBlock:^() {
+            [self setSubTitle:[ChatUtil groupMembersFullnamesAsStringForUI:self.group.membersFull]];
+        }];
     });
 }
 

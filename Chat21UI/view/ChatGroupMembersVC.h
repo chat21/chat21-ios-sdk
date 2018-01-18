@@ -15,7 +15,7 @@
 @interface ChatGroupMembersVC : UITableViewController <ChatModalCallerDelegate>
 
 @property (strong, nonatomic) ChatGroup *group;
-@property (strong, nonatomic) NSMutableArray *members_array;
+//@property (strong, nonatomic) NSMutableArray *members_array;
 - (IBAction)addMember:(id)sender;
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *addMemberButton;
 

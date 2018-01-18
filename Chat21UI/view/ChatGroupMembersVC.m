@@ -30,7 +30,7 @@
     
     // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
     // self.navigationItem.rightBarButtonItem = self.editButtonItem;
-    self.members_array = [ChatGroup membersDictionary2Array:self.group.members];
+//    self.members_array = [ChatGroup membersDictionary2Array:self.group.members];
     self.navigationItem.title = NSLocalizedString(@"Members", nil);
 }
 
@@ -122,9 +122,11 @@
         } else {
             NSLog(@"member %@ successfully removed.", memberId);
             [self.group.members removeObjectForKey:memberId];
-            NSLog(@"self.group.members: %@", self.group.members);
-            self.members_array = [ChatGroup membersDictionary2Array:self.group.members];
-            [self.tableView reloadData];
+            [self.group completeGroupMembersMetadataWithCompletionBlock:^() {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self.tableView reloadData];
+                });
+            }];
         }
     }];
     // TODO remove member_ref handler before go back from this view, if hanlder is still active.
@@ -289,17 +291,18 @@
         ChatUser *user = nil;
         if ([setupInfo objectForKey:@"user"]) {
             user = [setupInfo objectForKey:@"user"];
-            NSLog(@">>>>>> SELECTED: user %@", user.userId);
             NSString *user_id = user.userId;
             [[ChatManager getInstance] addMember:user_id toGroup:self.group withCompletionBlock:^(NSError *error) {
                 if (error) {
                     NSLog(@"Member %@ not added. Error %@",user_id, error);
                 } else {
                     NSLog(@"Member %@ successfully added.", user_id);
-                    NSLog(@"members: %@", self.group.members);
                     [self.group.members setObject:user_id forKey:user_id];
-                    self.members_array = [ChatGroup membersDictionary2Array:self.group.members];
-                    [self.tableView reloadData];
+                    [self.group completeGroupMembersMetadataWithCompletionBlock:^() {
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            [self.tableView reloadData];
+                        });
+                    }];
                 }
             }];
         }
