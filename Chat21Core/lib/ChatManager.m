@@ -87,11 +87,8 @@ static ChatManager *sharedInstance = nil;
         NSLog(@"Conversation Handler not found. Creating & initializing a new one with recipient-id %@", recipient.userId);
         handler = [[ChatConversationHandler alloc] initWithRecipient:recipient.userId recipientFullName:recipient.fullname];
         [self addConversationHandler:handler];
-        NSLog(@"Restoring DB archived conversations.");
         [handler restoreMessagesFromDB];
-        NSLog(@"Archived messages count %lu", (unsigned long)handler.messages.count);
-        NSLog(@"Connecting handler to firebase.");
-        [handler connect];
+        NSLog(@"Restored messages count %lu", (unsigned long)handler.messages.count);
     }
     return handler;
 }
@@ -670,49 +667,26 @@ static ChatManager *sharedInstance = nil;
 
 -(void)addMember:(NSString *)member_id toGroup:(ChatGroup *)group withCompletionBlock:(void (^)(NSError *))completionBlock {
     NSLog(@"Adding member %@ to group %@...", member_id, group.groupId);
-    
-//    NSDate *now = [[NSDate alloc] init];
-//    NSString *message = [self groupInvitedMessageForMemberInGroup:group];
-//    ChatConversation *conversation = [self buildInviteConversationForMember:member_id message:message inGRoup:group createdOn:now];
-//    NSDictionary *conversation_dict = [conversation asDictionary];
-//    NSLog(@"convid %@", conversation.conversationId);
-//    NSString *conversation_path = [ChatUtil conversationPathForUser:member_id conversationId:conversation.conversationId];
-//    NSLog(@"conversation path %@", conversation_path);
-//
-//    NSString *member_relative_path = [group memberPath:member_id];
-//    NSLog(@"member relative path %@", member_relative_path);
-//    NSString *groups_path = [ChatUtil mainGroupsPath];
-//    NSString *member_path = [groups_path stringByAppendingFormat:@"/%@/%@", group.groupId, member_relative_path];
-//    NSLog(@"member path %@", member_path);
-//
-//    NSMutableDictionary *fanOut = [[NSMutableDictionary alloc] init];
-//    fanOut[conversation_path] = conversation_dict;
-//    fanOut[member_path] = @(true);
-//    NSLog(@"fanOut dict: %@", fanOut);
-//    FIRDatabaseReference *rootRef = [[FIRDatabase database] reference];
-//    [rootRef updateChildValues:fanOut withCompletionBlock:^(NSError *error, FIRDatabaseReference *firebaseRef) {
-//        //        [self sendInvitedNotificationToMember:member_id ofGroup:group];
-//        completionBlock(error);
-//    }];
+    NSString *member_relative_path = [group memberPath:member_id];
+    NSString *groups_path = [ChatUtil mainGroupsPath];
+    NSString *member_path = [groups_path stringByAppendingFormat:@"/%@/%@", group.groupId, member_relative_path];
+    NSMutableDictionary *fanOut = [[NSMutableDictionary alloc] init];
+    fanOut[member_path] = @(true);
+    FIRDatabaseReference *rootRef = [[FIRDatabase database] reference];
+    [rootRef updateChildValues:fanOut withCompletionBlock:^(NSError *error, FIRDatabaseReference *firebaseRef) {
+        completionBlock(error);
+    }];
 }
 
 -(void)removeMember:(NSString *)member_id fromGroup:(ChatGroup *)group withCompletionBlock:(void (^)(NSError *))completionBlock {
-    NSLog(@"Removing member %@ from group %@...", member_id, group.groupId);
     NSString *member_relative_path = [group memberPath:member_id];
-    NSLog(@"member relative path %@", member_relative_path);
     NSString *groups_path = [ChatUtil mainGroupsPath];
     NSString *member_path = [groups_path stringByAppendingFormat:@"/%@/%@", group.groupId, member_relative_path];
-    NSLog(@"member path %@", member_path);
     FIRDatabaseReference *rootRef = [[FIRDatabase database] reference];
-    
-    //    FIRDatabaseReference *member_ref = [group memberReference:user_id];
     FIRDatabaseReference *member_ref = [rootRef child:member_path];
-    NSLog(@"member_ref %@", member_ref);
-    
     [member_ref removeValueWithCompletionBlock:^(NSError *error, FIRDatabaseReference *firebaseRef) {
         completionBlock(error);
     }];
-    //    return member_ref;
 }
 
 -(void)updateGroupName:(NSString *)name forGroup:(ChatGroup *)group withCompletionBlock:(void (^)(NSError *))completionBlock {
@@ -817,7 +791,26 @@ static ChatManager *sharedInstance = nil;
 -(void)getContactLocalDB:(NSString *)userid withCompletion:(void(^)(ChatUser *user))callback {
     ChatContactsDB *db = [ChatContactsDB getSharedInstance];
     [db getContactByIdSyncronized:userid completion:^(ChatUser *user) {
-        callback(user);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            callback(user);
+        });
+    }];
+}
+
+-(void)getUserInfoRemote:(NSString *)userid withCompletion:(void(^)(ChatUser *user))callback {
+    NSLog(@"Get remote contact.");
+    FIRDatabaseReference *rootRef = [[FIRDatabase database] reference];
+    FIRDatabaseReference *userInfoRef = [[rootRef child: [ChatUtil contactsPath]] child:userid];
+    
+    [userInfoRef observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
+        ChatUser *user = [ChatContactsSynchronizer contactFromSnapshotFactory:snapshot];
+        if (user) {
+            NSLog(@"FIREBASE CONTACT, id: %@ firstname: %@ fullname: %@",user.userId, user.firstname, user.fullname);
+            callback(user);
+//          [self insertOrUpdateContactOnDB:contact];
+        }
+    } withCancelBlock:^(NSError *error) {
+         NSLog(@"%@", error.description);
     }];
 }
 

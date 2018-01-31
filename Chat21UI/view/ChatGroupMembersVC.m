@@ -15,6 +15,7 @@
 #import "ChatUser.h"
 #import "ChatSelectUserLocalVC.h"
 #import "ChatUser.h"
+#import "ChatUIManager.h"
 
 @interface ChatGroupMembersVC ()
 
@@ -209,13 +210,12 @@
 
 // In a storyboard-based application, you will often want to do a little preparation before navigation
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-    if ([[segue identifier] isEqualToString:@"AddMember"]) {
-        UINavigationController *navigationController = [segue destinationViewController];
-        NSLog(@"CLASS %@", [[[navigationController viewControllers] objectAtIndex:0] class]);
-        ChatSelectUserLocalVC *vc = (ChatSelectUserLocalVC *)[[navigationController viewControllers] objectAtIndex:0];
-        vc.group = self.group;
-//        vc.modalCallerDelegate = self;
-    }
+//    if ([[segue identifier] isEqualToString:@"AddMember"]) {
+//        UINavigationController *navigationController = [segue destinationViewController];
+//        NSLog(@"CLASS %@", [[[navigationController viewControllers] objectAtIndex:0] class]);
+//        ChatSelectUserLocalVC *vc = (ChatSelectUserLocalVC *)[[navigationController viewControllers] objectAtIndex:0];
+//        vc.group = self.group;
+//    }
 }
 
 // ******************
@@ -281,17 +281,13 @@
 
 - (IBAction)addMember:(id)sender {
     NSLog(@"Add member");
-    [self performSegueWithIdentifier:@"AddMember" sender:self];
-}
-
-- (void)setupViewController:(UIViewController *)controller didFinishSetupWithInfo:(NSDictionary *)setupInfo {
-    NSLog(@"setupViewController...");
-    if([controller isKindOfClass:[ChatSelectUserLocalVC class]])
-    {
-        ChatUser *user = nil;
-        if ([setupInfo objectForKey:@"user"]) {
-            user = [setupInfo objectForKey:@"user"];
-            NSString *user_id = user.userId;
+    [[ChatUIManager getInstance] openSelectContactViewAsModal:self withCompletionBlock:^(ChatUser *contact, BOOL canceled) {
+        if (canceled) {
+            NSLog(@"Select Contact canceled");
+        }
+        else {
+            NSLog(@"Selected new member: %@/%@", contact.fullname, contact.userId);
+            NSString *user_id = contact.userId;
             [[ChatManager getInstance] addMember:user_id toGroup:self.group withCompletionBlock:^(NSError *error) {
                 if (error) {
                     NSLog(@"Member %@ not added. Error %@",user_id, error);
@@ -306,17 +302,69 @@
                 }
             }];
         }
-        [self dismissViewControllerAnimated:YES completion:nil];
-    }
+    }];
+    
+//    [[ChatUIManager getInstance] openSelectGroupViewAsModal:self withCompletionBlock:^(ChatGroup *group, BOOL canceled) {
+//        if (canceled) {
+//            NSLog(@"Select group canceled.");
+//        }
+//        else {
+//            if (group) {
+//                self.selectedGroupId = group.groupId;
+//                [self openConversationWithUser:nil orGroup:group sendMessage:nil attributes:nil];
+//            }
+//            NSString *user_id = user.userId;
+//            [[ChatManager getInstance] addMember:user_id toGroup:self.group withCompletionBlock:^(NSError *error) {
+//                if (error) {
+//                    NSLog(@"Member %@ not added. Error %@",user_id, error);
+//                } else {
+//                    NSLog(@"Member %@ successfully added.", user_id);
+//                    [self.group.members setObject:user_id forKey:user_id];
+//                    [self.group completeGroupMembersMetadataWithCompletionBlock:^() {
+//                        dispatch_async(dispatch_get_main_queue(), ^{
+//                            [self.tableView reloadData];
+//                        });
+//                    }];
+//                }
+//            }];
+//        }
+//    }];
+//    [self performSegueWithIdentifier:@"AddMember" sender:self];
 }
 
-- (void)setupViewController:(UIViewController *)controller didCancelSetupWithInfo:(NSDictionary *)setupInfo {
-    if([controller isKindOfClass:[ChatSelectUserLocalVC class]])
-    {
-        NSLog(@"Member selection Canceled.");
-        [self dismissViewControllerAnimated:YES completion:nil];
-    }
-}
+//- (void)setupViewController:(UIViewController *)controller didFinishSetupWithInfo:(NSDictionary *)setupInfo {
+//    NSLog(@"setupViewController...");
+//    if([controller isKindOfClass:[ChatSelectUserLocalVC class]])
+//    {
+//        ChatUser *user = nil;
+//        if ([setupInfo objectForKey:@"user"]) {
+//            user = [setupInfo objectForKey:@"user"];
+//            NSString *user_id = user.userId;
+//            [[ChatManager getInstance] addMember:user_id toGroup:self.group withCompletionBlock:^(NSError *error) {
+//                if (error) {
+//                    NSLog(@"Member %@ not added. Error %@",user_id, error);
+//                } else {
+//                    NSLog(@"Member %@ successfully added.", user_id);
+//                    [self.group.members setObject:user_id forKey:user_id];
+//                    [self.group completeGroupMembersMetadataWithCompletionBlock:^() {
+//                        dispatch_async(dispatch_get_main_queue(), ^{
+//                            [self.tableView reloadData];
+//                        });
+//                    }];
+//                }
+//            }];
+//        }
+//        [self dismissViewControllerAnimated:YES completion:nil];
+//    }
+//}
+//
+//- (void)setupViewController:(UIViewController *)controller didCancelSetupWithInfo:(NSDictionary *)setupInfo {
+//    if([controller isKindOfClass:[ChatSelectUserLocalVC class]])
+//    {
+//        NSLog(@"Member selection Canceled.");
+//        [self dismissViewControllerAnimated:YES completion:nil];
+//    }
+//}
 
 @end
 

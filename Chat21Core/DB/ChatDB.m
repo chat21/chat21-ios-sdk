@@ -27,7 +27,7 @@ static ChatDB *sharedInstance = nil;
 +(ChatDB*)getSharedInstance {
     if (!sharedInstance) {
         sharedInstance = [[super alloc] init];
-        sharedInstance.logQuery = YES;
+        sharedInstance.logQuery = NO;
     }
     return sharedInstance;
 }

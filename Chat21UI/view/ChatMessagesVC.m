@@ -207,10 +207,10 @@
         [self messageReceived:message];
     }];
     self.changed_handle = [handler observeEvent:ChatEventMessageChanged withCallback:^(ChatMessage *message) {
-        [self messageReceived:message];
+        [self messageUpdated:message];
     }];
     self.deleted_handle = [handler observeEvent:ChatEventMessageDeleted withCallback:^(ChatMessage *message) {
-        [self messageReceived:message];
+        [self messageDeleted:message];
     }];
     NSLog(@"added_handle: %lu, changed_handle: %lu, deleted_handle: %lu", (unsigned long)self.added_handle, (unsigned long)self.changed_handle, (unsigned long)self.deleted_handle);
 }
@@ -953,17 +953,58 @@
 //}
 //// end subscriber
 
+-(void)messageUpdated:(ChatMessage *)message {
+    [containerTVC reloadDataTableView];
+}
+
+-(void)messageDeleted:(ChatMessage *)message {
+    [containerTVC reloadDataTableView];
+}
+
 -(void)messageReceived:(ChatMessage *)message {
-    //    NSLog(@"MessagesVC. NEW MESSAGE: %@", message.text);
-    
     // SE MESSAGGIO.TIMESTAMP < "1 SEC FA" MOSTRA SUBITO. SE MESSAGGIO >= 1 SEC FA IMPOSTA UN TIMER. SE ARRIVA UN ALTRO MESSAGGIO DURANTE IL TIMER FAI RIPARTIRE IL TIMER. AFTER THE TIMER ENDS, RELOAD TABLE.
     
-    if (!self.playingSound) {
-        NSLog(@"playing sound for message %@ archived?: %d", message.text, message.archived);
-        [self playSound];
+//    double now = [[NSDate alloc] init].timeIntervalSince1970;
+//    self.lastMessageArrivedTime = now;
+    
+    if (!self.messagesArriving) {
+        NSLog(@"MESSAGE ARRIVED. RENDERING.");
+        [self startNewMessageTimer];
+        self.messagesArriving = YES;
+        // fist message always shown
+        [self renderMessages];
     }
-    [containerTVC reloadDataTableView];
-    [containerTVC scrollToLastMessage:YES];
+    else {
+        NSLog(@"MESSAGES STILL ARRIVING, NOT RENDERING!");
+    }
+}
+
+static float messageTime = 0.5;
+
+-(void)startNewMessageTimer {
+    if (self.messageTimer != nil) {
+        [self.messageTimer invalidate];
+        self.messageTimer = nil;
+    }
+    self.messageTimer = [NSTimer scheduledTimerWithTimeInterval:messageTime target:self selector:@selector(endNewMessageTimer) userInfo:nil repeats:NO];
+}
+
+-(void)endNewMessageTimer {
+    NSLog(@"END RECEIVING MESSAGES. RENDERING.");
+    [self.messageTimer invalidate];
+    self.messageTimer = nil;
+    self.messagesArriving = NO;
+    [self playSound];
+    [self renderMessages];
+}
+
+-(void)renderMessages {
+    [containerTVC reloadDataTableViewOnIndex:self.conversationHandler.messages.count];
+    [self scrollTo];
+}
+
+-(void)scrollTo {
+    [containerTVC scrollToLastMessage:NO];
 }
 
 -(void)groupConfigurationChanged:(ChatGroup *)group {
@@ -980,11 +1021,11 @@
 }
 
 -(void)playSound {
-    double now = [[NSDate alloc] init].timeIntervalSince1970;
-    if (now - self.lastPlayedSoundTime < 3) {
-        NSLog(@"TOO EARLY TO PLAY ANOTHER SOUND");
-        return;
-    }
+//    double now = [[NSDate alloc] init].timeIntervalSince1970;
+//    if (now - self.lastPlayedSoundTime < 3) {
+//        NSLog(@"TOO EARLY TO PLAY ANOTHER SOUND");
+//        return;
+//    }
     // help: https://github.com/TUNER88/iOSSystemSoundsLibrary
     // help: http://developer.boxcar.io/blog/2014-10-08-notification_sounds/
     NSString *path = [NSString stringWithFormat:@"%@/inline.caf", [[NSBundle mainBundle] resourcePath]];
@@ -993,7 +1034,8 @@
     AudioServicesPlaySystemSound(soundID);
     //    [self startSoundTimer];
     
-    self.lastPlayedSoundTime = now;
+//    double now = [[NSDate alloc] init].timeIntervalSince1970;
+//    self.lastMessageArrivedTime = now;
 }
 
 -(void)dealloc {

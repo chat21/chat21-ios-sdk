@@ -33,5 +33,6 @@
 -(void)dispose;
 -(void)addSynchSubcriber:(id<ChatSynchDelegate>)subscriber;
 -(void)removeSynchSubcriber:(id<ChatSynchDelegate>)subscriber;
++(ChatUser *)contactFromSnapshotFactory:(FIRDataSnapshot *)snapshot;
 
 @end

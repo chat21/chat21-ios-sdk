@@ -54,6 +54,7 @@
 +(void)configure;
 +(ChatManager *)getInstance;
 -(void)getContactLocalDB:(NSString *)userid withCompletion:(void(^)(ChatUser *user))callback;
+-(void)getUserInfoRemote:(NSString *)userid withCompletion:(void(^)(ChatUser *user))callback;
 
 -(void)addConversationHandler:(ChatConversationHandler *)handler;
 -(ChatConversationsHandler *)getConversationsHandler;

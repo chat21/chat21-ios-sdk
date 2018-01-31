@@ -153,24 +153,30 @@
     self.messages_ref_handle = [[[self.messagesRef queryOrderedByChild:@"timestamp"] queryStartingAtValue:@(lasttime)] observeEventType:FIRDataEventTypeChildAdded withBlock:^(FIRDataSnapshot *snapshot) {
         // IMPORTANT: this query ignores messages without a timestamp.
         // IMPORTANT: This callback is called also for newly locally created messages not still sent.
-        NSLog(@">>>> NEW MESSAGE SNAPSHOT: %@", snapshot);
+//        NSLog(@"NEW MESSAGE SNAPSHOT: %@", snapshot);
+        if (![self isValidMessageSnapshot:snapshot]) {
+            NSLog(@"Discarding invalid snapshot: %@", snapshot);
+            return;
+        } else {
+//            NSLog(@"Snapshot valid.");
+        }
         ChatMessage *message = [ChatMessage messageFromSnapshotFactory:snapshot];
-        message.conversationId = self.conversationId; // DB query is based on this attribute!!! (conversationID = Interlocutor)
+        message.conversationId = self.conversationId; // DB query is based on this attribute!!! (conversationID = Recipient)
         
         // IMPORTANT (REPEATED)! This callback is called ALSO (and NOT ONLY) for newly locally created messages not still sent (called also with network off!).
         // Then, for every "new" message received (also locally generated) we update the conversation data & his status to "read" (is_new: NO).
         
         // updates status only of messages not sent by me
         // HO RICEVUTO UN MESSAGGIO NUOVO
-        NSLog(@"self.senderId: %@", self.senderId);
-        if (message.status < MSG_STATUS_RECEIVED && ![message.sender isEqualToString:self.senderId]) { // CONTROLLO "message.status < MSG_STATUS_RECEIVED &&" IN MODO DA EVITARE IL COSTO DI RI-AGGIORNARE CONTINUAMENTE LO STATO DI MESSAGGI CHE HANNO GIA LO STATO RECEIVED (MAGARI E' LA SINCRONIZZAZIONE DI UN NUOVO DISPOSITIVO CHE NON DEVE PIU' COMUNICARE NULLA AL MITTENTE MA SOLO SCARICARE I MESSAGGI NELLO STATO IN CUI SI TROVANO).
+//        NSLog(@"self.senderId: %@", self.senderId);
+        if (message.status < MSG_STATUS_RECEIVED && ![message.sender isEqualToString:self.senderId]) { // CONTROLLO "message.status < MSG_STATUS_RECEIVED" IN MODO DA EVITARE IL COSTO DI RI-AGGIORNARE CONTINUAMENTE LO STATO DI MESSAGGI CHE HANNO GIA LO STATO RECEIVED (MAGARI E' LA SINCRONIZZAZIONE DI UN NUOVO DISPOSITIVO CHE NON DEVE PIU' COMUNICARE NULLA AL MITTENTE MA SOLO SCARICARE I MESSAGGI NELLO STATO IN CUI SI TROVANO).
             // NOT RECEIVED = NEW!
 //            NSLog(@"NEW MESSAGE!!!!! %@ group %@", message.text, message.recipientGroupId);
 //            if (!message.recipientGroupId) {
             if (message.isDirect) {
                 [message updateStatusOnFirebase:MSG_STATUS_RECEIVED]; // firebase
             } else {
-                // Implement received status for group's messages
+                // TODO: implement received status for group's messages
             }
         }
         // updates or insert new messages
@@ -192,7 +198,13 @@
 //    }];
     
     self.updated_messages_ref_handle = [self.messagesRef observeEventType:FIRDataEventTypeChildChanged withBlock:^(FIRDataSnapshot *snapshot) {
-        NSLog(@">>>> new UPDATED message snapshot %@", snapshot);
+        NSLog(@"UPDATED MESSAGE SNAPSHOT: %@", snapshot);
+        if (![self isValidMessageSnapshot:snapshot]) {
+            NSLog(@"Discarding invalid snapshot: %@", snapshot);
+            return;
+        } else {
+//            NSLog(@"Snapshot valid.");
+        }
         ChatMessage *message = [ChatMessage messageFromSnapshotFactory:snapshot];
         if (message.status == MSG_STATUS_SENDING) {
             NSLog(@"Queed message updated. Data saved successfully.");
@@ -212,6 +224,31 @@
     } withCancelBlock:^(NSError *error) {
         NSLog(@"%@", error.description);
     }];
+}
+
+-(BOOL)isValidMessageSnapshot:(FIRDataSnapshot *)snapshot {
+    if (snapshot.value[MSG_FIELD_TYPE] == nil) {
+        NSLog(@"MSG:TYPE is mandatory. Discarding message.");
+        return NO;
+    }
+    else if (snapshot.value[MSG_FIELD_TEXT] == nil) {
+        NSLog(@"MSG:TEXT is mandatory. Discarding message.");
+        return NO;
+    }
+    else if (snapshot.value[MSG_FIELD_SENDER] == nil) {
+        NSLog(@"MSG:SENDER is mandatory. Discarding message.");
+        return NO;
+    }
+    else if (snapshot.value[MSG_FIELD_TIMESTAMP] == nil) {
+        NSLog(@"MSG:TIMESTAMP is mandatory. Discarding message.");
+        return NO;
+    }
+//    else if (snapshot.value[MSG_FIELD_STATUS] == nil) {
+//        NSLog(@"MSG:STATUS is mandatory. Discarding message.");
+//        return NO;
+//    }
+    
+    return YES;
 }
 
 //-(void) initFirebaseWithRef:(FIRDatabaseReference *)ref token:(NSString *)token {
@@ -459,7 +496,6 @@
 }
 
 -(void)insertMessageOnDBIfNotExists:(ChatMessage *)message {
-    NSLog(@"******* saving on db %@", message.attributes);
     [[ChatDB getSharedInstance] insertMessageIfNotExists:message];
 }
 

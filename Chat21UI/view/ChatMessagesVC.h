@@ -85,9 +85,9 @@
 @property (assign, nonatomic) BOOL online;
 
 // sound
-@property (strong, nonatomic) NSTimer *soundTimer;
-@property (assign, nonatomic) BOOL playingSound;
-@property (assign, nonatomic) double lastPlayedSoundTime;
+@property (strong, nonatomic) NSTimer *messageTimer;
+@property (assign, nonatomic) BOOL messagesArriving;
+//@property (assign, nonatomic) double lastMessageArrivedTime;
 
 @property (weak, nonatomic) IBOutlet UIView *viewContainer;
 @property (weak, nonatomic) IBOutlet UITextField *messageTextField;

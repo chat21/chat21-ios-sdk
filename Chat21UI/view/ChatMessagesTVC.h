@@ -30,6 +30,7 @@
 @property (strong, nonatomic) NSString *selectedText;
 
 - (void)reloadDataTableView;
+- (void)reloadDataTableViewOnIndex:(NSInteger)index;
 - (void)scrollToLastMessage:(BOOL)animated;
 
 @end

@@ -459,6 +459,10 @@ static NSString *MATCH_TYPE_CHAT_LINK = @"CHATLINK";
     [self.tableView reloadData];
 }
 
+- (void)reloadDataTableViewOnIndex:(NSInteger) index {
+    [self.tableView reloadData];
+}
+
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
     return 1;
@@ -531,7 +535,7 @@ static NSString *MATCH_TYPE_CHAT_LINK = @"CHATLINK";
         message = (ChatMessage *)[messages objectAtIndex:indexPath.row];
         [self analyzeMessageText:message forIndexPath:indexPath];
         
-        NSLog(@"type: %@ text: %@", message.mtype, message.text);
+//        NSLog(@"type: %@ text: %@", message.mtype, message.text);
         if ([message.mtype isEqualToString:MSG_TYPE_INFO]) {
             NSLog(@"MSG_TYPE_INFO");
             cell = [tableView dequeueReusableCellWithIdentifier:cellMessageInfo forIndexPath:indexPath];
@@ -542,11 +546,11 @@ static NSString *MATCH_TYPE_CHAT_LINK = @"CHATLINK";
             sfondo.layer.shadowOpacity = 0.5;
         }
         else if ([message.sender isEqualToString:self.vc.senderId]) {
-            NSLog(@"cellMessageRight");
+//            NSLog(@"cellMessageRight");
             cell = [tableView dequeueReusableCellWithIdentifier:cellMessageRight forIndexPath:indexPath];
         }
         else {
-            NSLog(@"cellMessageLeft");
+//            NSLog(@"cellMessageLeft");
             cell = [tableView dequeueReusableCellWithIdentifier:cellMessageLeft forIndexPath:indexPath];
         }
         
@@ -647,13 +651,13 @@ static NSString *MATCH_TYPE_CHAT_LINK = @"CHATLINK";
 
 -(void)attributedString:(UILabel *)label text:(ChatMessage *)message indexPath:(NSIndexPath *)indexPath {
     // consider use of: https://github.com/TTTAttributedLabel/TTTAttributedLabel
-    NSLog(@"string text: %@", message.text);
+//    NSLog(@"string text: %@", message.text);
     
     NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:message.text];
-    NSLog(@"attributedString.string.length: %lu", (unsigned long)attributedString.string.length);
+//    NSLog(@"attributedString.string.length: %lu", (unsigned long)attributedString.string.length);
     [attributedString addAttributes:@{NSFontAttributeName: label.font} range:NSMakeRange(0, attributedString.string.length)];
     ChatMessageComponents *components = [self.rowComponents objectForKey:message.messageId];
-    NSLog(@"componenents[%lu] text: %@ urlsMatches: %@ linkMatches: %@",indexPath.row, components.text, components.urlsMatches, components.chatLinkMatches);
+//    NSLog(@"componenents[%lu] text: %@ urlsMatches: %@ linkMatches: %@",indexPath.row, components.text, components.urlsMatches, components.chatLinkMatches);
     NSArray *urlMatches = components.urlsMatches;
 //    NSLog(@"urlMatches %@ .count: %lu", urlMatches, (unsigned long)urlMatches.count);
     if (urlMatches) {

@@ -86,7 +86,7 @@
         NSLog(@"LAST TIME CONTACT SYNCH %ld", (long)lasttime);
         self.contact_ref_handle_added = [[[self.contactsRef queryOrderedByChild:@"timestamp"] queryStartingAtValue:@(lasttime)] observeEventType:FIRDataEventTypeChildAdded withBlock:^(FIRDataSnapshot *snapshot) {
             dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
-                ChatUser *contact = [self contactFromSnapshotFactory:snapshot];
+                ChatUser *contact = [ChatContactsSynchronizer contactFromSnapshotFactory:snapshot];
                 if (contact) {
                     NSLog(@"FIREBASE: NEW CONTACT id: %@ firstname: %@ fullname: %@",contact.userId, contact.firstname, contact.fullname);
                     [self insertOrUpdateContactOnDB:contact];
@@ -102,7 +102,7 @@
         [self.contactsRef observeEventType:FIRDataEventTypeChildChanged withBlock:^(FIRDataSnapshot *snapshot) {
             dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
                 NSLog(@"FIREBASE: UPDATED CONTACT SNAPSHOT: %@", snapshot);
-                ChatUser *contact = [self contactFromSnapshotFactory:snapshot];
+                ChatUser *contact = [ChatContactsSynchronizer contactFromSnapshotFactory:snapshot];
                 if (contact) {
                     [self insertOrUpdateContactOnDB:contact];
                 }
@@ -117,7 +117,7 @@
         [self.contactsRef observeEventType:FIRDataEventTypeChildRemoved withBlock:^(FIRDataSnapshot *snapshot) {
             dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
                 NSLog(@"FIREBASE: REMOVED CONTACT SNAPSHOT: %@", snapshot);
-                ChatUser *contact = [self contactFromSnapshotFactory:snapshot];
+                ChatUser *contact = [ChatContactsSynchronizer contactFromSnapshotFactory:snapshot];
                 if (contact) {
                     [self removeContactOnDB:contact];
                 }
@@ -244,7 +244,7 @@ static NSString *FIRST_SYNCHRO_KEY = @"first-contacts-synchro";
     [self.contactsRef removeAllObservers];
 }
 
--(ChatUser *)contactFromSnapshotFactory:(FIRDataSnapshot *)snapshot {
++(ChatUser *)contactFromSnapshotFactory:(FIRDataSnapshot *)snapshot {
     //    NSLog(@"Snapshot.value is of type: %@", [snapshot.value class]); // [snapshot.value boolValue]
     if (![snapshot.value isKindOfClass:[NSString class]]) {
         NSString *userId = userId = snapshot.value[FIREBASE_USER_ID];
