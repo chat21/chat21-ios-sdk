@@ -158,14 +158,13 @@
 -(void)setupUI {
     ChatGroup *group = self.group;
     self.groupNameLabel.text = group.name;
-    NSLog(@"self.groupNameLabel %@ self.group.name %@", self.groupNameLabel, group.name);
     if (group.membersFull) {
         self.membersLabel.text = [ChatUtil groupMembersFullnamesAsStringForUI:group.membersFull];
     }
     else {
         self.membersLabel.text = [ChatUtil groupMembersAsStringForUI:group.members];
     }
-    
+    self.idLabel.text = [[NSString alloc] initWithFormat:@"Id: %@", group.groupId];
     //NSString *created_by_msg = @"Gruppo creato da";
     //    self.createdByLabel.text = [[NSString alloc] initWithFormat:@"%@ %@.",created_by_msg, self.group.owner];
     self.createdByLabel.text = [NSString stringWithFormat:NSLocalizedString(@"group created by", nil), [group ownerFullname]];

@@ -32,6 +32,7 @@
 @property (weak, nonatomic) IBOutlet UILabel *createdOnLabel;
 @property (weak, nonatomic) IBOutlet UILabel *createdByLabel;
 @property (weak, nonatomic) IBOutlet UILabel *adminLabel;
+@property (weak, nonatomic) IBOutlet UILabel *idLabel;
 
 - (IBAction)unwindToGroupInfoVC:(UIStoryboardSegue*)sender;
 

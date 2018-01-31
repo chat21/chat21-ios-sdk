@@ -47,21 +47,24 @@
 }
 
 -(void)showMemberMenu:(NSIndexPath *)indexPath {
-    NSString *memberId = [self.group.membersFull objectAtIndex:indexPath.row].userId;
+    ChatUser *member = [self.group.membersFull objectAtIndex:(int)indexPath.row];
+    NSString *memberId = member.userId;
+    NSString *fullname = member.fullname;
+    
     UIAlertController *view = [UIAlertController
                                alertControllerWithTitle:nil
-                               message:memberId
+                               message:fullname
                                preferredStyle:UIAlertControllerStyleActionSheet];
     
-    UIAlertAction *info = [UIAlertAction
-                           actionWithTitle:NSLocalizedString(@"Member info", nil)
-                           style:UIAlertActionStyleDefault
-                           handler:^(UIAlertAction * action)
-                           {
-                               NSLog(@"Go to profile");
-                               [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
-                               [self goToProfileOf:memberId];
-                           }];
+//    UIAlertAction *info = [UIAlertAction
+//                           actionWithTitle:NSLocalizedString(@"Member info", nil)
+//                           style:UIAlertActionStyleDefault
+//                           handler:^(UIAlertAction * action)
+//                           {
+//                               NSLog(@"Go to profile");
+//                               [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
+//                               [self goToProfileOf:memberId];
+//                           }];
     
     UIAlertAction *cancel = [UIAlertAction
                              actionWithTitle:NSLocalizedString(@"CancelLKey", nil)
@@ -80,29 +83,24 @@
                   handler:^(UIAlertAction * action)
                   {
                       NSLog(@"Removing...");
-                      [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
-                      [self removeMember:memberId];
+                      [self askToRemoveMember:memberId atIndexPath:indexPath];
                   }];
     }
     
-    UIAlertAction* send_message = [UIAlertAction
-                                   actionWithTitle:NSLocalizedString(@"Send message", nil)
-                                   style:UIAlertActionStyleDefault
-                                   handler:^(UIAlertAction * action)
-                                   {
-                                       NSLog(@"Send message");
-                                       //                [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
-                                       //                ChatUser *member = [[ChatUser alloc] init];
-                                       //                member.userId = memberId;
-                                       //                [ChatUtil moveToConversationViewWithUser:member sendMessage:nil];
-                                   }];
+//    UIAlertAction* send_message = [UIAlertAction
+//                                   actionWithTitle:NSLocalizedString(@"Send message", nil)
+//                                   style:UIAlertActionStyleDefault
+//                                   handler:^(UIAlertAction * action)
+//                                   {
+//                                       NSLog(@"Send message");
+//                                   }];
     
     
     if (remove) {
         [view addAction:remove];
     }
-    [view addAction:info];
-    [view addAction:send_message];
+//    [view addAction:info];
+//    [view addAction:send_message];
     [view addAction:cancel];
     
     [self presentViewController:view animated:YES completion:nil];
@@ -114,10 +112,38 @@
     ![memberId isEqualToString:self.group.owner]; // memberId is not admin??? OK, remove!
 }
 
+-(void)askToRemoveMember:(NSString *)memberId atIndexPath:(NSIndexPath *)indexPath  {
+    ChatUser *member = [self.group.membersFull objectAtIndex:(int)indexPath.row];
+    UIAlertController *view = [UIAlertController
+                               alertControllerWithTitle:NSLocalizedString(@"Remove this member?", nil)
+                               message:member.fullname
+                               preferredStyle:UIAlertControllerStyleActionSheet];
+    
+    UIAlertAction *remove = [UIAlertAction
+                           actionWithTitle:NSLocalizedString(@"Remove", nil)
+                           style:UIAlertActionStyleDefault
+                           handler:^(UIAlertAction * action)
+                           {
+                               [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
+                               [self removeMember:memberId];
+                           }];
+    
+    UIAlertAction *cancel = [UIAlertAction
+                             actionWithTitle:NSLocalizedString(@"CancelLKey", nil)
+                             style:UIAlertActionStyleDefault
+                             handler:^(UIAlertAction * action)
+                             {
+                                 [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
+                             }];
+    [view addAction:remove];
+    [view addAction:cancel];
+    
+    [self presentViewController:view animated:YES completion:nil];
+}
+
 -(void)removeMember:(NSString *)memberId {
-    ChatManager *chat = [ChatManager getInstance];
-    //    Firebase *member_ref =
-    [chat removeMember:memberId fromGroup:self.group withCompletionBlock:^(NSError *error) {
+    ChatManager *chatm = [ChatManager getInstance];
+    [chatm removeMember:memberId fromGroup:self.group withCompletionBlock:^(NSError *error) {
         if (error) {
             NSLog(@"Member %@ not removed. Error %@", memberId, error);
         } else {
@@ -130,8 +156,6 @@
             }];
         }
     }];
-    // TODO remove member_ref handler before go back from this view, if hanlder is still active.
-    // TODO usa una callback per stabilire l'esito dell'operazione.
 }
 
 -(void)goToProfileOf:(NSString *)userId {
@@ -203,7 +227,12 @@
 }
 
 - (void)tableView:(UITableView *)_tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    [self showMemberMenu:indexPath];
+    [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
+    ChatUser *member = [self.group.membersFull objectAtIndex:(int)indexPath.row];
+    NSString *memberId = member.userId;
+    if (![memberId isEqualToString:self.group.owner]) {
+        [self showMemberMenu:indexPath];
+    }
 }
 
 #pragma mark - Navigation
