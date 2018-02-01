@@ -31,23 +31,23 @@
     return self;
 }
 
--(void)addSubcriber:(id<ChatGroupsSubscriber>)subscriber {
-    if (!self.subcribers) {
-        self.subcribers = [[NSMutableArray alloc] init];
+-(void)addSubscriber:(id<ChatGroupsSubscriber>)subscriber {
+    if (!self.subscribers) {
+        self.subscribers = [[NSMutableArray alloc] init];
     }
-    [self.subcribers addObject:subscriber];
+    [self.subscribers addObject:subscriber];
 }
 
--(void)removeSubcriber:(id<ChatGroupsSubscriber>)subscriber {
-    if (!self.subcribers) {
+-(void)removeSubscriber:(id<ChatGroupsSubscriber>)subscriber {
+    if (!self.subscribers) {
         return;
     }
-    [self.subcribers removeObject:subscriber];
+    [self.subscribers removeObject:subscriber];
 }
 
 -(void)notifySubscribers:(ChatGroup *)group {
     NSLog(@"ChatConversationHandler: This group was added or changed: %@. Notifying to subscribers...", group.name);
-    for (id<ChatGroupsSubscriber> subscriber in self.subcribers) {
+    for (id<ChatGroupsSubscriber> subscriber in self.subscribers) {
         [subscriber groupAddedOrChanged:group];
     }
 }

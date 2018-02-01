@@ -33,7 +33,7 @@
 //@property (strong, nonatomic) NSString *firebaseRef;
 @property (nonatomic, strong) FIRDatabaseReference *rootRef;
 @property (strong, nonatomic) NSString *tenant;
-@property (strong, nonnull) NSMutableArray<id<ChatGroupsSubscriber>> *subcribers;
+@property (strong, nonnull) NSMutableArray<id<ChatGroupsSubscriber>> *subscribers;
 
 //-(id)initWithFirebaseRef:(NSString *)firebaseRef tenant:(NSString *)tenant user:(SHPUser *)user;
 -(id)initWithTenant:(NSString *)tenant user:(ChatUser *)user;
@@ -44,6 +44,6 @@
 //-(void)insertOrUpdateGroup:(ChatGroup *)group;
 -(void)insertOrUpdateGroup:(ChatGroup *)group completion:(void(^)()) callback;
 -(void)insertInMemory:(ChatGroup *)group;
--(void)addSubcriber:(id<ChatGroupsSubscriber>)subscriber;
--(void)removeSubcriber:(id<ChatGroupsSubscriber>)subscriber;
+-(void)addSubscriber:(id<ChatGroupsSubscriber>)subscriber;
+-(void)removeSubscriber:(id<ChatGroupsSubscriber>)subscriber;
 @end

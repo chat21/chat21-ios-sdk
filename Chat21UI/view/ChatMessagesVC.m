@@ -199,10 +199,9 @@
         self.navigationController.interactivePopGestureRecognizer.delegate = self;
     }
     [self updateUnreadMessagesCount];
-    [[ChatManager getInstance].groupsHandler addSubcriber:self];
 }
 
--(void)subscribe:(ChatConversationHandler  *)handler {
+-(void)subscribeForMessages:(ChatConversationHandler  *)handler {
     self.added_handle = [handler observeEvent:ChatEventMessageAdded withCallback:^(ChatMessage *message) {
         [self messageReceived:message];
     }];
@@ -212,9 +211,15 @@
     self.deleted_handle = [handler observeEvent:ChatEventMessageDeleted withCallback:^(ChatMessage *message) {
         [self messageDeleted:message];
     }];
-    NSLog(@"added_handle: %lu, changed_handle: %lu, deleted_handle: %lu", (unsigned long)self.added_handle, (unsigned long)self.changed_handle, (unsigned long)self.deleted_handle);
+//    if (self.group) {
+//        [self monitorGroupUpdates];
+//    }
+//    NSLog(@"added_handle: %lu, changed_handle: %lu, deleted_handle: %lu", (unsigned long)self.added_handle, (unsigned long)self.changed_handle, (unsigned long)self.deleted_handle);
 }
 
+-(void)monitorGroupUpdates {
+    [[ChatManager getInstance].groupsHandler addSubscriber:self];
+}
 -(void)removeSubscribers {
     if (self.conversationHandler) {
         [self.conversationHandler removeObserverWithHandle:self.added_handle];
@@ -255,7 +260,7 @@
         [self resetTitleView];
         self.tabBarController.tabBar.hidden=NO;
         [self removeSubscribers];
-        [[ChatManager getInstance].groupsHandler removeSubcriber:self];
+        [[ChatManager getInstance].groupsHandler removeSubscriber:self];
         
         //        for (NSString *k in self.imageDownloadsInProgress) {
         //            NSLog(@"Removing downloader: %@", k);
@@ -546,57 +551,18 @@
     } else {
         NSLog(@"*** CONVERSATION HANDLER IN GROUP MOD!!!!!!!");
         handler = [chatm getConversationHandlerForGroup:self.group];
+        [self monitorGroupUpdates];
     }
     [handler connect];
-    [self subscribe:handler];
+    [self subscribeForMessages:handler];
     self.conversationHandler = handler;
-    [self checkImGroupMember];
+//    [self configureIfImGroupMember];
 }
 
-//-(void)initConversationHandler {
-//    ChatManager *chatm = [ChatManager getInstance];
-//    ChatConversationHandler *handler = [chatm getConversationHandlerByConversationId:self.recipient.userId]; // [chatm getConversationHandlerByRecipient:self.recipient];
-//    if (!handler) {
-//        NSLog(@"Conversation Handler not found. Creating & initializing a new one with conv-id %@", self.recipient.userId);
-//        // GROUP_MOD
-//        if (self.recipient) {
-//            handler = [[ChatConversationHandler alloc] initWithRecipient:self.recipient.userId recipientFullName:self.recipient.fullname];
-//        } else {
-//            NSLog(@"*** CONVERSATION HANDLER IN GROUP MOD!!!!!!!");
-//            handler = [[ChatConversationHandler alloc] initWithGroupId:self.group.groupId];
-//        }
-//        [chatm addConversationHandler:handler];
-//        [self subscribe:handler];
-//        self.conversationHandler = handler;
-//
-//        // db
-//        NSLog(@"Restoring DB archived conversations.");
-//        [self.conversationHandler restoreMessagesFromDB];
-//        NSLog(@"Archived messages count %lu", (unsigned long)self.conversationHandler.messages.count);
-//
-//        if (self.recipient) {
-//            NSLog(@"Connecting handler to firebase.");
-//            [handler connect];
-//        }
-//        else {
-//            [self checkImGroupMember];
-//        }
-//        NSLog(@"Handler ref: %@", handler.messagesRef);
-//        NSLog(@"Adding new handler %@ to Conversations Manager.", handler);
-//    }
-//    else {
-////        [handler addSubcriber:self];
-//        [handler connect];
-//        [self subscribe:handler];
-//        self.conversationHandler = handler;
-//        [self checkImGroupMember];
-//    }
-//    [self setContainer];
-//}
-
--(void)checkImGroupMember {
+-(void)configureIfImGroupMember {
     if (self.group) {
         if ([self.group isMember:self.me.userId]) {
+            [self subscribeForMessages:self.conversationHandler];
             [self.conversationHandler connect];
         }
         else {
@@ -973,6 +939,7 @@
         self.messagesArriving = YES;
         // fist message always shown
         [self renderMessages];
+        [self playSound];
     }
     else {
         NSLog(@"MESSAGES STILL ARRIVING, NOT RENDERING!");
@@ -999,8 +966,10 @@ static float messageTime = 0.5;
 }
 
 -(void)renderMessages {
-    [containerTVC reloadDataTableViewOnIndex:self.conversationHandler.messages.count];
-    [self scrollTo];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [containerTVC reloadDataTableViewOnIndex:self.conversationHandler.messages.count];
+        [self scrollTo];
+    });
 }
 
 -(void)scrollTo {
@@ -1011,7 +980,7 @@ static float messageTime = 0.5;
     NSLog(@"Notified to view that %@ changed. Checking possible view changes.", group.name);
     dispatch_async(dispatch_get_main_queue(), ^{
         self.group = group;
-        [self checkImGroupMember];
+        [self configureIfImGroupMember];
         [self writeBoxEnabled];
         [self setTitle:self.group.name];
         [self.group completeGroupMembersMetadataWithCompletionBlock:^() {
@@ -1096,14 +1065,15 @@ static float messageTime = 0.5;
     if (![group.groupId isEqualToString:self.group.groupId]) {
         return;
     }
-    if ([group isMember:self.me.userId]) {
-        [self.conversationHandler connect];
-        [self groupConfigurationChanged:group];
-    }
-    else {
-        [self.conversationHandler dispose];
-        [self groupConfigurationChanged:group];
-    }
+    [self groupConfigurationChanged:group];
+//    if ([group isMember:self.me.userId]) {
+//        [self.conversationHandler connect];
+//        [self groupConfigurationChanged:group];
+//    }
+//    else {
+//        [self.conversationHandler dispose];
+//        [self groupConfigurationChanged:group];
+//    }
 }
 
 // In a storyboard-based application, you will often want to do a little preparation before navigation

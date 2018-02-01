@@ -47,7 +47,7 @@
     ChatManager *chatm = [ChatManager getInstance];
     contacts = chatm.contactsSynchronizer;
     [self setupSynchronizing];
-    [contacts addSynchSubcriber:self];
+    [contacts addSynchSubscriber:self];
 }
 
 // SYNCH PROTOCOL
@@ -107,7 +107,7 @@
 }
 
 -(void)disposeResources {
-    [contacts removeSynchSubcriber:self];
+    [contacts removeSynchSubscriber:self];
     [self terminatePendingImageConnections];
 }
 

@@ -190,18 +190,6 @@
     }
 }
 
-//-(void)notifySubscribersMessageChanged:(ChatMessage *)message {
-//    for (id<ChatConversationSubscriber> subscriber in self.subcribers) {
-//        [subscriber messageChanged:message];
-//    }
-//}
-
-//-(void)notifySubscribersMessageDeleted:(ChatMessage *)message {
-//    for (id<ChatConversationSubscriber> subscriber in self.subcribers) {
-//        [subscriber messageDeleted:message];
-//    }
-//}
-
 // v2
 
 -(NSUInteger)observeEvent:(ChatConversationEventType)eventType withCallback:(void (^)(ChatConversation *conversation))callback {

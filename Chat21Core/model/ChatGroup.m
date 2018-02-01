@@ -162,7 +162,9 @@
     NSArray<NSString *> *contact_ids = [self.members allKeys];
     [db getMultipleContactsByIdsSyncronized:contact_ids completion:^(NSArray<ChatUser *> *contacts) {
         self.membersFull = contacts;
-        callback();
+        dispatch_async(dispatch_get_main_queue(), ^{
+            callback();
+        });
     }];
 }
 

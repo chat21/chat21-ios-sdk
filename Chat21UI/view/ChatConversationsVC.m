@@ -523,7 +523,6 @@
             nextVC.unread_count = count;
             [nextVC performSelector:@selector(updateUnreadMessagesCount) withObject:nil];
         }
-        
     }
 }
 

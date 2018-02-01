@@ -535,24 +535,7 @@
 
 // observer
 
-//-(void)addSubcriber:(id<ChatConversationSubscriber>)subscriber {
-//    if (!self.subcribers) {
-//        self.subcribers = [[NSMutableArray alloc] init];
-//    }
-//    [self.subcribers addObject:subscriber];
-//}
-//
-//-(void)removeSubcriber:(id<ChatConversationSubscriber>)subscriber {
-//    if (!self.subcribers) {
-//        return;
-//    }
-//    [self.subcribers removeObject:subscriber];
-//}
-
 -(void)notifyEvent:(ChatMessageEventType)event message:(ChatMessage *)message {
-//    for (id<ChatConversationSubscriber> subscriber in self.subcribers) {
-//        [subscriber messageAdded:message];
-//    }
     if (!self.eventObservers) {
         return;
     }
@@ -565,18 +548,6 @@
         callback(message);
     }
 }
-
-//-(void)notifySubscribersMessageChanged:(ChatMessage *)message {
-//    for (id<ChatConversationSubscriber> subscriber in self.subcribers) {
-//        [subscriber messageChanged:message];
-//    }
-//}
-
-//-(void)notifySubscribersMessageDeleted:(ChatMessage *)message {
-//    for (id<ChatConversationSubscriber> subscriber in self.subcribers) {
-//        [subscriber messageDeleted:message];
-//    }
-//}
 
 // v2
 

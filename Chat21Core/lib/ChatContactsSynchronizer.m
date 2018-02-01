@@ -30,24 +30,22 @@
     return self;
 }
 
--(void)addSynchSubcriber:(id<ChatSynchDelegate>)subscriber {
-    if (!self.synchSubcribers) {
-        self.synchSubcribers = [[NSMutableArray alloc] init];
+-(void)addSynchSubscriber:(id<ChatSynchDelegate>)subscriber {
+    if (!self.synchSubscribers) {
+        self.synchSubscribers = [[NSMutableArray alloc] init];
     }
-    [self.synchSubcribers addObject:subscriber];
+    [self.synchSubscribers addObject:subscriber];
 }
 
--(void)removeSynchSubcriber:(id<ChatSynchDelegate>)subscriber {
-    if (!self.synchSubcribers) {
+-(void)removeSynchSubscriber:(id<ChatSynchDelegate>)subscriber {
+    if (!self.synchSubscribers) {
         return;
     }
-//    NSLog(@"BEFORE, CONTAINS SUBSCRIBER? %d", [self.synchSubcribers containsObject:subscriber]);
-    [self.synchSubcribers removeObject:subscriber];
-//    NSLog(@"AFTER, CONTAINS SUBSCRIBER? %d", [self.synchSubcribers containsObject:subscriber]);
+    [self.synchSubscribers removeObject:subscriber];
 }
 
 -(void)callEndOnSubscribers {
-    for (id<ChatSynchDelegate> subscriber in self.synchSubcribers) {
+    for (id<ChatSynchDelegate> subscriber in self.synchSubscribers) {
         [subscriber synchEnd];
     }
 }

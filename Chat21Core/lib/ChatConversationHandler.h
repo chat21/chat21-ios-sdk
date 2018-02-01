@@ -38,12 +38,6 @@
 @property (assign, nonatomic) FIRDatabaseHandle updated_messages_ref_handle;
 @property (strong, nonatomic) FirebaseCustomAuthHelper *authHelper;
 @property (strong, nonatomic) NSString *channel_type;
-//@property (assign, nonatomic) id <SHPChatDelegate> delegateView;
-
-// subscribers
-//@property (strong, nonatomic) NSMutableArray<id<ChatConversationSubscriber>> *subcribers;
-//-(void)addSubcriber:(id<ChatConversationSubscriber>)subscriber;
-//-(void)removeSubcriber:(id<ChatConversationSubscriber>)subscriber;
 
 // observer
 @property (strong, nonatomic) NSMutableDictionary *eventObservers;

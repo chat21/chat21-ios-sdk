@@ -23,7 +23,7 @@
 @property (assign, nonatomic) FIRDatabaseHandle contact_ref_handle_removed;
 @property (strong, nonatomic) NSTimer * _Nullable synchTimer;
 @property (assign, nonatomic) BOOL synchronizing;
-@property (strong, nonnull) NSMutableArray<id<ChatSynchDelegate>> *synchSubcribers;
+@property (strong, nonnull) NSMutableArray<id<ChatSynchDelegate>> *synchSubscribers;
 
 -(id)initWithTenant:(NSString *)tenant user:(ChatUser *)user;
 -(void)startSynchro;
@@ -31,8 +31,8 @@
 //+(void)insertOrUpdateContactOnDB:(ChatUser *)user;
 +(ChatUser *_Nullable)contactFromDictionaryFactory:(NSDictionary *)snapshot;
 -(void)dispose;
--(void)addSynchSubcriber:(id<ChatSynchDelegate>)subscriber;
--(void)removeSynchSubcriber:(id<ChatSynchDelegate>)subscriber;
+-(void)addSynchSubscriber:(id<ChatSynchDelegate>)subscriber;
+-(void)removeSynchSubscriber:(id<ChatSynchDelegate>)subscriber;
 +(ChatUser *)contactFromSnapshotFactory:(FIRDataSnapshot *)snapshot;
 
 @end
