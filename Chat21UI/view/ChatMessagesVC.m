@@ -830,7 +830,9 @@
     NSString *trimmed_text = [text stringByTrimmingCharactersInSet:
                               [NSCharacterSet whitespaceCharacterSet]];
     if(trimmed_text.length > 0) {
-        [self.conversationHandler sendMessageWithText:text type:MSG_TYPE_TEXT attributes:attributes];
+        [self.conversationHandler sendTextMessage:text attributes:attributes completion:^(ChatMessage *message, NSError *error) {
+            NSLog(@"Message %@ successfully sent. ID: %@", message.text, message.messageId);
+        }];
         self.messageTextField.text = @"";
     }
 }
@@ -863,61 +865,10 @@
         }
     }
     NSString *text = [NSString stringWithFormat:@"%@ %@", name, link];
-    [self.conversationHandler sendMessageWithText:text type:MSG_TYPE_DROPBOX attributes:attributes];
+    [self.conversationHandler sendTextMessage:text attributes:attributes completion:^(ChatMessage *message, NSError *error) {
+        NSLog(@"Dropbox message %@ successfully sent. ID: %@", message.text, message.messageId);
+    }];
 }
-
-//-(void)sendAlfrescoMessage:(NSString *)name link:(NSString *)link {
-//
-//    // check: if in a group, are you still a member?
-//    if (self.group) {
-//        if ([self.group isMember:self.me.userId]) {
-//        } else {
-//            [self hideBottomView:YES];
-//            [self.messageTextField resignFirstResponder];
-//            return;
-//        }
-//    }
-//
-//    NSMutableDictionary *attributes = [[NSMutableDictionary alloc] init];
-//    NSLog(@"alfresco.link: %@", link);
-//
-//    [attributes setValue:link forKey:@"link"];
-//    [attributes setValue:name forKey:@"name"];
-//
-//    //    NSString *text = [NSString stringWithFormat:@"%@ %@", name, link];
-//    NSString *text = link;
-//    [self.conversationHandler sendMessageWithText:text type:MSG_TYPE_ALFRESCO attributes:attributes];
-//}
-
-//- (IBAction)prindb:(id)sender {
-//    NSLog(@"Printing messages...");
-//    //    [self printDBMessages];
-//}
-
-//-(void)printDBMessages {
-//    NSLog(@"--- all messages for conv %@", self.conversationId);
-//    NSArray *messages = [[ChatDB getSharedInstance] getAllMessagesForConversation:self.conversationId];
-//    for (ChatMessage *msg in messages) {
-//        NSLog(@"%@>%@:%@ [%@]", msg.sender, msg.recipient, msg.text, msg.messageId);
-//    }
-//}
-
-//// conversation subscriber
-//-(void)messageAdded:(ChatMessage *)message {
-//    NSLog(@"messageAdded: %@", message.messageId);
-//    [self finishedReceivingMessage:message];
-//}
-//
-//-(void)messageChanged:(ChatMessage *)message {
-//    NSLog(@"messageChanged: %@", message.messageId);
-//    [self finishedReceivingMessage:message];
-//}
-//
-//-(void)messageDeleted:(ChatMessage *)message {
-//    NSLog(@"messageDeleted: %@", message.messageId);
-//    [self finishedReceivingMessage:message];
-//}
-//// end subscriber
 
 -(void)messageUpdated:(ChatMessage *)message {
     [containerTVC reloadDataTableView];

@@ -29,7 +29,7 @@
 -(void)getContactByIdSyncronized:(NSString *)contactId completion:(void(^)(ChatUser *)) callback;
 -(void)getMultipleContactsByIdsSyncronized:(NSArray<NSString *> *)contactIds completion:(void(^)(NSArray<ChatUser *> *)) callback;
 -(void)searchContactsByFullnameSynchronized:(NSString *)searchString completion:(void (^)(NSArray<ChatUser *> *))callback;
--(BOOL)removeContactSynchronized:(NSString *)contactId;
+-(void)removeContactSynchronized:(NSString *)contactId completion:(void(^)()) callback;
 -(ChatUser *)getMostRecentContact;
 -(BOOL)insertContact:(ChatUser *)contact;
 -(NSArray*)getAllContacts; // test only

@@ -232,7 +232,7 @@ static NSString *FIRST_SYNCHRO_KEY = @"first-contacts-synchro";
 
 -(void)removeContactOnDB:(ChatUser *)user {
     NSLog(@"REMOVING CONTACT: %@ (%@ %@)", user.userId, user.firstname, user.lastname);
-    [[ChatContactsDB getSharedInstance] removeContactSynchronized:user.userId];
+    [[ChatContactsDB getSharedInstance] removeContactSynchronized:user.userId completion:nil];
 }
 
 -(void)dispose {

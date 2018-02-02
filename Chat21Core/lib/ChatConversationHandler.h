@@ -52,8 +52,9 @@
 -(id)initWithGroupId:(NSString *)groupId groupName:(NSString *)groupName;
 -(void)connect;
 -(void)dispose;
-- (void)sendMessage:(NSString *)text;
--(void)sendMessageWithText:(NSString *)text type:(NSString *)type attributes:(NSDictionary *)attributes;
+//- (void)sendMessage:(NSString *)text;
+//-(void)sendMessageWithText:(NSString *)text type:(NSString *)type attributes:(NSDictionary *)attributes;
+-(void)sendTextMessage:(NSString *)text attributes:(NSDictionary *)attributes completion:(void(^)(ChatMessage *message, NSError *error)) callback;
 -(void)restoreMessagesFromDB;
 +(NSMutableDictionary *)firebaseMessageFor:(ChatMessage *)message;
 

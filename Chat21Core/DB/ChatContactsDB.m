@@ -367,25 +367,21 @@ static NSString *SELECT_FROM_CONTACTS_STATEMENT = @"SELECT contactId, firstname,
 //    });
 //}
 
--(BOOL)removeContactSynchronized:(NSString *)contactId {
-    //    NSLog(@"**** remove contact query...");
-//    const char *dbpath = [databasePath UTF8String];
-//    if (sqlite3_open(dbpath, &database) == SQLITE_OK) {
+-(void)removeContactSynchronized:(NSString *)contactId completion:(void(^)()) callback {
+    dispatch_async(serialDatabaseQueue, ^{
         NSString *sql = [NSString stringWithFormat:@"DELETE FROM contacts WHERE contactId = \"%@\"", contactId];
         //        NSLog(@"**** QUERY:%@", sql);
         const char *stmt = [sql UTF8String];
         sqlite3_prepare_v2(database, stmt,-1, &statement, NULL);
         if (sqlite3_step(statement) == SQLITE_DONE) {
             sqlite3_reset(statement);
-            return YES;
         }
         else {
             NSLog(@"Database returned error %d: %s", sqlite3_errcode(database), sqlite3_errmsg(database));
             sqlite3_reset(statement);
-            return NO;
         }
-//    }
-    return NO;
+        callback();
+    });
 }
 
 -(ChatUser *)contactFromStatement:(sqlite3_stmt *)statement {

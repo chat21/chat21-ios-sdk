@@ -298,12 +298,14 @@
     return message;
 }
 
--(void)sendMessageWithText:(NSString *)text type:(NSString *)type attributes:(NSDictionary *)attributes {
+//-(void)sendMessage:(NSString *)text image:(UIImage *)image binary:(NSData *)data type:(NSString *)type attributes:(NSDictionary *)attributes {
+
+-(void)sendTextMessage:(NSString *)text attributes:(NSDictionary *)attributes completion:(void(^)(ChatMessage *message, NSError *error)) callback {
     ChatMessage *message = [self newBaseMessage];
     if (text) {
         message.text = text;
     }
-    message.mtype = type;
+    message.mtype = MSG_TYPE_TEXT;
     message.attributes = attributes;
 //    if (self.groupId) {
     if ([self.channel_type isEqualToString:MSG_CHANNEL_TYPE_GROUP]) {
@@ -312,21 +314,25 @@
         message.channel_type = MSG_CHANNEL_TYPE_GROUP;
         message.recipient = self.recipientId;
         message.recipientFullName = self.recipientFullname;
-        [self sendMessageToGroup:message];
+        [self sendMessageToGroup:message completion:^(ChatMessage *m, NSError *error){
+            callback(m, error);
+        }];
     } else {
         NSLog(@"SENDING MESSAGE DIRECT MODE. User: %@", [FIRAuth auth].currentUser.uid);
         message.channel_type = MSG_CHANNEL_TYPE_DIRECT;
         message.recipient = self.recipientId;
         message.recipientFullName = self.recipientFullname;
-        [self sendDirect:message];
+        [self sendDirect:message completion:^(ChatMessage *m, NSError *error){
+            callback(m, error);
+        }];
     }
 }
 
--(void)sendMessage:(NSString *)text {
-    [self sendMessageWithText:text type:MSG_TYPE_TEXT attributes:nil];
-}
+//-(void)sendMessage:(NSString *)text {
+//    [self sendMessageWithText:text type:MSG_TYPE_TEXT attributes:nil];
+//}
 
--(void)sendDirect:(ChatMessage *)message {
+-(void)sendDirect:(ChatMessage *)message completion:(void(^)(ChatMessage *message, NSError *error))callback {
     // create firebase reference
     FIRDatabaseReference *messageRef = [self.messagesRef childByAutoId]; // CHILD'S AUTOGEN UNIQUE ID
     message.messageId = messageRef.key;
@@ -347,6 +353,7 @@
             [self updateMessageStatusInMemory:ref.key withStatus:status];
             [self updateMessageStatusOnDB:message.messageId withStatus:status];
             [self notifyEvent:ChatEventMessageChanged message:message];
+            callback(message, error);
         } else {
             NSLog(@"Data saved successfully. Updating status & reloading tableView.");
             int status = MSG_STATUS_SENT;
@@ -354,11 +361,12 @@
             [self updateMessageStatusInMemory:message.messageId withStatus:status];
             [self updateMessageStatusOnDB:message.messageId withStatus:status];
             [self notifyEvent:ChatEventMessageChanged message:message];
+            callback(message, error);
         }
     }];
 }
 
--(void)sendMessageToGroup:(ChatMessage *)message {
+-(void)sendMessageToGroup:(ChatMessage *)message completion:(void(^)(ChatMessage *message, NSError *error))callback {
     // create firebase reference
     FIRDatabaseReference *messageRef = [self.messagesRef childByAutoId]; // CHILD'S AUTOGEN UNIQUE ID
     message.messageId = messageRef.key;
@@ -377,56 +385,14 @@
             [self updateMessageStatusInMemory:ref.key withStatus:status];
             [self updateMessageStatusOnDB:message.messageId withStatus:status];
             [self notifyEvent:ChatEventMessageChanged message:message];
+            callback(message, error);
         } else {
             NSLog(@"Data saved successfully. Updating status & reloading tableView.");
             int status = MSG_STATUS_SENT;
             [self updateMessageStatusInMemory:ref.key withStatus:status];
             [self updateMessageStatusOnDB:message.messageId withStatus:status];
             [self notifyEvent:ChatEventMessageChanged message:message];
-            
-//            ChatGroup *group = [[ChatManager getInstance] groupById:self.groupId];
-//
-//            NSLog(@"Updating conversations of group's members...");
-//
-//            // updates conversations
-//
-//            // Sender-side conversation
-//            ChatManager *chat = [ChatManager getInstance];
-//
-//            ChatConversation *senderConversation = [[ChatConversation alloc] init];
-//            senderConversation.ref = self.conversationOnSenderRef;
-//            senderConversation.last_message_text = message.text;
-//            senderConversation.is_new = NO;
-//            senderConversation.date = message.date;
-//            senderConversation.sender = message.sender;
-//            senderConversation.senderFullname = message.senderFullname;
-//            senderConversation.groupName = group.name;
-//            senderConversation.groupId = group.groupId;
-//            senderConversation.status = CONV_STATUS_LAST_MESSAGE;
-//
-//            [chat createOrUpdateConversation:senderConversation];
-//
-//            // Recipient-side: the conversation is new. It becomes !new immediately after the "tap" in recipent-side's converations-list.
-//            NSLog(@"AGGIORNO LA CONVERSAZIONE DEI MEMBRI RICEVENTI CON IS_NEW = SI");
-//
-//            for (NSString *memberId in group.members) {
-//                NSLog(@"AGGIORNO CONVERSAZIONE DI %@", memberId);
-//                FIRDatabaseReference *conversationOnMember = [ChatUtil conversationRefForUser:memberId conversationId:self.conversationId];
-//
-//                ChatConversation *memberConversation = [[ChatConversation alloc] init];
-//                memberConversation.ref = conversationOnMember;
-//                memberConversation.last_message_text = message.text;
-//                memberConversation.is_new = YES;
-//                memberConversation.date = message.date;
-//                memberConversation.sender = message.sender;
-//                memberConversation.senderFullname = message.senderFullname;
-//                memberConversation.groupName = self.groupName;
-//                memberConversation.groupId = self.groupId;
-//                memberConversation.status = CONV_STATUS_LAST_MESSAGE;
-//
-//                [chat createOrUpdateConversation:memberConversation];
-//            }
-//            NSLog(@"Finished updating group conversations...");
+            callback(message, error);
         }
     }];
 }
