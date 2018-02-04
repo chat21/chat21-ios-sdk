@@ -17,10 +17,10 @@
 #import "ChatManager.h"
 #import "ChatContactsDB.h"
 #import "ChatGroup.h"
-#import "MBProgressHUD.h"
+#import "ChatProgressView.h"
 
 @interface ChatSelectGroupMembersLocal () {
-    MBProgressHUD *HUD;
+    ChatProgressView *HUD;
 }
 @end
 
@@ -608,12 +608,12 @@
 
 -(void)showWaiting:(NSString *)label {
     if (!HUD) {
-        HUD = [[MBProgressHUD alloc] initWithWindow:self.view.window];
+        HUD = [[ChatProgressView alloc] initWithWindow:self.view.window];
         [self.view.window addSubview:HUD];
     }
     HUD.center = self.view.center;
     HUD.labelText = label;
-    HUD.animationType = MBProgressHUDAnimationZoom;
+    HUD.animationType = ChatProgressViewAnimationZoom;
     [HUD show:YES];
 }
 

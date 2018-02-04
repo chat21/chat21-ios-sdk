@@ -24,6 +24,8 @@ static NotificationAlertView *notificationAlertInstance = nil;
 +(ChatUIManager *)getInstance {
     if (!sharedInstance) {
         sharedInstance = [[ChatUIManager alloc] init];
+        NSDictionary *dictionary = [NSDictionary dictionaryWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"Chat-Info" ofType:@"plist"]];
+        sharedInstance.tabBarIndex = [[dictionary objectForKey:@"conversations-tabbar-index"] integerValue];
     }
     return sharedInstance;
 }
@@ -130,7 +132,7 @@ static NotificationAlertView *notificationAlertInstance = nil;
 
 // only for tabbed applications
 +(void)moveToConversationViewWithUser:(ChatUser *)user orGroup:(ChatGroup *)group sendMessage:(NSString *)message attributes:(NSDictionary *)attributes {
-    NSInteger chat_tab_index = [ChatManager getInstance].tabBarIndex;
+    NSInteger chat_tab_index = [ChatUIManager getInstance].tabBarIndex;
     NSLog(@"processRemoteNotification: messages_tab_index %ld", (long)chat_tab_index);
     // move to the converstations tab
     if (chat_tab_index >= 0) {

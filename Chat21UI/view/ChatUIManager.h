@@ -28,6 +28,8 @@
 -(UINavigationController *)getCreateGroupViewController;
 -(UINavigationController *)getSelectGroupViewController;
 
+@property (assign, nonatomic) NSInteger tabBarIndex;
+
 // this methods work only with a tabbed application and Chat-Info.plist > tabbar-index property correctly configured to the tab index containing the ConversationsView
 +(void)moveToConversationViewWithUser:(ChatUser *)user;
 +(void)moveToConversationViewWithUser:(ChatUser *)user sendMessage:(NSString *)message;

@@ -10,6 +10,7 @@
 #import "NotificationAlertVC.h"
 #import "ChatConversationsVC.h"
 #import "ChatManager.h"
+#import "ChatUIManager.h"
 
 @interface NotificationAlertVC () {
     SystemSoundID soundID;
@@ -41,7 +42,7 @@
 //    CGPoint location = [recognizer locationInView:[recognizer.view superview]];
     NSLog(@"View tapped!! Moving to conversation tab.");
     [self animateClose];
-    NSInteger chat_tab_index = [ChatManager getInstance].tabBarIndex;
+    NSInteger chat_tab_index = [ChatUIManager getInstance].tabBarIndex;
     // move to the converstations tab
 //    if (chat_tab_index >= 0) {
 //        UIWindow *window = [[[UIApplication sharedApplication] delegate] window];
