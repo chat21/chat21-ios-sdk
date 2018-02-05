@@ -7,6 +7,7 @@
 #import "ChatCreateGroupVC.h"
 #import "ChatSelectGroupMembersLocal.h"
 #import "ChatUtil.h"
+#import "ChatLocal.h"
 
 @implementation ChatCreateGroupVC
 
@@ -18,12 +19,12 @@
 }
 
 -(void)initUI {
-    self.title = self.navigationItem.title = NSLocalizedString(@"new group", nil);
-    self.addPhotoLabelOverloaded.text = NSLocalizedString(@"add photo placeholder", nil);
-    self.messageLabel.text = NSLocalizedString(@"create group info message", nil);
-    self.groupNameTextField.placeholder = NSLocalizedString(@"GroupNamePlaceholder", nil);
-    self.nextButton.title = NSLocalizedString(@"next", nil);
-    self.cancelButton.title = NSLocalizedString(@"cancel", nil);
+    self.title = self.navigationItem.title = [ChatLocal translate:@"new group"];
+    self.addPhotoLabelOverloaded.text = [ChatLocal translate:@"add photo placeholder"];
+    self.messageLabel.text = [ChatLocal translate:@"create group info message"];
+    self.groupNameTextField.placeholder = [ChatLocal translate:@"GroupNamePlaceholder"];
+    self.nextButton.title = [ChatLocal translate:@"next"];
+    self.cancelButton.title = [ChatLocal translate:@"cancel"];
     [self.groupNameTextField becomeFirstResponder];
     
     self.navigationItem.rightBarButtonItem.enabled = NO;
@@ -40,7 +41,7 @@
 
 -(void)photoMenu {
     // init the photo action menu
-    NSString *takePhotoButtonTitle = NSLocalizedString(@"TakePhotoLKey", nil);
+    NSString *takePhotoButtonTitle = [ChatLocal translate:@"TakePhotoLKey"];
     NSString *chooseExistingButtonTitle = NSLocalizedString(@"PhotoFromGalleryLKey", nil);
     
     self.photoMenuSheet = [[UIActionSheet alloc] initWithTitle:nil delegate:self cancelButtonTitle:NSLocalizedString(@"CancelLKey", nil) destructiveButtonTitle:nil otherButtonTitles:takePhotoButtonTitle, chooseExistingButtonTitle, nil];

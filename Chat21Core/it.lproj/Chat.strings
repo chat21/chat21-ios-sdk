@@ -1,0 +1,109 @@
+/* 
+  Chat.strings
+  tilechat
+
+  Created by Andrea Sponziello on 05/02/2018.
+  Copyright © 2018 Frontiere21. All rights reserved.
+*/
+
+"CancelLKey" = "Annulla";
+"DoneLKey" = "Fatto";
+"CloseLKey" = "Chiudi";
+"BackLKey" = "Indietro";
+"SendLKey" = "Pubblica";
+"RequiredPlaceholderLKey" = "Obbligatorio";
+"ConnectionErrorLKey" = "Errore di Connessione!";
+"TimeToStringDateFormat" = "d MMMM";
+"Saving" = "Sto salvando...";
+"NetworkErrorTitle" = "Errore rete";
+"NetworkError" = "Si è verificato un errore di rete durante la connessione.";
+
+"FewSecondsAgoLKey" = "pochi secondi fa";
+"AboutAMinuteAgoLKey" = "circa un minuto fa";
+"MinutesAgoLKey" = "minuti fa";
+"AboutAnHourAgoLKey" = "circa un'ora fa";
+"HoursAgoLKey" = "ore fa";
+
+// *** tabbar menu labels ***
+
+"Authenticating" = "Autenticazione in corso...";
+"UsernamePasswordInvalid" = "Username o password non validi";
+"NetworkError" = "Si è verificato un errore di rete";
+"NetworkErrorTitle" = "Errore di rete";
+"UnknownError" = "Errore sconosciuto";
+
+"Chat" = "Chat";
+"Profile" = "Profilo";
+"Help" = "Un aiuto?";
+
+// *** chat labels ***
+
+"NoConversationsYet" = "Ancora nessuna conversazione.";
+"DeleteConversationTitle" = "Elimino questa Conversazione?";
+"DeleteConversationMessage" = "Sei sicuro? Non preoccuparti dei messaggi, sono al sicuro. Ti basta riaprire la chat con un gruppo o un utente per vederli di nuovo.";
+"ChatConnected" = "connesso";
+"ChatDisconnected" = "connessione...";
+"ChatSend" = "Invia";
+
+// settings view
+"ChatTerms" = "Termini e Condizioni";
+"ChatPrivacy" = "Privacy";
+"ChatLicences" = "Licenze";
+
+// select user (new message) view
+"NewMessage" = "Nuovo Messaggio";
+"NewGroup" = "Nuovo gruppo";
+"Groups" = "Gruppi";
+
+"last seen" = "ultimo accesso";
+"group summary" = "gruppo";
+
+// chat profile
+"Synchronizing contacts" = "Sincronizzazione contatti...";
+"ChatProfile" = "Profilo";
+"ChatSignoutAlert" = "Sei sicuro?";
+"ChatCancel" = "Annulla";
+"ChatSave" = "Salva";
+"ChatSettingsMenuOption" = "Impostazioni";
+"ChatHelpMenuOption" = "Aiuto e assistenza";
+"ChatLogoutMenuOption" = "Esci";
+"ChatLogoutChatOption" = "Chat";
+"Open link" = "Apri in Safari";
+"Copy link" = "Copia";
+"Group administrator" = "amministratore";
+"Select group" = "Seleziona gruppo";
+"Member info" = "Info";
+"Member remove" = "Rimuovi membro";
+"Send message" = "Invia messaggio";
+"Members" = "Membri";
+"Add user to group" = "Aggiungi %@ al gruppo %@?";
+"Add" = "Aggiungi";
+"Just in group" = "Già nel gruppo";
+"Add member" = "Aggiungi Membro";
+"You was added to group" = "Sei stato aggiunto al gruppo \"%@\"";
+"You created the group" = "Hai creato il gruppo \"%@\"";
+"You" = "Tu";
+"ShortDateFormat" = "d/M/yyyy";
+"yesterday" = "ieri";
+"today" = "oggi";
+"group info" = "Info gruppo";
+"new group" = "Nuovo gruppo";
+"create group info message" = "Imposta il nome del gruppo e la sua icona (opzionale)";
+"group name placeholder" = "Nome del gruppo";
+"next" = "Avanti";
+"cancel" = "Annulla";
+"create" = "Crea";
+"contact name" = "Nome del contatto";
+"remove" = "Rimuovi";
+"add members" = "Aggiungi membri";
+"group created by" = "Gruppo creato da %@";
+"group created on" = "Creato il %@";
+"GroupNamePlaceholder" = "Dai un nome al gruppo";
+"GroupNameTitle" = "Nome gruppo";
+"all contacts" = "Tutti i contatti";
+"change fullname" = "Nome visualizzato";
+"change password" = "Cambia Password";
+"settingsLegalSection" = "Legale";
+"Remove this member?" = "Vuoi rimuovere questo membro?";
+"Remove" = "Rimuovi";
+

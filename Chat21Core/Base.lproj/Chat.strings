@@ -1,0 +1,109 @@
+/* 
+  Chat.strings
+  tilechat
+
+  Created by Andrea Sponziello on 05/02/2018.
+  Copyright © 2018 Frontiere21. All rights reserved.
+*/
+
+"CancelLKey" = "Cancel";
+"DoneLKey" = "Done";
+"CloseLKey" = "Close";
+"BackLKey" = "Back";
+"SendLKey" = "Public";
+"RequiredPlaceholderLKey" = "Required";
+"ConnectionErrorLKey" = "Connection error!";
+"TimeToStringDateFormat" = "MMMM d";
+"Saving" = "Saving...";
+"NetworkErrorTitle" = "Network error";
+"NetworkError" = "An network error occurred during connection.";
+
+"FewSecondsAgoLKey" = "few seconds ago";
+"AboutAMinuteAgoLKey" = "about a minute ago";
+"MinutesAgoLKey" = "minutes ago";
+"AboutAnHourAgoLKey" = "about one hour ago";
+"HoursAgoLKey" = "hours ago";
+
+// *** tabbar menu labels ***
+
+"Authenticating" = "Authenticating...";
+"UsernamePasswordInvalid" = "Username o password non validi";
+"NetworkError" = "A network error occurred";
+"NetworkErrorTitle" = "Netword error";
+"UnknownError" = "Unknown error";
+
+"Chat" = "Chat";
+"Profile" = "Profile";
+"Help" = "Need help?";
+
+// *** chat labels ***
+
+"NoConversationsYet" = "No Conversation yet";
+"DeleteConversationTitle" = "Delete this Conversation?";
+"DeleteConversationMessage" = "Are you sure you want to delete this Conversation? Don't worry, all the messages will stay safe. Just reopen the chat with the group or user to see all exchanged messages";
+"ChatConnected" = "connected";
+"ChatDisconnected" = "connecting...";
+"ChatSend" = "Send";
+
+// settings view
+"ChatTerms" = "Terms of use";
+"ChatPrivacy" = "Privacy";
+"ChatLicences" = "Licences";
+
+// select user (new message) view
+"NewMessage" = "New Message";
+"NewGroup" = "New group";
+"Groups" = "Groups";
+
+"last seen" = "last seen";
+"group summary" = "group";
+
+// chat profile
+"Synchronizing contacts" = "Synchronizing contacts...";
+"ChatProfile" = "Profile";
+"ChatSignoutAlert" = "Are you sure?";
+"ChatCancel" = "Cancel";
+"ChatSave" = "Save";
+"ChatSettingsMenuOption" = "Settings";
+"ChatHelpMenuOption" = "Help and support";
+"ChatLogoutMenuOption" = "Logout";
+"ChatLogoutChatOption" = "Chat";
+"Open link" = "Open in Safari";
+"Copy link" = "Copy";
+"Group administrator" = "administrator";
+"Select group" = "Select group";
+"Member info" = "Info";
+"Member remove" = "Remove member";
+"Send message" = "Send message";
+"Members" = "Members";
+"Add user to group" = "Add %@ to group %@?";
+"Add" = "Add";
+"Just in group" = "Just in group";
+"Add member" = "Add Member";
+"You was added to group" = "You was added to group \"%@\"";
+"You created the group" = "You created the group \"%@\"";
+"You" = "You";
+"ShortDateFormat" = "yyyy/M/d";
+"yesterday" = "yesterday";
+"today" = "today";
+"group info" = "Group info";
+"new group" = "New group";
+"create group info message" = "Setup the group's subject and icon (optional)";
+"group name placeholder" = "Group's name";
+"next" = "Next";
+"cancel" = "Cancel";
+"create" = "Create";
+"contact name" = "Contact name";
+"remove" = "Remove";
+"add members" = "Add members";
+"group created by" = "Group created by %@";
+"group created on" = "Created on %@";
+"GroupNamePlaceholder" = "Set the group name";
+"GroupNameTitle" = "Group name";
+"all contacts" = "All contacts";
+"change fullname" = "Change Full name";
+"change password" = "Change Password";
+"settingsLegalSection" = "Legal";
+"Remove this member?" = "Remove this member?";
+"Remove" = "Remove";
+

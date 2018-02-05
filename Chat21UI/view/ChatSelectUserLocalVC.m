@@ -16,6 +16,7 @@
 #import "ChatManager.h"
 #import "ChatContactsSynchronizer.h"
 #import "ChatUtil.h"
+#import "ChatLocal.h"
 
 @interface ChatSelectUserLocalVC () {
     ChatContactsSynchronizer *contacts;
@@ -30,9 +31,9 @@
     
     self.users = nil;
     if (self.group) {
-        self.navigationItem.title = NSLocalizedString(@"Add member", nil);
+        self.navigationItem.title = [ChatLocal translate:@"Add member"];
     } else {
-        self.navigationItem.title = NSLocalizedString(@"NewMessage", nil);
+        self.navigationItem.title = [ChatLocal translate:@"NewMessage"];
     }
     
     //    self.imageCache = self.applicationContext.smallImagesCache;
@@ -159,7 +160,7 @@
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
 {
     if (section == 1 && self.allUsers.count > 0) {
-        return NSLocalizedString(@"all contacts", nil);
+        return [ChatLocal translate:@"all contacts"];
     }
     return nil;
 }
@@ -171,7 +172,7 @@
         UIActivityIndicatorView *indicator = (UIActivityIndicatorView *)[cell viewWithTag:1];
         [indicator startAnimating];
         UILabel *messageLabel = (UILabel *)[cell viewWithTag:2];
-        messageLabel.text = NSLocalizedString(@"Synchronizing contacts", nil);
+        messageLabel.text = [ChatLocal translate:@"Synchronizing contacts"];
     }
     else if (indexPath.section == 0 && self.users) {
         long userIndex = indexPath.row;
@@ -294,7 +295,7 @@
         fullnameLabel.textColor = [UIColor grayColor];
         usernameLabel.textColor = [UIColor grayColor];
         fullnameLabel.text = [user fullname];
-        usernameLabel.text = NSLocalizedString(@"Just in group", nil);
+        usernameLabel.text = [ChatLocal translate:@"Just in group"];
     } else {
         cell.selectionStyle = UITableViewCellSelectionStyleGray;
         fullnameLabel.textColor = [UIColor blackColor];
@@ -305,7 +306,7 @@
 }
 
 -(void)addUserToGroup:(ChatUser *)selectedUser {
-    NSString *message = [NSString stringWithFormat:NSLocalizedString(@"Add user to group", nil), selectedUser.fullname, self.group.name];
+    NSString *message = [NSString stringWithFormat:[ChatLocal translate:@"Add user to group"], selectedUser.fullname, self.group.name];
     
     UIAlertController *view = [UIAlertController
                                alertControllerWithTitle:message
@@ -313,7 +314,7 @@
                                preferredStyle:UIAlertControllerStyleActionSheet];
     
     UIAlertAction *confirm = [UIAlertAction
-                              actionWithTitle:NSLocalizedString(@"Add", nil)
+                              actionWithTitle:[ChatLocal translate:@"Add"]
                               style:UIAlertActionStyleDefault
                               handler:^(UIAlertAction * action)
                               {
@@ -321,7 +322,7 @@
                               }];
     
     UIAlertAction *cancel = [UIAlertAction
-                             actionWithTitle:NSLocalizedString(@"CancelLKey", nil)
+                             actionWithTitle:[ChatLocal translate:@"CancelLKey"]
                              style:UIAlertActionStyleDefault
                              handler:nil];
     

@@ -11,6 +11,7 @@
 #import "ChatUser.h"
 #import "ChatUtil.h"
 #import "ChatMessage.h"
+#import "ChatLocal.h"
 
 @implementation ChatConversation
 
@@ -25,7 +26,7 @@
 -(NSString *)textForLastMessage:(NSString *)me {
 //    NSLog(@"SENDER: %@ ME: %@", self.sender, me);
     if ([self.sender isEqualToString:me]) {
-        NSString *you = NSLocalizedString(@"You", nil);
+        NSString *you = [ChatLocal translate:@"You"];
         return [[NSString alloc] initWithFormat:@"%@: %@", you, self.last_message_text];
     } else {
         return self.last_message_text;

@@ -17,6 +17,7 @@
 #import "ChatImageWrapper.h"
 #import "ChatChangeGroupNameVC.h"
 #import "ChatUser.h"
+#import "ChatLocal.h"
 
 @interface ChatGroupInfoVC ()
 
@@ -33,7 +34,7 @@
     // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
     // self.navigationItem.rightBarButtonItem = self.editButtonItem;
     
-    self.navigationItem.title = NSLocalizedString(@"group info", nil);
+    self.navigationItem.title = [ChatLocal translate:@"group info"];
     
     //    ChatDB *db = [ChatDB getSharedInstance];
     //    self.group = [db getGroupById:self.groupId];
@@ -113,10 +114,10 @@
 
 -(void)photoMenu {
     // init the photo action menu
-    NSString *takePhotoButtonTitle = NSLocalizedString(@"TakePhotoLKey", nil);
-    NSString *chooseExistingButtonTitle = NSLocalizedString(@"PhotoFromGalleryLKey", nil);
+    NSString *takePhotoButtonTitle = [ChatLocal translate:@"TakePhotoLKey"];
+    NSString *chooseExistingButtonTitle = [ChatLocal translate:@"PhotoFromGalleryLKey"];
     
-    self.photoMenuSheet = [[UIActionSheet alloc] initWithTitle:nil delegate:self cancelButtonTitle:NSLocalizedString(@"CancelLKey", nil) destructiveButtonTitle:nil otherButtonTitles:takePhotoButtonTitle, chooseExistingButtonTitle, nil];
+    self.photoMenuSheet = [[UIActionSheet alloc] initWithTitle:nil delegate:self cancelButtonTitle:[ChatLocal translate:@"CancelLKey"] destructiveButtonTitle:nil otherButtonTitles:takePhotoButtonTitle, chooseExistingButtonTitle, nil];
     self.photoMenuSheet.actionSheetStyle = UIActionSheetStyleBlackOpaque;
 }
 
@@ -167,14 +168,14 @@
     self.idLabel.text = [[NSString alloc] initWithFormat:@"Id: %@", group.groupId];
     //NSString *created_by_msg = @"Gruppo creato da";
     //    self.createdByLabel.text = [[NSString alloc] initWithFormat:@"%@ %@.",created_by_msg, self.group.owner];
-    self.createdByLabel.text = [NSString stringWithFormat:NSLocalizedString(@"group created by", nil), [group ownerFullname]];
+    self.createdByLabel.text = [NSString stringWithFormat:[ChatLocal translate:@"group created by"], [group ownerFullname]];
     
     NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
     [formatter setDateFormat:@"dd LLLL yyyy"];
     NSString *createdOn_s = [formatter stringFromDate:self.group.createdOn];
     //    NSString *created_on_msg = @"Creato il";
     //    self.createdOnLabel.text = [[NSString alloc] initWithFormat:@"%@ %@.", created_on_msg, createdOn_s];
-    self.createdOnLabel.text = [NSString stringWithFormat:NSLocalizedString(@"group created on", nil), createdOn_s];
+    self.createdOnLabel.text = [NSString stringWithFormat:[ChatLocal translate:@"group created on"], createdOn_s];
     
     self.adminLabel.text = [group ownerFullname];
 }

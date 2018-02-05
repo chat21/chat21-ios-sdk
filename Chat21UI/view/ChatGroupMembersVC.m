@@ -16,6 +16,7 @@
 #import "ChatSelectUserLocalVC.h"
 #import "ChatUser.h"
 #import "ChatUIManager.h"
+#import "ChatLocal.h"
 
 @interface ChatGroupMembersVC ()
 
@@ -32,7 +33,7 @@
     // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
     // self.navigationItem.rightBarButtonItem = self.editButtonItem;
 //    self.members_array = [ChatGroup membersDictionary2Array:self.group.members];
-    self.navigationItem.title = NSLocalizedString(@"Members", nil);
+    self.navigationItem.title = [ChatLocal translate:@"Members"];
 }
 
 -(void)viewWillAppear:(BOOL)animated {
@@ -67,18 +68,17 @@
 //                           }];
     
     UIAlertAction *cancel = [UIAlertAction
-                             actionWithTitle:NSLocalizedString(@"CancelLKey", nil)
+                             actionWithTitle:[ChatLocal translate:@"CancelLKey"]
                              style:UIAlertActionStyleDefault
                              handler:^(UIAlertAction * action)
                              {
-                                 NSLog(@"Cancel");
                                  [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
                              }];
     
     UIAlertAction* remove = nil;
     if ([self canIRemoveMember:memberId]) {
         remove = [UIAlertAction
-                  actionWithTitle:NSLocalizedString(@"Member remove", nil)
+                  actionWithTitle:[ChatLocal translate:@"Member remove"]
                   style:UIAlertActionStyleDestructive
                   handler:^(UIAlertAction * action)
                   {
@@ -115,12 +115,12 @@
 -(void)askToRemoveMember:(NSString *)memberId atIndexPath:(NSIndexPath *)indexPath  {
     ChatUser *member = [self.group.membersFull objectAtIndex:(int)indexPath.row];
     UIAlertController *view = [UIAlertController
-                               alertControllerWithTitle:NSLocalizedString(@"Remove this member?", nil)
+                               alertControllerWithTitle:[ChatLocal translate:@"Remove this member?"]
                                message:member.fullname
                                preferredStyle:UIAlertControllerStyleActionSheet];
     
     UIAlertAction *remove = [UIAlertAction
-                           actionWithTitle:NSLocalizedString(@"Remove", nil)
+                           actionWithTitle:[ChatLocal translate:@"Remove"]
                            style:UIAlertActionStyleDefault
                            handler:^(UIAlertAction * action)
                            {
@@ -129,7 +129,7 @@
                            }];
     
     UIAlertAction *cancel = [UIAlertAction
-                             actionWithTitle:NSLocalizedString(@"CancelLKey", nil)
+                             actionWithTitle:[ChatLocal translate:@"CancelLKey"]
                              style:UIAlertActionStyleDefault
                              handler:^(UIAlertAction * action)
                              {
@@ -195,7 +195,7 @@
     NSString *user_id = [self.group.membersFull objectAtIndex:index].userId;
     NSString *user_display = [self.group.membersFull objectAtIndex:index].fullname;
     if ([user_id isEqualToString:self.group.owner]) {
-        user_display = [[NSString alloc] initWithFormat:@"%@ (%@)", user_display, NSLocalizedString(@"Group administrator", nil)];
+        user_display = [[NSString alloc] initWithFormat:@"%@ (%@)", user_display, [ChatLocal translate:@"Group administrator"]];
     }
     username.text = user_display;
     

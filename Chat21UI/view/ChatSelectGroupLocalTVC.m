@@ -14,6 +14,7 @@
 #import "ChatManager.h"
 #import "ChatUser.h"
 #import "ChatUtil.h"
+#import "ChatLocal.h"
 
 @interface ChatSelectGroupLocalTVC ()
 
@@ -26,8 +27,8 @@
     
     self.groups = nil;
     
-    self.navigationItem.title = NSLocalizedString(@"Select group", nil);
-    self.cancelButton.title = NSLocalizedString(@"cancel", nil);
+    self.navigationItem.title = [ChatLocal translate:@"Select group"];
+    self.cancelButton.title = [ChatLocal translate:@"cancel"];
     self.imageDownloadsInProgress = [NSMutableDictionary dictionary];
     
     self.tableView.delegate = self;

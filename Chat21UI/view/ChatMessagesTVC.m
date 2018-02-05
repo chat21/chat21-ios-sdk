@@ -15,6 +15,7 @@
 #import "ChatUtil.h"
 #import "ChatMiniBrowserVC.h"
 #import "ChatUser.h"
+#import "ChatLocal.h"
 
 @interface ChatMessagesTVC ()
 
@@ -37,9 +38,6 @@ static NSString *COPY_LINK_KEY = @"Copy link";
     
     [self popUpMenu];
     
-    // LINK MENU
-    //    self.linkMenu = [[UIActionSheet alloc] initWithTitle:nil delegate:self cancelButtonTitle:NSLocalizedString(@"CancelLKey", nil) destructiveButtonTitle:nil otherButtonTitles:NSLocalizedString(OPEN_LINK_KEY, nil), NSLocalizedString(COPY_LINK_KEY, nil), nil];
-    //    self.linkMenu.actionSheetStyle = UIActionSheetStyleBlackOpaque;
 }
 
 //-(void)viewWillAppear:(BOOL)animated {
@@ -390,7 +388,7 @@ static NSString *MATCH_TYPE_CHAT_LINK = @"CHATLINK";
                                  preferredStyle:UIAlertControllerStyleActionSheet];
     
     UIAlertAction* copy = [UIAlertAction
-                           actionWithTitle:NSLocalizedString(COPY_LINK_KEY, nil)
+                           actionWithTitle:[ChatLocal translate:COPY_LINK_KEY]
                            style:UIAlertActionStyleDefault
                            handler:^(UIAlertAction * action)
                            {
@@ -401,7 +399,7 @@ static NSString *MATCH_TYPE_CHAT_LINK = @"CHATLINK";
                                [self unhighlightTappedLink];
                            }];
     UIAlertAction* open = [UIAlertAction
-                           actionWithTitle:NSLocalizedString(OPEN_LINK_KEY, nil)
+                           actionWithTitle:[ChatLocal translate:OPEN_LINK_KEY]
                            style:UIAlertActionStyleDefault
                            handler:^(UIAlertAction * action)
                            {
@@ -411,7 +409,7 @@ static NSString *MATCH_TYPE_CHAT_LINK = @"CHATLINK";
                            }];
     
     UIAlertAction* cancel = [UIAlertAction
-                             actionWithTitle:NSLocalizedString(@"CancelLKey", nil)
+                             actionWithTitle:[ChatLocal translate:@"CancelLKey"]
                              style:UIAlertActionStyleDefault
                              handler:^(UIAlertAction * action)
                              {
@@ -746,10 +744,10 @@ static NSString *MATCH_TYPE_CHAT_LINK = @"CHATLINK";
         today = [NSDate date];
         int days = (int)[ChatUtil daysBetweenDate:message.date andDate:today];
         if(days==0){
-            dateChat = NSLocalizedString(@"today", nil);
+            dateChat = [ChatLocal translate:@"today"];
         }
         else if(days==1){
-            dateChat = NSLocalizedString(@"yesterday", nil);
+            dateChat = [ChatLocal translate:@"yesterday"];
         }
         else if(days<8){
             [dateFormatter setDateFormat:@"EEEE"];

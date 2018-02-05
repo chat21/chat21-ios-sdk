@@ -7,12 +7,11 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "ChatModalCallerDelegate.h"
 
 @class ChatGroup;
 @class ChatImageCache;
 
-@interface ChatGroupMembersVC : UITableViewController <ChatModalCallerDelegate>
+@interface ChatGroupMembersVC : UITableViewController
 
 @property (strong, nonatomic) ChatGroup *group;
 //@property (strong, nonatomic) NSMutableArray *members_array;

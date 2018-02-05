@@ -9,6 +9,7 @@
 #import "ChatChangeGroupNameVC.h"
 #import "ChatGroup.h"
 #import "ChatManager.h"
+#import "ChatLocal.h"
 
 @interface ChatChangeGroupNameVC ()
 
@@ -21,10 +22,10 @@
     // Do any additional setup after loading the view.
     
     NSLog(@"group %@", self.group);
-    self.navigationItem.title = NSLocalizedString(@"GroupNameTitle", nil);
-    self.saveButton.title = NSLocalizedString(@"ChatSave", nil);
-    self.cancelButton.title = NSLocalizedString(@"ChatCancel", nil);
-    self.groupNameTextField.placeholder = NSLocalizedString(@"GroupNamePlaceholder", nil);
+    self.navigationItem.title = [ChatLocal translate:@"GroupNameTitle"];
+    self.saveButton.title = [ChatLocal translate:@"ChatSave"];
+    self.cancelButton.title = [ChatLocal translate:@"ChatCancel"];
+    self.groupNameTextField.placeholder = [ChatLocal translate:@"GroupNamePlaceholder"];
     self.groupNameTextField.text = self.group.name;
     self.navigationItem.rightBarButtonItem.enabled = YES;
     [self addControlChangeTextField:self.groupNameTextField];

@@ -23,6 +23,7 @@
 #import "ChatContactsSynchronizer.h"
 #import "ChatConnectionStatusHandler.h"
 #import "ChatMessage.h"
+#import "ChatLocal.h"
 
 @import Firebase;
 
@@ -657,12 +658,8 @@ static ChatManager *sharedInstance = nil;
 //    }];
 //}
 
-//-(NSString *)groupInvitedMessageForMemberInGroup:(ChatGroup *)group {
-//    return [NSString stringWithFormat:NSLocalizedString(@"You was added to group", nil), [group.name capitalizedString]];
-//}
-
 -(NSString *)groupCreatedMessageForMemberInGroup:(ChatGroup *)group {
-    return [NSString stringWithFormat:NSLocalizedString(@"You created the group", nil), [group.name capitalizedString]];
+    return [NSString stringWithFormat:[ChatLocal translate:@"You created the group"], [group.name capitalizedString]];
 }
 
 -(void)addMember:(NSString *)member_id toGroup:(ChatGroup *)group withCompletionBlock:(void (^)(NSError *))completionBlock {

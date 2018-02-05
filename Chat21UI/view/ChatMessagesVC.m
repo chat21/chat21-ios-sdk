@@ -30,6 +30,7 @@
 #import "ChatConnectionStatusHandler.h"
 #import "ChatPresenceHandler.h"
 #import "ChatContactsDB.h"
+#import "ChatLocal.h"
 
 @interface ChatMessagesVC (){
     SystemSoundID soundID;
@@ -292,8 +293,8 @@
 
 
 -(void)setupLabels {
-    [self.sendButton setTitle:NSLocalizedString(@"ChatSend", nil) forState:UIControlStateNormal];
-    self.messageTextField.placeholder = NSLocalizedString(@"digit message", nil);
+    [self.sendButton setTitle:[ChatLocal translate:@"ChatSend"] forState:UIControlStateNormal];
+    self.messageTextField.placeholder = [ChatLocal translate:@"digit message"];
 }
 
 //-(void)initImageCache {
@@ -371,21 +372,21 @@
     self.activityIndicator.hidden = NO;
     self.sendButton.enabled = NO;
     [self.activityIndicator startAnimating];
-    [self setSubTitle:NSLocalizedString(@"ChatDisconnected", nil)];
+    [self setSubTitle:[ChatLocal translate:@"ChatDisconnected"]];
     //    self.statusLabel.text = NSLocalizedString(@"ChatDisconnected", nil);
 }
 
 -(void)onlineStatus {
     if (self.online) {
-        [self setSubTitle:NSLocalizedString(@"online", nil)];
+        [self setSubTitle:[ChatLocal translate:@"online"]];
     } else {
         NSString *last_online_status;
         if (self.lastOnline) {
-            NSString *last_seen = NSLocalizedString(@"last seen", nil);
+            NSString *last_seen = [ChatLocal translate:@"last seen"];
             NSString *short_date = [ChatStringUtil timeFromNowToString:self.lastOnline];
             last_online_status = [[NSString alloc] initWithFormat:@"%@ %@",last_seen, short_date];
         } else {
-            last_online_status = NSLocalizedString(@"offline", nil);
+            last_online_status = [ChatLocal translate:@"offline"];
         }
         [self setSubTitle:last_online_status];
         //        self.statusLabel.text = last_online_status;
@@ -786,10 +787,10 @@
         today = [NSDate date];
         int days = (int)[ChatStringUtil daysBetweenDate:message.date andDate:today];
         if(days==0){
-            dateChat = NSLocalizedString(@"today", nil);
+            dateChat = [ChatLocal translate:@"today"];
         }
         else if(days==1){
-            dateChat = NSLocalizedString(@"yesterday", nil);
+            dateChat = [ChatLocal translate:@"yesterday"];
         }
         else if(days<8){
             [dateFormatter setDateFormat:@"EEEE"];

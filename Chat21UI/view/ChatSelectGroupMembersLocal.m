@@ -18,6 +18,7 @@
 #import "ChatContactsDB.h"
 #import "ChatGroup.h"
 #import "ChatProgressView.h"
+#import "ChatLocal.h"
 
 @interface ChatSelectGroupMembersLocal () {
     ChatProgressView *HUD;
@@ -29,7 +30,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    self.title = NSLocalizedString(@"add members", nil);
+    self.title = [ChatLocal translate:@"add members"];
     self.users = nil;
     
     //    self.imageCache = self.applicationContext.smallImagesCache;
@@ -44,8 +45,8 @@
     self.tableView.dataSource = self;
     
     self.members = [[NSMutableArray alloc] init];
-    self.createButton.title = NSLocalizedString(@"create", nil);
-    self.searchBar.placeholder = NSLocalizedString(@"contact name", nil);
+    self.createButton.title = [ChatLocal translate:@"create"];
+    self.searchBar.placeholder = [ChatLocal translate:@"contact name"];
     
     [self.searchBar becomeFirstResponder];
     
@@ -192,7 +193,7 @@
         
         //remove member button
         UIButton *removeButton = (UIButton *)[cell viewWithTag:4];
-        [removeButton setTitle:NSLocalizedString(@"remove", nil) forState:UIControlStateNormal];
+        [removeButton setTitle:[ChatLocal translate:@"remove"] forState:UIControlStateNormal];
         NSLog(@"REMOVE BUTTON %@", removeButton);
         [removeButton addTarget:self action:@selector(removeButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
         removeButton.property = user.userId; //[NSNumber numberWithInt:(int)indexPath.row];
@@ -594,7 +595,7 @@
             dispatch_async(dispatch_get_main_queue(), ^{
                 [self hideWaiting];
                 if (error) {
-                    [self alert:NSLocalizedString(@"Group creation error", nil)];
+                    [self alert:[ChatLocal translate:@"Group creation error"]];
                 }
                 else {
                     [self dismissViewControllerAnimated:YES completion:^{

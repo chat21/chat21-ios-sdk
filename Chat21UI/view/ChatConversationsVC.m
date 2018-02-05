@@ -29,6 +29,7 @@
 #import "ChatConnectionStatusHandler.h"
 #import "ChatUIManager.h"
 #import "ChatMessage.h"
+#import "ChatLocal.h"
 
 @interface ChatConversationsVC ()
 - (IBAction)writeToAction:(id)sender;
@@ -63,7 +64,7 @@
         self.navigationItem.leftBarButtonItem = nil;
     } else {
         // show and translate cancel button
-        self.cancelButton.title = NSLocalizedString(@"cancel", nil);
+        self.cancelButton.title = [ChatLocal translate:@"cancel"];
     }
 //    [[HelpFacade sharedInstance] activateSupportBarButton:self];
 }
@@ -189,14 +190,14 @@
     self.usernameButton.hidden = NO;
     self.activityIndicator.hidden = YES;
     [self.activityIndicator stopAnimating];
-    self.statusLabel.text = NSLocalizedString(@"ChatConnected", nil);
+    self.statusLabel.text = [ChatLocal translate:@"ChatConnected"];
 }
 
 -(void)setUIStatusDisconnected {
     self.usernameButton.hidden = YES;
     self.activityIndicator.hidden = NO;
     [self.activityIndicator startAnimating];
-    self.statusLabel.text = NSLocalizedString(@"ChatDisconnected", nil);
+    self.statusLabel.text = [ChatLocal translate:@"ChatDisconnected"];
 }
 
 -(void)customizeTitleView {
@@ -544,9 +545,9 @@
     NSLog(@"commitEditingStyle");
     if (editingStyle == UITableViewCellEditingStyleDelete) {
         //add code here for when you hit delete
-        NSString *title = NSLocalizedString(@"DeleteConversationTitle", nil);
-        NSString *msg = NSLocalizedString(@"DeleteConversationMessage", nil);
-        NSString *cancel = NSLocalizedString(@"CancelLKey", nil);
+        NSString *title = [ChatLocal translate:@"DeleteConversationTitle"];
+        NSString *msg = [ChatLocal translate:@"DeleteConversationMessage"];
+        NSString *cancel = [ChatLocal translate:@"CancelLKey"];
         
         UIAlertView* alertView = [[UIAlertView alloc] initWithTitle:title message:msg delegate:self cancelButtonTitle:cancel otherButtonTitles:@"OK", nil];
         self.removingConversationAtIndexPath = indexPath;
@@ -598,17 +599,9 @@
         cell = [tableView dequeueReusableCellWithIdentifier:menuCellName forIndexPath:indexPath];
         // Chat
         UIButton *new_group_button = [cell viewWithTag:10];
-        [new_group_button setTitle:NSLocalizedString(@"NewGroup", nil) forState:UIControlStateNormal];
+        [new_group_button setTitle:[ChatLocal translate:@"NewGroup"] forState:UIControlStateNormal];
         UIButton *groups_button = [cell viewWithTag:20];
-        [groups_button setTitle:NSLocalizedString(@"Groups", nil) forState:UIControlStateNormal];
-        
-        // Labot
-        UIButton *new_quote_button = [cell viewWithTag:3];
-        [new_quote_button setTitle:NSLocalizedString(@"new quote", nil) forState:UIControlStateNormal];
-        UIButton *want_work_button = [cell viewWithTag:4];
-        [want_work_button setTitle:NSLocalizedString(@"I want to work", nil) forState:UIControlStateNormal];
-        //    UIButton *groupsButton;
-        //    [self.groupsButton setTitle:NSLocalizedString(@"Groups", nil) forState:UIControlStateNormal];
+        [groups_button setTitle:[ChatLocal translate:@"Groups"] forState:UIControlStateNormal];
     }
     else if (indexPath.section == 1) {
         if (conversations && conversations.count > 0) {
@@ -620,7 +613,7 @@
             NSLog(@"Rendering NO CONVERSATIONS CELL...");
             cell = [tableView dequeueReusableCellWithIdentifier:messageCellName forIndexPath:indexPath];
             UILabel *message1 = (UILabel *)[cell viewWithTag:50];
-            message1.text = NSLocalizedString(@"NoConversationsYet", nil);
+            message1.text = [ChatLocal translate:@"NoConversationsYet"];
             cell.userInteractionEnabled = NO;
         }
     }
