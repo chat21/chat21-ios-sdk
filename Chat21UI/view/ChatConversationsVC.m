@@ -66,125 +66,7 @@
         // show and translate cancel button
         self.cancelButton.title = [ChatLocal translate:@"cancel"];
     }
-//    [[HelpFacade sharedInstance] activateSupportBarButton:self];
 }
-
-//-(void)customizeRightBarButton {
-//    UIImage* image = [UIImage imageNamed:@"chat_mrlupo.png"];
-//    CGRect frameimg = CGRectMake(0, 0, image.size.width, image.size.height);
-//    UIButton *imageButton = [[UIButton alloc] initWithFrame:frameimg];
-//    [imageButton setBackgroundImage:image forState:UIControlStateNormal];
-//    [imageButton addTarget:self action:@selector(writeToSupport)
-//         forControlEvents:UIControlEventTouchUpInside];
-//    //[imageButton setShowsTouchWhenHighlighted:YES];
-//
-//    UIBarButtonItem *rightbutton =[[UIBarButtonItem alloc] initWithCustomView:imageButton];
-//    self.navigationItem.rightBarButtonItem=rightbutton;
-//}
-
-//-(void)writeToSupport {
-//    NSLog(@"New message to Support.");
-//    NSString *botuser = [self.settings objectForKey:@"botuser"];
-//    NSString *fakeuser = [self.settings objectForKey:@"fakeuser"];
-//
-//    if ([self.applicationContext.loggedUser.username isEqualToString:botuser] ||
-//        [self.applicationContext.loggedUser.username isEqualToString:fakeuser]) {
-//        [self performSegueWithIdentifier:@"SelectUser" sender:self];
-//    } else {
-//        [self openConversationWithRecipient:botuser];
-//    }
-//}
-
-// ------------------------------
-// --------- USER INFO ----------
-// ------------------------------
-//-(void)getAllUserInfo {
-//    [self.userLoader findByUsername:self.me.username];
-//}
-
-////DELEGATE
-////--------------------------------------------------------------------//
-//-(void)usersDidLoad:(NSArray *)__users error:(NSError *)error
-//{
-//    NSLog(@"usersDidLoad: %@ - %@",__users, error);
-//    SHPUser *tmp_user;
-//    if(__users.count > 0) {
-//        tmp_user = [__users objectAtIndex:0];
-//        self.applicationContext.loggedUser.fullName = tmp_user.fullName;
-//        self.applicationContext.loggedUser.email = tmp_user.fullName;
-//        // get company
-//        NSArray *parts = [tmp_user.email componentsSeparatedByString: @"@"];
-//        NSString *domain;
-//        if (parts.count > 0) {
-//            domain = [parts lastObject];
-//            // SOLO IN QUESTA VISTA VENGONO RINFRESCATI E SALVATI
-//            // I DATI DELL'UTENTE CONNESSO
-//            NSUserDefaults *defaults=[NSUserDefaults standardUserDefaults];
-//            NSMutableDictionary *userData = [[NSMutableDictionary  alloc] init];
-//            [userData setObject:tmp_user.email forKey:@"email"];
-//            [userData setObject:tmp_user.fullName forKey:@"fullName"];
-//            // save chat domain.
-//            [defaults setObject:domain forKey:@"userChatDomain"];
-//            NSString *userKey = [[NSString alloc] initWithFormat:@"usrKey-%@", self.applicationContext.loggedUser.username];
-//            [defaults setObject:userData forKey:userKey];
-////            // get
-////            NSString *fullName = [[NSUserDefaults standardUserDefaults] objectForKey:@"userFullName"];
-//            [defaults synchronize];
-//        }
-//        // save user in NSUserDefaults
-//        NSLog(@"User full name: %@", tmp_user.fullName);
-//        // updateTitle
-//        [self changeTitle];
-//    } else {
-//    }
-//}
-// ------------------------------------
-// --------- USER INFO END ------------
-// ------------------------------------
-
-//-(void)isStatusConnected {
-//    NSString *url = @"/.info/connected";
-//    FIRDatabaseReference *rootRef = [[FIRDatabase database] reference];
-//    FIRDatabaseReference *connectedRef = [rootRef child:url];
-//
-//    // once
-//    [connectedRef observeSingleEventOfType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot * _Nonnull snapshot) {
-//        // Get user value
-//        NSLog(@"SNAPSHOT ONCE %@ - %d", snapshot, [snapshot.value boolValue]);
-//        if([snapshot.value boolValue]) {
-//            NSLog(@"..connected once..");
-//            // come giu, rifattorizzare
-//            [self setUIStatusConnected];
-//        }
-//        else {
-//            NSLog(@"..not connected once..");
-//            [self setUIStatusDisconnected];
-//        }
-//    } withCancelBlock:^(NSError * _Nonnull error) {
-//        NSLog(@"%@", error.localizedDescription);
-//    }];
-//}
-
-//-(void)setupConnectionStatus {
-//    NSLog(@"Connection status.");
-//    NSString *url = @"/.info/connected";
-//    FIRDatabaseReference *rootRef = [[FIRDatabase database] reference];
-//    FIRDatabaseReference *connectedRef = [rootRef child:url];
-//
-//    // event
-//    if (!self.connectedRefHandle) {
-//        self.connectedRefHandle = [connectedRef observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
-//            NSLog(@"snapshot %@ - %d", snapshot, [snapshot.value boolValue]);
-//            if([snapshot.value boolValue]) {
-//                NSLog(@".connected.");
-//                [self setUIStatusConnected];
-//            } else {
-//                NSLog(@".not connected.");
-//                [self setUIStatusDisconnected];
-//            }
-//        }];
-//    }
-//}
 
 -(void)setUIStatusConnected {
     self.usernameButton.hidden = NO;
@@ -278,8 +160,6 @@
 
 -(void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
-    
-    NSLog(@"Conversations viewWillAppear");
     
     [self initializeWithSignedUser];
     
@@ -398,7 +278,6 @@
     self.deleted_handle = [handler observeEvent:ChatEventConversationDeleted withCallback:^(ChatConversation *conversation) {
         [self conversationDeleted:conversation];
     }];
-    NSLog(@"Subscription handles: added_handle = %lu, changed_handle = %lu, deleted_handle = %lu", (unsigned long)self.added_handle, (unsigned long)self.changed_handle, (unsigned long)self.deleted_handle);
 }
 
 -(void)removeSubscribers {
@@ -733,7 +612,6 @@
 }
 
 -(void)resetCurrentConversation {
-    NSLog(@"resetting current conversationId");
     self.conversationsHandler.currentOpenConversationId = nil;
 }
 

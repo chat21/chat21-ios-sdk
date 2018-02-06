@@ -278,7 +278,7 @@
 // TIP: why this method? http://www.yichizhang.info/2015/03/02/prescroll-a-uitableview.html
 -(void)viewDidLayoutSubviews {
     [super viewDidLayoutSubviews];
-    [containerTVC scrollToLastMessage:NO];
+//    [containerTVC scrollToLastMessage:NO];
 }
 
 //---------------------------------------------------//
@@ -289,6 +289,7 @@
     containerTVC.vc = self;
     containerTVC.conversationHandler = self.conversationHandler;
     [containerTVC reloadDataTableView];
+    [containerTVC scrollToLastMessage:NO];
 }
 
 
@@ -719,6 +720,7 @@
         [UIView animateWithDuration:animationDuration animations:^{
             self.layoutContraintBottomBarMessageBottomView.constant = keyboardFrame.size.height;
             [self.view layoutIfNeeded];
+            [containerTVC scrollToLastMessage:YES];
         }];
         
         keyboardShow = YES;
@@ -747,6 +749,7 @@
         [UIView animateWithDuration:animationDuration animations:^{
             self.layoutContraintBottomBarMessageBottomView.constant = keyboardFrame.size.height;
             [self.view layoutIfNeeded];
+            [containerTVC scrollToLastMessage:YES];
         }];
         /////
     }
@@ -891,7 +894,6 @@
         self.messagesArriving = YES;
         // fist message always shown
         [self renderMessages];
-        [self playSound];
     }
     else {
         NSLog(@"MESSAGES STILL ARRIVING, NOT RENDERING!");
@@ -913,20 +915,21 @@ static float messageTime = 0.5;
     [self.messageTimer invalidate];
     self.messageTimer = nil;
     self.messagesArriving = NO;
-    [self playSound];
     [self renderMessages];
 }
 
 -(void)renderMessages {
     dispatch_async(dispatch_get_main_queue(), ^{
-        [containerTVC reloadDataTableViewOnIndex:self.conversationHandler.messages.count];
-        [self scrollTo];
+        [self playSound];
+        [containerTVC reloadDataTableViewOnIndex:self.conversationHandler.messages.count - 1];
+        [containerTVC scrollToLastMessage:NO];
+//        [self scrollTo];
     });
 }
 
--(void)scrollTo {
-    [containerTVC scrollToLastMessage:NO];
-}
+//-(void)scrollTo {
+//    [containerTVC scrollToLastMessage:NO];
+//}
 
 -(void)groupConfigurationChanged:(ChatGroup *)group {
     NSLog(@"Notified to view that %@ changed. Checking possible view changes.", group.name);

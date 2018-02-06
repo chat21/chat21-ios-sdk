@@ -347,7 +347,7 @@ static NSString *SELECT_FROM_MESSAGES_STATEMENT = @"select messageId, conversati
                                  options:kNilOptions
                                  error:&error];
     }
-    NSLog(@"MESSAGE DECODED:\nmessageId:%@\nconversationid:%@\nsender:%@\nrecipient:%@\ntext:%@\nstatus:%d\ntimestamp:%f\ntype:%@\nchannel_type:%@", messageId, conversationId, sender, recipient, text, status, timestamp, type, channel_type);
+//    NSLog(@"MESSAGE DECODED:\nmessageId:%@\nconversationid:%@\nsender:%@\nrecipient:%@\ntext:%@\nstatus:%d\ntimestamp:%f\ntype:%@\nchannel_type:%@", messageId, conversationId, sender, recipient, text, status, timestamp, type, channel_type);
     ChatMessage *message = [[ChatMessage alloc] init];
     message.messageId = messageId;
     message.conversationId = conversationId;

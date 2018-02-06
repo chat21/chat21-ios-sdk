@@ -71,12 +71,8 @@ static ChatManager *sharedInstance = nil;
 
 -(ChatConversationsHandler *)getConversationsHandler {
     if (!self.conversationsHandler) {
-        NSLog(@"Conversations Handler not found. Creating & initializing a new one.");
         self.conversationsHandler = [self createConversationsHandler];
-        NSLog(@"Restoring DB archived conversations...");
         [self.conversationsHandler restoreConversationsFromDB];
-        NSLog(@"%lu archived conversations restored", (unsigned long)self.conversationsHandler.conversations.count);
-        NSLog(@"Connecting handler...");
         [self.conversationsHandler connect];
     }
     return self.conversationsHandler;

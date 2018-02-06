@@ -95,6 +95,8 @@
         }];
     }
     
+    [self startSynchTimer]; // if ZERO contacts, this timer puts self.synchronizing to FALSE
+    
     if (!self.contact_ref_handle_changed) {
         self.contact_ref_handle_changed =
         [self.contactsRef observeEventType:FIRDataEventTypeChildChanged withBlock:^(FIRDataSnapshot *snapshot) {

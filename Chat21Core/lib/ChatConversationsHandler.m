@@ -68,15 +68,11 @@
     if (self.conversations_ref_handle_added) {
         return;
     }
-    
-    NSLog(@"Connecting conversations' handler.");
     ChatManager *chat = [ChatManager getInstance];
     NSString *conversations_path = [ChatUtil conversationsPathForUserId:self.loggeduser.userId];
-    NSLog(@"firebase_conversations_ref: %@", conversations_path);
     FIRDatabaseReference *rootRef = [[FIRDatabase database] reference];
     self.conversationsRef = [rootRef child: conversations_path];
     [self.conversationsRef keepSynced:YES];
-    NSLog(@"creating conversations_ref_handle_ADDED...");
     
     self.conversations_ref_handle_added = [[self.conversationsRef queryOrderedByChild:@"timestamp"] observeEventType:FIRDataEventTypeChildAdded withBlock:^(FIRDataSnapshot *snapshot) {
         NSLog(@"NEW CONVERSATION SNAPSHOT: %@", snapshot);
@@ -102,11 +98,9 @@
         NSLog(@"%@", error.description);
     }];
     
-    NSLog(@"creating conversations_ref_handle_CHANGED...");
-    
     self.conversations_ref_handle_changed =
     [self.conversationsRef observeEventType:FIRDataEventTypeChildChanged withBlock:^(FIRDataSnapshot *snapshot) {
-        NSLog(@"CHANGED CONVERSATION snapshot............... %@", snapshot);
+//        NSLog(@"CHANGED CONVERSATION snapshot............... %@", snapshot);
         ChatConversation *conversation = [ChatConversation conversationFromSnapshotFactory:snapshot me:self.loggeduser];
         if ([self.currentOpenConversationId isEqualToString:conversation.conversationId] && conversation.is_new == YES) {
             // changes (forces) the "is_new" flag to FALSE;

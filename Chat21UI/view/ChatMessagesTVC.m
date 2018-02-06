@@ -438,19 +438,8 @@ static NSString *MATCH_TYPE_CHAT_LINK = @"CHATLINK";
          scrollToRowAtIndexPath:ipath
          atScrollPosition: UITableViewScrollPositionTop
          animated:animated];
+        NSLog(@"SCROLL OK!");
     }
-    //    NSArray* ipaths = [self.tableView indexPathsForVisibleRows];
-    //    BOOL row_visible = NO;
-    //    for (NSIndexPath *ip in ipaths) {
-    //        if (ip.row == ipath.row) {
-    //            NSLog(@"GIA VISIBILEEEEEEEEEEEEE %ld", ip.row);
-    //            row_visible = YES;
-    //            break;
-    //        }
-    //    }
-    //    if (!row_visible) {
-    //    }
-    
 }
 
 - (void)reloadDataTableView {
@@ -473,6 +462,7 @@ static NSString *MATCH_TYPE_CHAT_LINK = @"CHATLINK";
     if (messages) {
         rows_count = messages.count;
     }
+    NSLog(@">>> ROWS IN SECTION %ld = %ld", (long)section, (long)rows_count);
     return rows_count;
 }
 
