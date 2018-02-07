@@ -710,10 +710,10 @@ static ChatManager *sharedInstance = nil;
     NSLog(@"Removing conversation from local DB...");
     [self removeConversationFromDB:conversationId];
     
-    NSLog(@"Removing conversation from with ref %@...", conversation.ref);
+    NSLog(@"Removing conversation with ref %@...", conversation.ref);
     FIRDatabaseReference *conversationRef = conversation.ref;
     [conversationRef removeValueWithCompletionBlock:^(NSError *error, FIRDatabaseReference *firebaseRef) {
-        NSLog(@"Conversation %@ removed from firebase.", firebaseRef);
+        NSLog(@"Conversation %@ removed from firebase with error: %@", firebaseRef, error);
     }];
 }
 
