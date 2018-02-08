@@ -293,7 +293,6 @@
     [containerTVC scrollToLastMessage:NO];
 }
 
-
 -(void)setupLabels {
     [self.sendButton setTitle:[ChatLocal translate:@"ChatSend"] forState:UIControlStateNormal];
     self.messageTextField.placeholder = [ChatLocal translate:@"digit message"];
@@ -329,32 +328,7 @@
                 [self offlineStatus];
             }
         }];
-        //        self.connectedHandle = [connectionStatusHandler observeEvent:ChatConnectionStatusEventConnected withCallback:^{
-        //            NSLog(@"connected");
-        //            [self connectedStatus];
-        //        }];
-        //        self.disconnectedHandle = [connectionStatusHandler observeEvent:ChatConnectionStatusEventDisconnected withCallback:^{
-        //            NSLog(@"not connected");
-        //            [self offlineStatus];
-        //        }];
     }
-    
-    //    // initial status UI
-    //    [self offlineStatus];
-    //
-    ////    ChatManager *chat = [ChatManager getSharedInstance];
-    //    NSString *url = @"/.info/connected";
-    //    FIRDatabaseReference *rootRef = [[FIRDatabase database] reference];
-    //    self.connectedRef = [rootRef child:url];
-    //    self.connectedRefHandle = [self.connectedRef observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
-    //        if([snapshot.value boolValue]) {
-    //            NSLog(@"connected");
-    //            [self connectedStatus];
-    //        } else {
-    //            NSLog(@"not connected");
-    //            [self offlineStatus];
-    //        }
-    //    }];
 }
 
 -(void)connectedStatus {
@@ -362,11 +336,7 @@
     self.activityIndicator.hidden = YES;
     self.sendButton.enabled = YES;
     [self.activityIndicator stopAnimating];
-    //    if (self.group) {
-    //        self.statusLabel.text = [ChatUtil groupMembersAsStringForUI:self.group.members];
-    //    } else {
     [self onlineStatus];
-    //    }
 }
 
 -(void)offlineStatus {
@@ -375,7 +345,6 @@
     self.sendButton.enabled = NO;
     [self.activityIndicator startAnimating];
     [self setSubTitle:[ChatLocal translate:@"ChatDisconnected"]];
-    //    self.statusLabel.text = NSLocalizedString(@"ChatDisconnected", nil);
 }
 
 -(void)onlineStatus {
@@ -391,7 +360,6 @@
             last_online_status = [ChatLocal translate:@"offline"];
         }
         [self setSubTitle:last_online_status];
-        //        self.statusLabel.text = last_online_status;
     }
 }
 
@@ -407,40 +375,7 @@
         self.lastOnline = lastOnlineDate;
         [self onlineStatus];
     }];
-    //    [chatm.presenceHandler ]
-    //    // apps/{TENANT}/presence/{USERID}/connections
-    //    self.onlineRef = [ChatPresenceHandler onlineRefForUser:self.recipient.userId];
-    //    self.online_ref_handle = [self.onlineRef observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
-    //        if(snapshot.exists) {
-    //            NSLog(@"ONLINE: %@", snapshot);
-    //            self.online = YES;
-    //            [self onlineStatus];
-    //        } else {
-    //            self.online = NO;
-    //            [self onlineStatus];
-    //        }
-    //    }];
-    
-    // LAST ONLINE
-    
-    // apps/{TENANT}/presence/{USERID}/lastOnline
-    //    self.lastOnlineRef = [ChatPresenceHandler lastOnlineRefForUser:self.recipient.userId];
-    //    NSLog(@"last online ref: %@", self.lastOnlineRef);
-    //    self.last_online_ref_handle = [self.lastOnlineRef observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
-    //        [self snapshotDate:snapshot];
-    //        [self onlineStatus];
-    //    }];
-    
-    
 }
-
-//-(void)snapshotDate:(FIRDataSnapshot *)snapshot {
-//    if (!snapshot.exists) {
-//        return;
-//    }
-//    self.lastOnline = [NSDate dateWithTimeIntervalSince1970:[snapshot.value longValue]/1000];
-//}
-
 
 // ************************
 // *** ONLINE / OFFLINE ***
@@ -514,23 +449,12 @@
 }
 
 -(void)goToProfile:(UIButton*)sender {
-    //NSLog(@"goToProfile");
-    //    self.profileVC = (SHPHomeProfileTVC *)[self.applicationContext getVariable:@"profileVC"];
     NSLog(@"RECIPIENT FULL NAME: %@", self.recipient.fullname);
     if (self.group) {
         [self performSegueWithIdentifier:@"GroupInfo" sender:self];
     } else {
         if (![ChatUIManager getInstance].pushProfileCallback) {
             NSLog(@"Default profile view not implemented.");
-            //            self.profileSB = [UIStoryboard storyboardWithName:@"Profile" bundle:nil];
-            //            self.profileNC = [self.profileSB instantiateViewControllerWithIdentifier:@"navigationProfile"];
-            //            SHPHomeProfileTVC *profileVC = (SHPHomeProfileTVC *)[[self.profileNC viewControllers] objectAtIndex:0];
-            //            ChatUser *authorProfile = [[ChatUser alloc] init];
-            //            authorProfile.userId = self.recipient.userId;
-            //            authorProfile.fullname = self.recipient.fullname;
-            //            profileVC.otherUser = authorProfile;
-            //            NSLog(@"self.profileVC.otherUser %@ fullname: %@", profileVC.otherUser.userId, profileVC.otherUser.fullname);
-            //            [self.navigationController pushViewController:profileVC animated:YES];
         }
         else {
             ChatUser *user = [[ChatUser alloc] init];
@@ -559,7 +483,6 @@
     [handler connect];
     [self subscribeForMessages:handler];
     self.conversationHandler = handler;
-//    [self configureIfImGroupMember];
 }
 
 -(void)configureIfImGroupMember {
@@ -574,19 +497,8 @@
     }
 }
 
-//-(void)didFinishInitConversationHandler:(ChatConversationHandler *)handler error:(NSError *)error {
-//    if (!error) {
-//        NSLog(@"ChatConversationHandler Initialization finished with success.");
-//    } else {
-//        NSLog(@"ChatConversationHandler Initialization finished with error: %@", error);
-//    }
-//}
 //---------------------------------------------------//
-//START FUNCTIONS
-//---------------------------------------------------//
-
-//---------------------------------------------------//
-//INIZIO GESTIONE KEYBOARD
+// KEYBOARD HANDLING
 //---------------------------------------------------//
 -(void)backgroundTapToDismissKB:(BOOL)activate
 {
@@ -642,42 +554,6 @@
     //    [view addAction:cancel];
     //    [self presentViewController:view animated:YES completion:nil];
 }
-
-//-(void)openDropbox {
-//    [[DBChooser defaultChooser] openChooserForLinkType:DBChooserLinkTypePreview
-//                                    fromViewController:self completion:^(NSArray *results)
-//     {
-//         if ([results count]) {
-//             // Process results from Chooser
-//             DBChooserResult *r = results[0];
-//             //             NSLog(@"r.name %@", r.name);
-//             //             NSLog(@"r.link %@", r.link);
-//             //             NSLog(@"r.size %lld", r.size);
-//             //             NSLog(@"r.iconURL %@", r.iconURL);
-//             NSDictionary *thumbs = r.thumbnails;
-//             //             if (thumbs) {
-//             //                 NSArray*keys=[thumbs allKeys];
-//             //                 for (NSObject *k in keys) {
-//             //                     NSLog(@"r.thumb[%@]: %@", k, thumbs[k]);
-//             //                 }
-//             //                 NSLog(@"r.thumbs.64x64px %@", thumbs[@"64x64"]);
-//             //                 NSLog(@"r.thumbs.200x200px %@", thumbs[@"200x200"]);
-//             //                 NSLog(@"r.thumbs.640x480px %@", thumbs[@"640x480"]);
-//             //             } else {
-//             //                 NSLog(@"No r.thumbs");
-//             //             }
-//             [self sendDropboxMessage:r.name link:[r.link absoluteString] size:[NSNumber numberWithLongLong:r.size] iconURL:[r.iconURL absoluteString] thumbs:thumbs];
-//         } else {
-//             // User canceled the action
-//             NSLog(@"Action canceled");
-//         }
-//     }];
-//}
-
-//-(void)selectedDocument:(AlfrescoNode *)document {
-//    NSLog(@"Document selected %@ url: %@", document.name, [DocNavigatorTVC documentURLByNode:document]);
-//    [self sendAlfrescoMessage:document.name link:[DocNavigatorTVC documentURLByNode:document]];
-//}
 
 -(void)dismissKeyboardFromTableView:(BOOL)activated {
     //    NSLog(@"DISMISSING");
@@ -752,9 +628,7 @@
             [self.view layoutIfNeeded];
             [containerTVC scrollToLastMessage:YES];
         }];
-        /////
     }
-    
 }
 
 -(void) keyboardWillHide:(NSNotification*)aNotification
@@ -774,13 +648,11 @@
         self.layoutContraintBottomBarMessageBottomView.constant = 0;
         [self.view layoutIfNeeded];
     }];
-    /////
     keyboardShow = NO;
     //END ANIMATION VIEW
-    
 }
 //---------------------------------------------------//
-//FINE GESTIONE KEYBOARD
+// END KEYBOARD HANDLING
 //---------------------------------------------------//
 
 -(NSString*)formatDateMessage:(int)numberDaysBetweenChats message:(ChatMessage*)message row:(CGFloat)row {
@@ -815,9 +687,6 @@
 }
 
 -(void)sendMessage:(NSString *)text {
-    //    [DocChatUtil firebaseAuth:self.applicationContext.loggedUser.username password:self.applicationContext.loggedUser.password completion:^(NSError *error) {
-    //        NSLog(@"CONNECTED!!!!");
-    //    }];
     [self sendMessage:text attributes:nil];
 }
 
@@ -842,38 +711,38 @@
     }
 }
 
--(void)sendDropboxMessage:(NSString *)name link:(NSString *)link size:(NSNumber *)size iconURL:(NSString *)iconURL thumbs:(NSDictionary *)thumbs {
-    
-    // check: if in a group, are you still a member?
-    if (self.group) {
-        if ([self.group isMember:self.me.userId]) {
-        } else {
-            [self hideBottomView:YES];
-            [self.messageTextField resignFirstResponder];
-            return;
-        }
-    }
-    
-    NSMutableDictionary *attributes = [[NSMutableDictionary alloc] init];
-    NSLog(@"dropbox.link: %@", link);
-    NSLog(@"dropbox.size: %@", size);
-    NSLog(@"dropbox.iconurl: %@", iconURL);
-    
-    [attributes setValue:link forKey:@"link"];
-    [attributes setValue:size forKey:@"size"];
-    [attributes setValue:iconURL forKey:@"iconURL"];
-    if (thumbs) {
-        NSArray*keys=[thumbs allKeys];
-        for (NSString *k in keys) {
-            NSURL *turl = (NSURL *)thumbs[k];
-            [attributes setValue:[turl absoluteString] forKey:k];
-        }
-    }
-    NSString *text = [NSString stringWithFormat:@"%@ %@", name, link];
-    [self.conversationHandler sendTextMessage:text attributes:attributes completion:^(ChatMessage *message, NSError *error) {
-        NSLog(@"Dropbox message %@ successfully sent. ID: %@", message.text, message.messageId);
-    }];
-}
+//-(void)sendDropboxMessage:(NSString *)name link:(NSString *)link size:(NSNumber *)size iconURL:(NSString *)iconURL thumbs:(NSDictionary *)thumbs {
+//
+//    // check: if in a group, are you still a member?
+//    if (self.group) {
+//        if ([self.group isMember:self.me.userId]) {
+//        } else {
+//            [self hideBottomView:YES];
+//            [self.messageTextField resignFirstResponder];
+//            return;
+//        }
+//    }
+//
+//    NSMutableDictionary *attributes = [[NSMutableDictionary alloc] init];
+//    NSLog(@"dropbox.link: %@", link);
+//    NSLog(@"dropbox.size: %@", size);
+//    NSLog(@"dropbox.iconurl: %@", iconURL);
+//
+//    [attributes setValue:link forKey:@"link"];
+//    [attributes setValue:size forKey:@"size"];
+//    [attributes setValue:iconURL forKey:@"iconURL"];
+//    if (thumbs) {
+//        NSArray*keys=[thumbs allKeys];
+//        for (NSString *k in keys) {
+//            NSURL *turl = (NSURL *)thumbs[k];
+//            [attributes setValue:[turl absoluteString] forKey:k];
+//        }
+//    }
+//    NSString *text = [NSString stringWithFormat:@"%@ %@", name, link];
+//    [self.conversationHandler sendTextMessage:text attributes:attributes completion:^(ChatMessage *message, NSError *error) {
+//        NSLog(@"Dropbox message %@ successfully sent. ID: %@", message.text, message.messageId);
+//    }];
+//}
 
 -(void)messageUpdated:(ChatMessage *)message {
     [containerTVC reloadDataTableView];
@@ -884,17 +753,12 @@
 }
 
 -(void)messageReceived:(ChatMessage *)message {
-    // SE MESSAGGIO.TIMESTAMP < "1 SEC FA" MOSTRA SUBITO. SE MESSAGGIO >= 1 SEC FA IMPOSTA UN TIMER. SE ARRIVA UN ALTRO MESSAGGIO DURANTE IL TIMER FAI RIPARTIRE IL TIMER. AFTER THE TIMER ENDS, RELOAD TABLE.
-    
-//    double now = [[NSDate alloc] init].timeIntervalSince1970;
-//    self.lastMessageArrivedTime = now;
-    
-    if (!self.messagesArriving) {
-        NSLog(@"MESSAGE ARRIVED. RENDERING.");
+    if (!self.messagesArriving) { // self.messagesArriving = YES => bulk messages update
         [self startNewMessageTimer];
         self.messagesArriving = YES;
         // fist message always shown
         [self renderMessages];
+        [self playSound];
     }
     else {
         NSLog(@"MESSAGES STILL ARRIVING, NOT RENDERING!");
@@ -921,7 +785,6 @@ static float messageTime = 0.5;
 
 -(void)renderMessages {
     dispatch_async(dispatch_get_main_queue(), ^{
-        [self playSound];
         [containerTVC reloadDataTableViewOnIndex:self.conversationHandler.messages.count - 1];
         [containerTVC scrollToLastMessage:NO];
 //        [self scrollTo];
