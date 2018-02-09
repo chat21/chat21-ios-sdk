@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'Chat21SDK'
-  s.version          = '0.1.0'
+  s.version          = '0.2.1'
   s.summary          = 'Chat21 SDK for iOS'
 
 # This description is used to generate tags and improve search results.
@@ -29,8 +29,7 @@ Chat21 SDK for iOS. Embed a chat into your own iOS App with few lines of code.
   # s.social_media_url = 'https://twitter.com/<TWITTER_USERNAME>'
 
   s.ios.deployment_target = '9.0'
-
-  s.source_files = 'Chat21SDK/Classes/**/*'
+  s.source_files = 'Chat21SDK/**/*.{h,m}'
   
   # s.resource_bundles = {
   #   'Chat21SDK' => ['Chat21SDK/Assets/*.png']
@@ -38,5 +37,9 @@ Chat21 SDK for iOS. Embed a chat into your own iOS App with few lines of code.
 
   # s.public_header_files = 'Pod/Classes/**/*.h'
   # s.frameworks = 'UIKit', 'MapKit'
-  # s.dependency 'AFNetworking', '~> 2.3'
+  s.dependency 'Firebase/Core'
+  s.dependency 'Firebase/Database'
+  s.dependency 'Firebase/Auth'
+  s.dependency 'Firebase/Messaging'
+  s.dependency 'Firebase/Storage'
 end
