@@ -1,6 +1,0 @@
-use_frameworks!
-target 'Chat21SDK_Tests' do
-  pod 'Chat21SDK', :path => '../'
-  
-  
-end

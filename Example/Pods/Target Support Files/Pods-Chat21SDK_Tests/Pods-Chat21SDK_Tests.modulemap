@@ -1,6 +1,0 @@
-framework module Pods_Chat21SDK_Tests {
-  umbrella header "Pods-Chat21SDK_Tests-umbrella.h"
-
-  export *
-  module * { export * }
-}
