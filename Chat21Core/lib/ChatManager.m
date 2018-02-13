@@ -41,9 +41,31 @@ static ChatManager *sharedInstance = nil;
 +(void)configure {
     sharedInstance = [[super alloc] init];
     NSDictionary *dictionary = [NSDictionary dictionaryWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"Chat-Info" ofType:@"plist"]];
-    sharedInstance.tenant = [dictionary objectForKey:@"app-id"];
-    sharedInstance.groupsMode = [[dictionary objectForKey:@"groups-mode"] boolValue];
-//    sharedInstance.tabBarIndex = [[dictionary objectForKey:@"conversations-tabbar-index"] integerValue];
+    if (dictionary) {
+        if ([dictionary objectForKey:@"app-id"]) {
+            sharedInstance.tenant = [dictionary objectForKey:@"app-id"];
+        }
+        else {
+            sharedInstance.tenant = @"chat";
+        }
+        if ([dictionary objectForKey:@"groups-mode"]) {
+            sharedInstance.groupsMode = [[dictionary objectForKey:@"groups-mode"] boolValue];
+        }
+        else {
+            sharedInstance.groupsMode = YES;
+        }
+        if ([dictionary objectForKey:@"conversations-tabbar-index"]) {
+            sharedInstance.tabBarIndex = [[dictionary objectForKey:@"conversations-tabbar-index"] integerValue];
+        }
+        else {
+            sharedInstance.tabBarIndex = 0;
+        }
+    }
+    else {
+        sharedInstance.tenant = @"chat";
+        sharedInstance.groupsMode = YES;
+        sharedInstance.tabBarIndex = 0;
+    }
     sharedInstance.loggedUser = nil;
 }
 
