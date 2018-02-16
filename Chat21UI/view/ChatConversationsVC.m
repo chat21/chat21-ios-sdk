@@ -83,11 +83,8 @@
 }
 
 -(void)customizeTitleView {
-    NSLog(@"CUSTOMIZING TITLE VIEW");
-    
     NSArray *subviewArray = [[NSBundle mainBundle] loadNibNamed:@"status_title_ios11" owner:self options:nil];
     ChatStatusTitle *view = [subviewArray objectAtIndex:0];
-//    view.frame = CGRectMake(0, 0, 200, 40);
     self.usernameButton = view.usernameButton;
     self.statusLabel = view.statusLabel;
     self.activityIndicator = view.activityIndicator;
@@ -145,7 +142,6 @@
      
 -(void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
-    NSLog(@"Conversations viewDidAppear");
     
     ChatManager *chat = [ChatManager getInstance];
     [chat.connectionStatusHandler isStatusConnectedWithCompletionBlock:^(BOOL connected, NSError *error) {
@@ -235,7 +231,6 @@
 -(void)initConversationsHandler {
     ChatManager *chatm = [ChatManager getInstance];
     ChatConversationsHandler *handler = [chatm getConversationsHandler];
-    NSLog(@"Conversations Handler instance already set.");
     [self subscribe:handler];
     self.conversationsHandler = handler;
 }
@@ -268,7 +263,6 @@
         NSLog(@"Subscribe(): just subscribed to conversations handler. Do nothing.");
         return;
     }
-    NSLog(@"Subscribing to conversationsHandler");
     self.added_handle = [handler observeEvent:ChatEventConversationAdded withCallback:^(ChatConversation *conversation) {
         [self conversationReceived:conversation];
     }];
@@ -488,8 +482,6 @@
 //            NSLog(@"Conversation.sender %@", conversation.sender);
             cell = [CellConfigurator configureConversationCell:conversation tableView:tableView indexPath:indexPath conversationsVC:self];
         } else {
-            NSLog(@"*conversations.count = 0");
-            NSLog(@"Rendering NO CONVERSATIONS CELL...");
             cell = [tableView dequeueReusableCellWithIdentifier:messageCellName forIndexPath:indexPath];
             UILabel *message1 = (UILabel *)[cell viewWithTag:50];
             message1.text = [ChatLocal translate:@"NoConversationsYet"];

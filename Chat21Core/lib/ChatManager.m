@@ -115,14 +115,9 @@ static ChatManager *sharedInstance = nil;
 -(ChatConversationHandler *)getConversationHandlerForGroup:(ChatGroup *)group {
     ChatConversationHandler *handler = [self.handlers objectForKey:group.groupId];
     if (!handler) {
-        NSLog(@"Conversation Handler not found. Creating & initializing a new one with group-id %@", group.groupId);
-        // GROUP_MOD
         handler = [[ChatConversationHandler alloc] initWithGroupId:group.groupId groupName:group.name];
         [self addConversationHandler:handler];
-        NSLog(@"Restoring DB archived conversations.");
         [handler restoreMessagesFromDB];
-        NSLog(@"Archived messages count %lu", (unsigned long)handler.messages.count);
-        NSLog(@"Connecting handler to firebase.");
         [handler connect];
     }
     return handler;
@@ -130,14 +125,12 @@ static ChatManager *sharedInstance = nil;
 
 -(ChatConversationsHandler *)createConversationsHandler {
     ChatConversationsHandler *handler = [[ChatConversationsHandler alloc] initWithTenant:self.tenant user:self.loggedUser];
-    NSLog(@"Setting new handler %@ to Conversations Manager.", handler);
     self.conversationsHandler = handler;
     return handler;
 }
 
 -(ChatPresenceHandler *)createPresenceHandler {
     ChatPresenceHandler *handler = [[ChatPresenceHandler alloc] initWithTenant:self.tenant user:self.loggedUser];
-    NSLog(@"Setting new handler %@ to Conversations Manager.", handler);
     self.presenceHandler = handler;
     return handler;
 }
@@ -163,17 +156,15 @@ static ChatManager *sharedInstance = nil;
 -(void)initPresenceHandler {
     ChatPresenceHandler *handler = self.presenceHandler;
     if (!handler) {
-        NSLog(@"Presence Handler not found. Creating & initializing a new one.");
         handler = [self createPresenceHandler];
         self.presenceHandler = handler;
-        NSLog(@"Connecting handler to firebase.");
+        NSLog(@"Presence handler ok.");
         [self.presenceHandler setupMyPresence];
     }
 }
 
 -(ChatContactsSynchronizer *)createContactsSynchronizerForUser:(ChatUser *)user {
     ChatContactsSynchronizer *syncronizer = [[ChatContactsSynchronizer alloc] initWithTenant:self.tenant user:user];
-    NSLog(@"Setting new ChatContactsSynchronizer %@", syncronizer);
     self.contactsSynchronizer = syncronizer;
     return syncronizer;
 }
@@ -194,7 +185,6 @@ static ChatManager *sharedInstance = nil;
 -(void)initGroupsHandler {
     if (!self.groupsHandler) {
         ChatGroupsHandler *handler = self.groupsHandler;
-        NSLog(@"Groups Handler not found. Creating & initializing a new one.");
         handler = [self createGroupsHandlerForUser:self.loggedUser];
         [handler restoreGroupsFromDB]; // not thread-safe, call this method before firebase synchronization start
         [handler connect]; // firebase synchronization starts
@@ -203,7 +193,6 @@ static ChatManager *sharedInstance = nil;
 
 -(void)initContactsSynchronizer {
     if (!self.contactsSynchronizer) {
-        NSLog(@"Contacts Synchronizer not found. Creating & initializing a new one.");
         self.contactsSynchronizer = [self createContactsSynchronizerForUser:self.loggedUser];
         [self.contactsSynchronizer startSynchro];
     } else {
@@ -442,7 +431,6 @@ static ChatManager *sharedInstance = nil;
 -(ChatGroupsHandler *)createGroupsHandlerForUser:(ChatUser *)user {
     //    ChatGroupsHandler *handler = [[ChatGroupsHandler alloc] initWithFirebaseRef:self.firebaseRef tenant:self.tenant user:user];
     ChatGroupsHandler *handler = [[ChatGroupsHandler alloc] initWithTenant:self.tenant user:user];
-    NSLog(@"Setting new handler %@ to Groups Manager.", handler);
     self.groupsHandler = handler;
     return handler;
 }
@@ -485,10 +473,14 @@ static ChatManager *sharedInstance = nil;
         NSLog(@"contact setValue callback. %@", contact_dict);
         if (error) {
             NSLog(@"Command: \"Create Contact %@/%@ on Firebase\" failed with error: %@",user.userId, user.fullname, error);
-            completionBlock(error);
+            if (completionBlock != nil) {
+                completionBlock(error);
+            }
         } else {
             NSLog(@"Command: \"Create Contact %@/%@ on Firebase\" was successfull.",user.userId, user.fullname);
-            completionBlock(nil);
+            if (completionBlock != nil) {
+                completionBlock(nil);
+            }
         }
     }];
 }

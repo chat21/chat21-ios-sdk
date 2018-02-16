@@ -35,7 +35,6 @@
 +(FIRDatabaseReference *)onlineRefForUser:(NSString *)userid {
     NSString *tenant = [ChatManager getInstance].tenant;
     NSString *myConnectionsRefURL = [[NSString alloc] initWithFormat:@"apps/%@/presence/%@/connections",tenant, userid];
-    NSLog(@"Presence. myConnectionsRefURL: %@", myConnectionsRefURL);
     FIRDatabaseReference *connectionsRef = [[[FIRDatabase database] reference] child:myConnectionsRefURL];
     return connectionsRef;
 }
@@ -54,14 +53,11 @@
         [connectedRef removeObserverWithHandle:self.connectionsRefHandle];
     }
     self.connectionsRefHandle = [connectedRef observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
-        NSLog(@"> Connected (or reconnected after connection loss). Snapshot: %@", snapshot);
-        NSLog(@"  Snapshot.value: %@", snapshot.value);
         if([snapshot.value boolValue]) {
             // connection established (or I've reconnected after a loss of connection)
             
             // add this device to my connections list
             // this value could contain info about the device or a timestamp instead of just true
-            NSLog(@"self.deviceConnectionRef: %@", self.deviceConnectionRef);
             if (!self.deviceConnectionRef) {
                 if (self.deviceConnectionKey) {
                     self.deviceConnectionRef = [myConnectionsRef child:self.deviceConnectionKey];
@@ -70,7 +66,6 @@
                     self.deviceConnectionRef = [myConnectionsRef childByAutoId];
                     self.deviceConnectionKey = self.deviceConnectionRef.key;
                 }
-                NSLog(@"Connected Ref ID: %@", self.deviceConnectionRef);
                 [self.deviceConnectionRef setValue:@YES];
                 // when this device disconnects, remove it
                 [self.deviceConnectionRef onDisconnectRemoveValue];

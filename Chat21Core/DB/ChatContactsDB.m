@@ -122,18 +122,15 @@ static ChatContactsDB *sharedInstance = nil;
 
 -(void)insertOrUpdateContactSyncronized:(ChatUser *)contact completion:(void(^)(void)) callback {
     dispatch_async(serialDatabaseQueue, ^{
-        NSLog(@"INSERT OR UPDATE CONTACT: %@/%@ saved-date: %@", contact.userId, contact.fullname, contact.createdonAsDate);
+//        NSLog(@"INSERT OR UPDATE CONTACT: %@/%@ saved-date: %@", contact.userId, contact.fullname, contact.createdonAsDate);
         [self getContactByIdSyncronized:contact.userId completion:^(ChatUser *user) {
-            NSLog(@"user.lastname %@, contact.lastname %@", user.lastname, contact.lastname);
             if (user) {
-                NSLog(@"CONTACTSDB: CONTACT %@/%@ saved-date: %@ CHANGED, UPDATING....", contact.userId, contact.fullname, contact.createdonAsDate);
                 [self updateContact:contact];
                 if (callback != nil) {
                     callback();
                 }
             }
             else {
-                NSLog(@"CONTACTSDB: CONTACT %@/%@  fire-date: %@ IS NEW. INSERTING ...", contact.userId, contact.fullname, contact.createdonAsDate);
                 [self insertContact:contact];
                 if (callback != nil) {
                     callback();
@@ -268,10 +265,7 @@ static NSString *SELECT_FROM_CONTACTS_STATEMENT = @"SELECT contactId, firstname,
 }
 
 -(ChatUser *)getContactById:(NSString *)contactId {
-    NSLog(@"Searching contact with id: %@", contactId);
     ChatUser *contact = nil;
-    //    const char *dbpath = [databasePath UTF8String];
-    //    if (sqlite3_open(dbpath, &database) == SQLITE_OK) {
     NSString *querySQL = [NSString stringWithFormat:
                           @"%@ where contactId = \"%@\"",SELECT_FROM_CONTACTS_STATEMENT, contactId];
     const char *query_stmt = [querySQL UTF8String];

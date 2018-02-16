@@ -108,7 +108,6 @@
     // path: apps/{tenant}/users/{userId}/conversations
     NSString *tenant = [ChatManager getInstance].tenant;
     NSString *conversations_path = [[NSString alloc] initWithFormat:@"/apps/%@/users/%@/conversations", tenant, user_id];
-    NSLog(@"buildConversationsReferenceWithTenant > firebase_conversations_ref: %@", conversations_path);
     return conversations_path;
 }
 

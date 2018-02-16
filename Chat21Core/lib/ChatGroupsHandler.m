@@ -72,13 +72,9 @@
 }
 
 -(void)connect {
-//    self.groupsRef = [ChatUtil groupsRefWithBase:self.firebaseRef];
     FIRDatabaseReference *rootRef = [[FIRDatabase database] reference];
     NSString *groups_path = [ChatUtil groupsPath];
-    NSLog(@"Synch Groups on path: %@", groups_path);
     self.groupsRef = [rootRef child:groups_path];
-    
-//    self.groupsRef = [ChatUtil groupsRefWithBase:GROUPS_BASE_URL];
     
     self.groups_ref_handle_added = [self.groupsRef observeEventType:FIRDataEventTypeChildAdded withBlock:^(FIRDataSnapshot *snapshot) {
         NSLog(@"NEW GROUP SNAPSHOT: %@", snapshot);
@@ -126,7 +122,6 @@
 }
 
 -(void)restoreGroupsFromDB {
-    NSLog(@"Restoring all groups from DB...");
     NSArray *groups_array = [[ChatGroupsDB getSharedInstance] getAllGroupsForUser:self.me];
     if (!self.groups) {
         self.groups = [[NSMutableDictionary alloc] init];

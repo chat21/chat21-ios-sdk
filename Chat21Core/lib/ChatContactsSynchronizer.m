@@ -81,12 +81,11 @@
     
     if (!self.contact_ref_handle_added) {
         NSInteger lasttime = [self lastQueryTime];
-        NSLog(@"LAST TIME CONTACT SYNCH %ld", (long)lasttime);
         self.contact_ref_handle_added = [[[self.contactsRef queryOrderedByChild:@"timestamp"] queryStartingAtValue:@(lasttime)] observeEventType:FIRDataEventTypeChildAdded withBlock:^(FIRDataSnapshot *snapshot) {
             dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
                 ChatUser *contact = [ChatContactsSynchronizer contactFromSnapshotFactory:snapshot];
                 if (contact) {
-                    NSLog(@"FIREBASE: NEW CONTACT id: %@ firstname: %@ fullname: %@",contact.userId, contact.firstname, contact.fullname);
+//                    NSLog(@"FIREBASE: NEW CONTACT id: %@ firstname: %@ fullname: %@",contact.userId, contact.firstname, contact.fullname);
                     [self insertOrUpdateContactOnDB:contact];
                 }
             });
@@ -130,7 +129,6 @@
 
 -(void)startSynchTimer {
     dispatch_async(dispatch_get_main_queue(), ^{
-        NSLog(@"STARTSYNCH!");
         self.synchronizing = YES;
 //       if (self.synchTimer) {
 //           if ([self.synchTimer isValid]) {
@@ -145,7 +143,6 @@
 
 -(void)synchTimerPaused:(NSTimer *)timer {
     dispatch_async(dispatch_get_main_queue(), ^{
-        NSLog(@"Synch off");
         [self setFirstSynchroOver:YES];
         self.synchronizing = NO;
         [self callEndOnSubscribers];

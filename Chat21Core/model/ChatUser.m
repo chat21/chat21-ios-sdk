@@ -78,7 +78,6 @@
 }
 
 - (BOOL)isEqualToUser:(ChatUser *)user {
-    NSLog(@"self.lastname %@, user.lastname %@", self.lastname, user.lastname);
     if (self == user)
         return YES;
     if (![(id)[self lastname] isEqual:[user lastname]])
