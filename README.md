@@ -1,7 +1,5 @@
-# Chat21SDK
+# Chat21 SDK for iOS
 
-## Add libraries to your project
-
-To install and use the SDK follow the tutorial available here:
+To install and use the SDK follow this tutorial:
 
 [Chat21 iOS Get Started tutorial](http://www.chat21.org/docs/ios/get-started/)
