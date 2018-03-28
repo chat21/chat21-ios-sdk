@@ -369,14 +369,6 @@
          && !self.view.window // conversationsview hidden
          && conversation.conversationId != currentConversationId ) {
         
-//        UIImage *userImage = [SHPImageUtil circleImage:[UIImage imageNamed:@"avatar"]];
-//        NSString *imageURL = @""; //[SHPUser photoUrlByUsername:conversation.sender];
-//        ChatImageWrapper *cached_image_wrap = [self.imageCache getImage:imageURL];
-//        UIImage *cached_image = cached_image_wrap.image;
-//        UIImage *_circled_cached_image = [SHPImageUtil circleImage:cached_image];
-//        if(_circled_cached_image) {
-//            userImage = _circled_cached_image;
-//        }
         [ChatUIManager showNotificationWithMessage:conversation.last_message_text image:nil sender:conversation.conversWith senderFullname:conversation.conversWith_fullname];
     }
 }
@@ -651,67 +643,7 @@
 
 // images
 
-//- (void)startIconDownload:(NSString *)imageURL forIndexPath:(NSIndexPath *)indexPath
-//{
-////    NSString *imageURL = [SHPUser photoUrlByUsername:username];
-//    NSLog(@"START DOWNLOADING IMAGE: %@", imageURL);
-//    SHPImageDownloader *iconDownloader = [self.imageDownloadsInProgress objectForKey:imageURL];
-//    //    NSLog(@"IconDownloader..%@", iconDownloader);
-//    if (iconDownloader == nil)
-//    {
-//        iconDownloader = [[SHPImageDownloader alloc] init];
-//        NSMutableDictionary *options = [[NSMutableDictionary alloc] init];
-//        [options setObject:indexPath forKey:@"indexPath"];
-//        iconDownloader.options = options;
-//        iconDownloader.imageURL = imageURL;
-//        iconDownloader.delegate = self;
-//        [self.imageDownloadsInProgress setObject:iconDownloader forKey:imageURL];
-//        [iconDownloader startDownload];
-//    }
-//}
 
-//- (void)startIconDownload:(NSString *)username forIndexPath:(NSIndexPath *)indexPath
-//{
-//    NSString *imageURL = [SHPUser photoUrlByUsername:username];
-//    NSLog(@"START DOWNLOADING IMAGE: %@ imageURL: %@", username, imageURL);
-//    SHPImageDownloader *iconDownloader = [self.imageDownloadsInProgress objectForKey:imageURL];
-//    //    NSLog(@"IconDownloader..%@", iconDownloader);
-//    if (iconDownloader == nil)
-//    {
-//        iconDownloader = [[SHPImageDownloader alloc] init];
-//        NSMutableDictionary *options = [[NSMutableDictionary alloc] init];
-//        [options setObject:indexPath forKey:@"indexPath"];
-//        iconDownloader.options = options;
-//        iconDownloader.imageURL = imageURL;
-//        iconDownloader.delegate = self;
-//        [self.imageDownloadsInProgress setObject:iconDownloader forKey:imageURL];
-//        [iconDownloader startDownload];
-//    }
-//}
-
-//// callback for the icon loaded
-//- (void)appImageDidLoad:(UIImage *)image withURL:(NSString *)imageURL downloader:(SHPImageDownloader *)downloader {
-//    NSLog(@"+******** IMAGE AT URL: %@ DID LOAD: %@", imageURL, image);
-//    if (!image) {
-//        return;
-//    }
-//    //UIImage *circled = [SHPImageUtil circleImage:image];
-//    [self.imageCache addImage:image withKey:imageURL];
-//    NSDictionary *options = downloader.options;
-//    NSIndexPath *indexPath = [options objectForKey:@"indexPath"];
-////    NSLog(@"+******** appImageDidLoad row: %ld", indexPath.row);
-//
-//    // if the cell for the image is visible updates the cell
-//    NSArray *indexes = [self.tableView indexPathsForVisibleRows];
-//    for (NSIndexPath *index in indexes) {
-//        if (index.row == indexPath.row && index.section == indexPath.section) {
-//            UITableViewCell *cell = [(UITableView *)self.tableView cellForRowAtIndexPath:index];
-//            UIImageView *iv = (UIImageView *)[cell viewWithTag:1];
-//            iv.image = [SHPImageUtil circleImage:image];
-//        }
-//    }
-//    [self.imageDownloadsInProgress removeObjectForKey:imageURL];
-//}
 
 //-(void)terminatePendingImageConnections {
 //    NSLog(@"''''''''''''''''''''''   Terminate all pending IMAGE connections...");

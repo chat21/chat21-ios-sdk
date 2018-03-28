@@ -475,41 +475,10 @@
 
 - (void)startIconDownload:(NSString *)username forIndexPath:(NSIndexPath *)indexPath
 {
-    //    NSString *imageURL = @""; //[SHPUser photoUrlByUsername:username];
-    //    //    NSLog(@"START DOWNLOADING IMAGE: %@ imageURL: %@", username, imageURL);
-    //    SHPImageDownloader *iconDownloader = [self.imageDownloadsInProgress objectForKey:imageURL];
-    //    //    NSLog(@"IconDownloader..%@", iconDownloader);
-    //    if (iconDownloader == nil)
-    //    {
-    //        iconDownloader = [[SHPImageDownloader alloc] init];
-    //        NSMutableDictionary *options = [[NSMutableDictionary alloc] init];
-    //        [options setObject:indexPath forKey:@"indexPath"];
-    //        iconDownloader.options = options;
-    //        iconDownloader.imageURL = imageURL;
-    //        iconDownloader.delegate = self;
-    //        [self.imageDownloadsInProgress setObject:iconDownloader forKey:imageURL];
-    //        [iconDownloader startDownload];
-    //    }
+    
 }
 
-//// called by our ImageDownloader when an icon is ready to be displayed
-//- (void)appImageDidLoad:(UIImage *)image withURL:(NSString *)imageURL downloader:(SHPImageDownloader *)downloader
-//{
-//    image = [SHPImageUtil circleImage:image];
-//    [self.imageCache addImage:image withKey:imageURL];
-//    NSDictionary *options = downloader.options;
-//    NSIndexPath *indexPath = [options objectForKey:@"indexPath"];
-//    // if the cell for the image is visible updates the cell
-//    NSArray *indexes = [self.tableView indexPathsForVisibleRows];
-//    for (NSIndexPath *index in indexes) {
-//        if (index.row == indexPath.row && index.section == indexPath.section) {
-//            UITableViewCell *cell = [(UITableView *)self.tableView cellForRowAtIndexPath:index];
-//            UIImageView *iv = (UIImageView *)[cell viewWithTag:1];
-//            iv.image = image;
-//        }
-//    }
-//    [self.imageDownloadsInProgress removeObjectForKey:imageURL];
-//}
+
 
 // all users
 

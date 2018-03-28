@@ -270,29 +270,6 @@
     //    }
 }
 
-//// callback for the icon loaded
-//- (void)appImageDidLoad:(UIImage *)image withURL:(NSString *)imageURL downloader:(SHPImageDownloader *)downloader {
-//    //    NSLog(@"+******** IMAGE AT URL: %@ DID LOAD: %@", imageURL, image);
-//    if (!image) {
-//        return;
-//    }
-//    //UIImage *circled = [SHPImageUtil circleImage:image];
-//    [self.imageCache addImage:image withKey:imageURL];
-//    NSDictionary *options = downloader.options;
-//    NSIndexPath *indexPath = [options objectForKey:@"indexPath"];
-//    //    NSLog(@"+******** appImageDidLoad row: %ld", indexPath.row);
-//
-//    // if the cell for the image is visible updates the cell
-//    NSArray *indexes = [self.tableView indexPathsForVisibleRows];
-//    for (NSIndexPath *index in indexes) {
-//        if (index.row == indexPath.row && index.section == indexPath.section) {
-//            UITableViewCell *cell = [(UITableView *)self.tableView cellForRowAtIndexPath:index];
-//            UIImageView *iv = (UIImageView *)[cell viewWithTag:10];
-//            iv.image = [SHPImageUtil circleImage:image];
-//        }
-//    }
-//    [self.imageDownloadsInProgress removeObjectForKey:imageURL];
-//}
 
 -(void)terminatePendingImageConnections {
     //    NSLog(@"''''''''''''''''''''''   Terminate all pending IMAGE connections...");

@@ -402,11 +402,6 @@
         min_side = image.size.width;
     }
     float radius = min_side / 2.0;
-    //    CGRect rect = CGRectMake(0, 0, image.size.width, image.size.height);
-    
-    //    CGFloat size = radius;
-    //    image = [SHPImageUtil squareImageFromImage:image scaledToSize:size];
-    //    NSLog(@"NEW SIZE w: %f h: %f", image.size.width, image.size.height);
     
     CGRect rect = CGRectMake(0, 0, radius, radius);
     

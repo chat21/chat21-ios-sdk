@@ -66,6 +66,8 @@
 -(ChatGroupsHandler *)createGroupsHandlerForUser:(ChatUser *)user;
 -(ChatContactsSynchronizer *)createContactsSynchronizerForUser:(ChatUser *)user;
 
+-(void)registerForNotifications:(NSData *)devToken;
+
 -(void)startWithUser:(ChatUser *)user;
 -(void)dispose;
 

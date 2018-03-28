@@ -821,6 +821,46 @@ static ChatManager *sharedInstance = nil;
     }];
 }
 
+-(void)registerForNotifications:(NSData *)devToken {
+    NSString *FCMToken = [FIRMessaging messaging].FCMToken;
+    NSLog(@"FCMToken: %@", FCMToken);
+    [FIRMessaging messaging].APNSToken = devToken;
+    NSLog(@"[FIRMessaging messaging].APNSToken: %@", [FIRMessaging messaging].APNSToken);
+    ChatUser *loggedUser = self.loggedUser;
+    if (loggedUser) {
+        NSString *user_path = [ChatUtil userPath:loggedUser.userId];
+        NSLog(@"Writing instanceId (FCMToken) %@ on path: %@", FCMToken, user_path);
+        
+        NSMutableDictionary *device_data = [[NSMutableDictionary alloc] init];
+        [device_data setObject:[[UIDevice currentDevice] model] forKey:@"device_model"];
+        [device_data setObject:[[NSLocale currentLocale] objectForKey: NSLocaleLanguageCode] forKey:@"language"];
+        [device_data setObject:@"iOS" forKey:@"platform"];
+        [device_data setObject:[[UIDevice currentDevice] systemVersion] forKey:@"platform_version"];
+        
+        [[[[[[FIRDatabase database] reference] child:user_path] child:@"instances"] child:FCMToken] setValue:device_data withCompletionBlock:^(NSError * _Nullable error, FIRDatabaseReference * _Nonnull ref) {
+            if (error) {
+                NSLog(@"Error saving instanceId (FCMToken) on user_path %@: %@", error, user_path);
+            }
+            else {
+                NSLog(@"instanceId (FCMToken) %@ saved", FCMToken);
+            }
+        }];
+        
+        // single instance, DEPRECATED
+//        [[[[[FIRDatabase database] reference] child:user_path] child:@"instanceId"] setValue:FCMToken withCompletionBlock:^(NSError * _Nullable error, FIRDatabaseReference * _Nonnull ref) {
+//            if (error) {
+//                NSLog(@"Error saving instanceId (FCMToken) on user_path %@: %@", error, user_path);
+//            }
+//            else {
+//                NSLog(@"instanceId (FCMToken) %@ saved", FCMToken);
+//            }
+//        }];
+    }
+    else {
+        NSLog(@"No user is signed in for push notifications.");
+    }
+}
+
 //-(void)getContact:(NSString *)userid withCompletion(void (^)(ChatUser* user))callback {
 //    FIRDatabaseReference *rootRef = [[FIRDatabase database] reference];
 //    NSString *contact_path = [ChatUtil contactPathOfUser:self.loggedUser.userId];

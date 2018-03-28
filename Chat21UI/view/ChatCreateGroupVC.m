@@ -233,22 +233,6 @@
 }
 
 -(void)afterPickerCompletion:(UIImagePickerController *)picker withInfo:(NSDictionary *)info {
-//    self.bigImage = [info objectForKey:@"UIImagePickerControllerEditedImage"];
-//    NSLog(@"BIG IMAGE: %@", self.bigImage);
-//    // enable to crop
-//    NSLog(@"edited image w:%f h:%f", self.bigImage.size.width, self.bigImage.size.height);
-//    if (!self.bigImage) {
-//        self.bigImage = [info objectForKey:@"UIImagePickerControllerOriginalImage"];
-//        NSLog(@"original image w:%f h:%f", self.bigImage.size.width, self.bigImage.size.height);
-//    }
-//    // end
-//
-//    self.scaledImage = [SHPImageUtil scaleImage:self.bigImage toSize:CGSizeMake(self.applicationContext.settings.uploadImageSize, self.applicationContext.settings.uploadImageSize)];
-//    NSLog(@"SCALED IMAGE w:%f h:%f", self.scaledImage.size.width, self.scaledImage.size.height);
-//
-//    NSLog(@"image: %@", self.scaledImage);
-//    self.groupImageView.image = self.scaledImage;
-//    self.addPhotoLabelOverloaded.hidden = YES;
 }
 
 - (void)image:(UIImage *)image didFinishSavingWithError:(NSError *)error contextInfo:(void *)contextInfo

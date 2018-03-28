@@ -143,30 +143,6 @@
         UIImage *circled = [ChatUtil circleImage:[UIImage imageNamed:@"avatar"]];
         UIImageView *image_view = (UIImageView *)[cell viewWithTag:1];
         image_view.image = circled;
-        //        // USER IMAGE
-        //        UIImageView *image_view = (UIImageView *)[cell viewWithTag:1];
-        //        NSString *imageURL = [SHPUser photoUrlByUsername:user.username];
-        //        ChatImageWrapper *cached_image_wrap = (ChatImageWrapper *)[self.imageCache getImage:imageURL];
-        //        UIImage *user_image = cached_image_wrap.image;
-        //        if(!cached_image_wrap) { // user_image == nil if image saving gone wrong!
-        //            //NSLog(@"USER %@ IMAGE NOT CACHED. DOWNLOADING...", conversation.conversWith);
-        //            [self startIconDownload:user.username forIndexPath:indexPath];
-        //            // if a download is deferred or in progress, return a placeholder image
-        //            UIImage *circled = [SHPImageUtil circleImage:[UIImage imageNamed:@"avatar"]];
-        //            image_view.image = circled;
-        //        } else {
-        //            //NSLog(@"USER IMAGE CACHED. %@", conversation.conversWith);
-        //            image_view.image = [SHPImageUtil circleImage:user_image];
-        //            // update too old images
-        //            double now = [[NSDate alloc] init].timeIntervalSince1970;
-        //            double reload_timer_secs = 86400; // one day
-        //            if (now - cached_image_wrap.createdTime.timeIntervalSince1970 > reload_timer_secs) {
-        //                //NSLog(@"EXPIRED image for user %@. Created: %@ - Now: %@. Reloading...", conversation.conversWith, cached_image_wrap.createdTime, [[NSDate alloc] init]);
-        //                [self startIconDownload:user.username forIndexPath:indexPath];
-        //            } else {
-        //                //NSLog(@"VALID image for user %@. Created %@ - Now %@", conversation.conversWith, cached_image_wrap.createdTime, [[NSDate alloc] init]);
-        //            }
-        //        }
         
         // is just a member'
         
@@ -206,41 +182,7 @@
         UIImage *circled = [ChatUtil circleImage:[UIImage imageNamed:@"avatar"]];
         UIImageView *image_view = (UIImageView *)[cell viewWithTag:1];
         image_view.image = circled;
-        // USER IMAGE
-        //        UIImageView *image_view = (UIImageView *)[cell viewWithTag:1];
-        //        NSString *imageURL = [SHPUser photoUrlByUsername:user.username];
-        //        ChatImageWrapper *cached_image_wrap = (ChatImageWrapper *)[self.imageCache getImage:imageURL];
-        //        UIImage *user_image = cached_image_wrap.image;
-        //        if(!cached_image_wrap) { // user_image == nil if image saving gone wrong!
-        //            //NSLog(@"USER %@ IMAGE NOT CACHED. DOWNLOADING...", conversation.conversWith);
-        //            [self startIconDownload:user.username forIndexPath:indexPath];
-        //            // if a download is deferred or in progress, return a placeholder image
-        //            UIImage *circled = [SHPImageUtil circleImage:[UIImage imageNamed:@"avatar"]];
-        //            image_view.image = circled;
-        //        } else {
-        //            //NSLog(@"USER IMAGE CACHED. %@", conversation.conversWith);
-        //            image_view.image = [SHPImageUtil circleImage:user_image];
-        //            // update too old images
-        //            double now = [[NSDate alloc] init].timeIntervalSince1970;
-        //            double reload_timer_secs = 86400; // one day
-        //            if (now - cached_image_wrap.createdTime.timeIntervalSince1970 > reload_timer_secs) {
-        //                //NSLog(@"EXPIRED image for user %@. Created: %@ - Now: %@. Reloading...", conversation.conversWith, cached_image_wrap.createdTime, [[NSDate alloc] init]);
-        //                [self startIconDownload:user.username forIndexPath:indexPath];
-        //            } else {
-        //                //NSLog(@"VALID image for user %@. Created %@ - Now %@", conversation.conversWith, cached_image_wrap.createdTime, [[NSDate alloc] init]);
-        //            }
-        //        }
         
-        //        UIImageView *iv = (UIImageView *) [cell viewWithTag:1];
-        //        NSString *imageURL = [SHPUser photoUrlByUsername:user.username];
-        //        if(![self.imageCache getImage:imageURL]) {
-        //            [self startIconDownload:user forIndexPath:indexPath];
-        //            // if a download is deferred or in progress, return a placeholder image
-        //            //            iv.image = [UIImage imageNamed:@"grid-big-empty-image.png"];
-        //            iv.image = nil;
-        //        } else {
-        //            iv.image = [self.imageCache getImage:imageURL];
-        //        }
     }
     return cell;
 }
@@ -440,69 +382,7 @@
 
 - (void)startIconDownload:(NSString *)username forIndexPath:(NSIndexPath *)indexPath
 {
-//    NSString *imageURL = [SHPUser photoUrlByUsername:username];
-//    //    NSLog(@"START DOWNLOADING IMAGE: %@ imageURL: %@", username, imageURL);
-//    SHPImageDownloader *iconDownloader = [self.imageDownloadsInProgress objectForKey:imageURL];
-//    //    NSLog(@"IconDownloader..%@", iconDownloader);
-//    if (iconDownloader == nil)
-//    {
-//        iconDownloader = [[SHPImageDownloader alloc] init];
-//        NSMutableDictionary *options = [[NSMutableDictionary alloc] init];
-//        [options setObject:indexPath forKey:@"indexPath"];
-//        iconDownloader.options = options;
-//        iconDownloader.imageURL = imageURL;
-//        iconDownloader.delegate = self;
-//        [self.imageDownloadsInProgress setObject:iconDownloader forKey:imageURL];
-//        [iconDownloader startDownload];
-//    }
 }
-
-//- (void)startIconDownload:(SHPUser *)user forIndexPath:(NSIndexPath *)indexPath
-//{
-//    NSString *imageURL = [SHPUser photoUrlByUsername:user.username];
-//    SHPImageDownloader *iconDownloader = [self.imageDownloadsInProgress objectForKey:imageURL];
-//    //    NSLog(@"IconDownloader..%@", iconDownloader);
-//    if (iconDownloader == nil)
-//    {
-//        iconDownloader = [[SHPImageDownloader alloc] init];
-//        NSMutableDictionary *options = [[NSMutableDictionary alloc] init];
-//        [options setObject:indexPath forKey:@"indexPath"];
-//        iconDownloader.options = options;
-//        iconDownloader.imageURL = imageURL;
-//        iconDownloader.delegate = self;
-//        [self.imageDownloadsInProgress setObject:iconDownloader forKey:imageURL];
-//        [iconDownloader startDownload];
-//    }
-//}
-
-//// called by our ImageDownloader when an icon is ready to be displayed
-//- (void)appImageDidLoad:(UIImage *)image withURL:(NSString *)imageURL downloader:(SHPImageDownloader *)downloader
-//{
-//    image = [SHPImageUtil circleImage:image];
-//    [self.imageCache addImage:image withKey:imageURL];
-//    NSDictionary *options = downloader.options;
-//    NSIndexPath *indexPath = [options objectForKey:@"indexPath"];
-//    // if the cell for the image is visible updates the cell
-//    NSArray *indexes = [self.tableView indexPathsForVisibleRows];
-//    for (NSIndexPath *index in indexes) {
-//        if (index.row == indexPath.row && index.section == indexPath.section) {
-//            UITableViewCell *cell = [(UITableView *)self.tableView cellForRowAtIndexPath:index];
-//            UIImageView *iv = (UIImageView *)[cell viewWithTag:1];
-//            iv.image = image;
-//        }
-//    }
-//    [self.imageDownloadsInProgress removeObjectForKey:imageURL];
-//}
-
-// members
-
-//-(void)restoreMembers {
-//    self.members = (NSMutableArray *) [self.applicationContext getVariable:@"groupMembers"];
-//    if (!self.members) {
-//        self.members = [[NSMutableArray alloc] init];
-//        [self.applicationContext setVariable:@"groupMembers" withValue:self.members];
-//    }
-//}
 
 -(void)addGroupMember:(ChatUser *)user {
     NSLog(@"Adding member: %@/%@", user.userId, user.fullname);
