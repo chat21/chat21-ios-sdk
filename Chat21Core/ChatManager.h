@@ -66,6 +66,7 @@
 -(ChatGroupsHandler *)createGroupsHandlerForUser:(ChatUser *)user;
 -(ChatContactsSynchronizer *)createContactsSynchronizerForUser:(ChatUser *)user;
 
+//-(void)createGroupFromPushNotificationWithName:(NSString *)groupName groupId:(NSString *)groupId;
 -(void)registerForNotifications:(NSData *)devToken;
 
 -(void)startWithUser:(ChatUser *)user;
@@ -80,7 +81,6 @@
 -(void)removeMember:(NSString *)user_id fromGroup:(ChatGroup *)group withCompletionBlock:(void (^)(NSError *))completionBlock;
 +(ChatGroup *)groupFromSnapshotFactory:(FIRDataSnapshot *)snapshot;
 -(ChatGroup *)groupById:(NSString *)groupId;
-//-(void)createGroup:(NSString *)groupId name:(NSString *)name owner:(NSString *)owner members:(NSMutableArray *)membersIDs;
 -(void)createGroup:(ChatGroup *)group withCompletionBlock:(void (^)(ChatGroup *group, NSError* error))callback;
 -(void)updateGroupName:(NSString *)name forGroup:(ChatGroup *)group withCompletionBlock:(void (^)(NSError *))completionBlock;
 -(NSDictionary *)allGroups;

@@ -27,14 +27,14 @@ static NSString* const GROUP_ICON_ID = @"iconID";
 //@property (nonatomic, strong) Firebase *ref;
 @property (nonatomic, strong) NSString *groupId;
 @property (nonatomic, strong) NSString *tempId;
-@property (nonatomic, strong) NSString *user; // used to query groups on local DB
+@property (nonatomic, strong) NSString *user; // used to query groups on local DB ( DB partioning by user )
 @property (nonatomic, strong) NSString *name;
 @property (nonatomic, strong) NSString *owner;
 //@property (nonatomic, strong) NSString *iconID;
 @property (nonatomic, strong) NSDate *createdOn;
 @property (nonatomic, strong) NSMutableDictionary *members;
 @property (nonatomic, strong) NSArray<ChatUser *> *membersFull;
-@property (assign, nonatomic) BOOL completeData;
+//@property (assign, nonatomic) BOOL completeData;
 
 -(NSString *)iconUrl;
 -(FIRDatabaseReference *)reference;

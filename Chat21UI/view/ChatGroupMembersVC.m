@@ -68,7 +68,7 @@
 //                           }];
     
     UIAlertAction *cancel = [UIAlertAction
-                             actionWithTitle:[ChatLocal translate:@"CancelLKey"]
+                             actionWithTitle:[ChatLocal translate:@"Cancel"]
                              style:UIAlertActionStyleDefault
                              handler:^(UIAlertAction * action)
                              {
@@ -129,7 +129,7 @@
                            }];
     
     UIAlertAction *cancel = [UIAlertAction
-                             actionWithTitle:[ChatLocal translate:@"CancelLKey"]
+                             actionWithTitle:[ChatLocal translate:@"Cancel"]
                              style:UIAlertActionStyleDefault
                              handler:^(UIAlertAction * action)
                              {

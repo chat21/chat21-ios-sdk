@@ -123,11 +123,11 @@
 
 -(void)photoMenuWithRemoveButton {
     // init the photo action menu
-    NSString *removePhotoButtonTitle = NSLocalizedString(@"RemovePhotoLKey", nil);
-    NSString *takePhotoButtonTitle = NSLocalizedString(@"TakePhotoLKey", nil);
-    NSString *chooseExistingButtonTitle = NSLocalizedString(@"PhotoFromGalleryLKey", nil);
+    NSString *removePhotoButtonTitle = NSLocalizedString(@"RemovePhoto", nil);
+    NSString *takePhotoButtonTitle = NSLocalizedString(@"TakePhoto", nil);
+    NSString *chooseExistingButtonTitle = NSLocalizedString(@"PhotoFromGallery", nil);
     
-    self.photoMenuSheet = [[UIActionSheet alloc] initWithTitle:nil delegate:self cancelButtonTitle:NSLocalizedString(@"CancelLKey", nil) destructiveButtonTitle:nil otherButtonTitles:removePhotoButtonTitle, takePhotoButtonTitle, chooseExistingButtonTitle, nil];
+    self.photoMenuSheet = [[UIActionSheet alloc] initWithTitle:nil delegate:self cancelButtonTitle:NSLocalizedString(@"Cancel", nil) destructiveButtonTitle:nil otherButtonTitles:removePhotoButtonTitle, takePhotoButtonTitle, chooseExistingButtonTitle, nil];
     self.photoMenuSheet.actionSheetStyle = UIActionSheetStyleBlackOpaque;
 }
 

@@ -97,7 +97,7 @@ static float showTime = 4.0;
     
     
     
-    [self playSound];
+//    [self playSound];
     self.animating = YES;
     
     UIWindow *w = (UIWindow *)self.superview;

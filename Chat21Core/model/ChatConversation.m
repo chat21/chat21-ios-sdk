@@ -34,39 +34,6 @@
     }
 }
 
-//-(NSMutableDictionary *)asDictionary {
-////    NSNumber *msg_timestamp = [NSNumber numberWithDouble:[self.date timeIntervalSince1970]];
-//    
-//    NSMutableDictionary *conversation_dict = [[NSMutableDictionary alloc] init];
-//    // always
-//    [conversation_dict setObject:self.last_message_text forKey:CONV_LAST_MESSAGE_TEXT_KEY];
-//    NSString *sanitized_sender = [self.sender stringByReplacingOccurrencesOfString:@"." withString:@"_"];
-//    [conversation_dict setObject:sanitized_sender forKey:CONV_SENDER_KEY];
-//    if (self.senderFullname) { // senderFullname is null for "group created message" conversation (it's like -the senderFullname is "System"-).
-//        [conversation_dict setObject:self.senderFullname forKey:CONV_SENDER_FULLNAME_KEY];
-//    }
-//    
-//    [conversation_dict setObject:[FIRServerValue timestamp] forKey:CONV_TIMESTAMP_KEY];
-//    [conversation_dict setObject:[NSNumber numberWithBool:self.is_new] forKey:CONV_IS_NEW_KEY];
-//    [conversation_dict setObject:[NSNumber numberWithInteger:self.status] forKey:CONV_STATUS_KEY];
-//    
-//    // only if one-to-one
-////    if (self.recipient) {
-////    if ([self.channel_type isEqualToString:MSG_CHANNEL_TYPE_DIRECT]) {
-//    [conversation_dict setValue:self.recipient forKey:CONV_RECIPIENT_KEY];
-//    [conversation_dict setValue:self.recipientFullname forKey:CONV_RECIPIENT_FULLNAME_KEY];
-//    
-////    }
-//    // only if group
-////    if (self.groupId) {
-////        [conversation_dict setValue:self.groupId forKey:CONV_GROUP_ID_KEY];
-////    }
-////    if (self.groupName) {
-////        [conversation_dict setValue:self.groupName forKey:CONV_GROUP_NAME_KEY];
-////    }
-//    return conversation_dict;
-//}
-
 +(ChatConversation *)conversationFromSnapshotFactory:(FIRDataSnapshot *)snapshot me:(ChatUser *)me {
     NSString *text = snapshot.value[CONV_LAST_MESSAGE_TEXT_KEY];
     NSString *recipient = snapshot.value[CONV_RECIPIENT_KEY];

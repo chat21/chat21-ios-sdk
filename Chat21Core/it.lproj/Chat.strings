@@ -6,17 +6,17 @@
   Copyright © 2018 Frontiere21. All rights reserved.
 */
 
-"CancelLKey" = "Annulla";
-"DoneLKey" = "Fatto";
-"CloseLKey" = "Chiudi";
-"BackLKey" = "Indietro";
-"SendLKey" = "Pubblica";
-"RequiredPlaceholderLKey" = "Obbligatorio";
-"ConnectionErrorLKey" = "Errore di Connessione!";
+//"CancelLKey" = "Annulla";
+//"DoneLKey" = "Fatto";
+//"CloseLKey" = "Chiudi";
+//"BackLKey" = "Indietro";
+//"SendLKey" = "Pubblica";
+//"RequiredPlaceholderLKey" = "Obbligatorio";
+//"ConnectionErrorLKey" = "Errore di Connessione!";
 "TimeToStringDateFormat" = "d MMMM";
-"Saving" = "Sto salvando...";
-"NetworkErrorTitle" = "Errore rete";
-"NetworkError" = "Si è verificato un errore di rete durante la connessione.";
+//"Saving" = "Sto salvando...";
+//"NetworkErrorTitle" = "Errore rete";
+//"NetworkError" = "Si è verificato un errore di rete durante la connessione.";
 
 "FewSecondsAgoLKey" = "pochi secondi fa";
 "AboutAMinuteAgoLKey" = "circa un minuto fa";
@@ -106,4 +106,5 @@
 "settingsLegalSection" = "Legale";
 "Remove this member?" = "Vuoi rimuovere questo membro?";
 "Remove" = "Rimuovi";
-
+"copy" = "Copia";
+"info" = "Info";

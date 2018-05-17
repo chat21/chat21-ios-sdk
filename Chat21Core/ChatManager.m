@@ -82,7 +82,7 @@ static ChatManager *sharedInstance = nil;
 }
 
 -(void)addConversationHandler:(ChatConversationHandler *)handler {
-    NSLog(@"Adding handler with key: %@", handler.conversationId);
+//    NSLog(@"Adding handler with key: %@", handler.conversationId);
     [self.handlers setObject:handler forKey:handler.conversationId];
 }
 
@@ -107,7 +107,7 @@ static ChatManager *sharedInstance = nil;
         handler = [[ChatConversationHandler alloc] initWithRecipient:recipient.userId recipientFullName:recipient.fullname];
         [self addConversationHandler:handler];
         [handler restoreMessagesFromDB];
-        NSLog(@"Restored messages count %lu", (unsigned long)handler.messages.count);
+        NSLog(@"Restored messages count: %lu", (unsigned long)handler.messages.count);
     }
     return handler;
 }
@@ -738,7 +738,7 @@ static ChatManager *sharedInstance = nil;
 }
 
 -(void)updateConversationIsNew:(FIRDatabaseReference *)conversationRef is_new:(int)is_new {
-    NSLog(@"Updating conversation ref %@ is_new? %d", conversationRef, is_new);
+//    NSLog(@"Updating conversation ref %@ is_new? %d", conversationRef, is_new);
     NSDictionary *conversation_dict = @{
                                         CONV_IS_NEW_KEY: [NSNumber numberWithBool:is_new]
                                         };
@@ -757,8 +757,9 @@ static ChatManager *sharedInstance = nil;
         return;
     }
     NSString *user_path = [ChatUtil userPath:user.userId];
-    NSLog(@"Removing instanceId (FCMToken) on path: %@", user_path);
-    [[[[[FIRDatabase database] reference] child:user_path] child:@"instanceId"] removeValueWithCompletionBlock:^(NSError * _Nullable error, FIRDatabaseReference * _Nonnull ref) {
+    NSString *FCMToken = [FIRMessaging messaging].FCMToken;
+    NSLog(@"Removing instanceId (FCMToken: %@) on path: %@",FCMToken, user_path);
+    [[[[[[FIRDatabase database] reference] child:user_path] child:@"instances"] child:FCMToken] removeValueWithCompletionBlock:^(NSError * _Nullable error, FIRDatabaseReference * _Nonnull ref) {
         if (error) {
             NSLog(@"Error removing instanceId (FCMToken) on user_path %@: %@", error, user_path);
         }
@@ -766,6 +767,14 @@ static ChatManager *sharedInstance = nil;
             NSLog(@"instanceId (FCMToken) removed");
         }
     }];
+//    [[[[[FIRDatabase database] reference] child:user_path] child:@"instanceId"] removeValueWithCompletionBlock:^(NSError * _Nullable error, FIRDatabaseReference * _Nonnull ref) {
+//        if (error) {
+//            NSLog(@"Error removing instanceId (FCMToken) on user_path %@: %@", error, user_path);
+//        }
+//        else {
+//            NSLog(@"instanceId (FCMToken) removed");
+//        }
+//    }];
 }
 
 -(void)loadGroup:(NSString *)group_id completion:(void (^)(ChatGroup* group, BOOL error))callback {
@@ -824,11 +833,17 @@ static ChatManager *sharedInstance = nil;
 -(void)registerForNotifications:(NSData *)devToken {
     NSString *FCMToken = [FIRMessaging messaging].FCMToken;
     NSLog(@"FCMToken: %@", FCMToken);
+    if (FCMToken == nil) {
+        NSLog(@"ERROR: FCMToken is nil");
+        return;
+    }
     [FIRMessaging messaging].APNSToken = devToken;
     NSLog(@"[FIRMessaging messaging].APNSToken: %@", [FIRMessaging messaging].APNSToken);
     ChatUser *loggedUser = self.loggedUser;
     if (loggedUser) {
+        NSLog(@"userId: %@ ", loggedUser.userId);
         NSString *user_path = [ChatUtil userPath:loggedUser.userId];
+        NSLog(@"userPath: %@", user_path);
         NSLog(@"Writing instanceId (FCMToken) %@ on path: %@", FCMToken, user_path);
         
         NSMutableDictionary *device_data = [[NSMutableDictionary alloc] init];
@@ -882,6 +897,20 @@ static ChatManager *sharedInstance = nil;
 //    } withCancelBlock:^(NSError *error) {
 //        NSLog(@"%@", error.description);
 //    }];
+//}
+
+//-(void)createGroupFromPushNotificationWithName:(NSString *)groupName groupId:(NSString *)groupId {
+//    ChatGroup *group = [[ChatGroup alloc] init];
+//    group.name = groupName;
+//    group.groupId = groupId;
+//    NSMutableArray *membersIDs = [[NSMutableArray alloc] init];
+//    NSString *me = self.loggedUser.userId;
+//    [membersIDs addObject:me];
+//    group.members = [ChatGroup membersArray2Dictionary:membersIDs];
+//    group.owner = nil;
+//    group.user = me; // groupDB is multi-user.
+//    group.createdOn = [[NSDate alloc] init];
+//    [ChatGroupsHandler createGroupFromPushNotification:group];
 //}
 
 @end

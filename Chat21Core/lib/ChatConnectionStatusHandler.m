@@ -38,11 +38,11 @@
     [self.connectedRef observeSingleEventOfType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot * _Nonnull snapshot) {
         // Get user value
         if([snapshot.value boolValue]) {
-            NSLog(@"..connected once..");
+//            NSLog(@"..connected once..");
             callback(YES, nil);
         }
         else {
-            NSLog(@"..not connected once..");
+//            NSLog(@"..not connected once..");
             callback(NO, nil);
         }
     } withCancelBlock:^(NSError * _Nonnull error) {

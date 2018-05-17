@@ -1,4 +1,4 @@
-//
+
 //  ChatMessagesTVC.m
 //  Chat21
 //
@@ -16,6 +16,16 @@
 #import "ChatMiniBrowserVC.h"
 #import "ChatUser.h"
 #import "ChatLocal.h"
+#import "ChatInfoMessageTVC.h"
+#import "ChatTextMessageLeftCell.h"
+#import "ChatTextMessageRightCell.h"
+#import "ChatInfoMessageCell.h"
+#import "ChatImageMessageRightCell.h"
+#import "ChatImageMessageLeftCell.h"
+#import "ChatImageCache.h"
+#import "ChatImageDownloadManager.h"
+//#import "NYTPhotosViewController.h"
+#import "ChatNYTPhoto.h"
 
 @interface ChatMessagesTVC ()
 
@@ -32,12 +42,10 @@ static NSString *COPY_LINK_KEY = @"Copy link";
     [super viewDidLoad];
     self.tableView.estimatedRowHeight = 49.5;
     self.tableView.rowHeight = UITableViewAutomaticDimension;
-    
     self.rowHeights = [[NSMutableDictionary alloc] init];
     self.rowComponents = [[NSMutableDictionary alloc] init];
-    
+    self.imageCache = [ChatImageCache getSharedInstance];
     [self popUpMenu];
-    
 }
 
 //-(void)viewWillAppear:(BOOL)animated {
@@ -51,20 +59,21 @@ static NSString *COPY_LINK_KEY = @"Copy link";
     //    //        QBPopupMenuItem *item2 = [QBPopupMenuItem itemWithImage:[UIImage imageNamed:@"image"] target:self action:@selector(action:)];
     //    self.popupMenu = [[QBPopupMenu alloc] initWithItems:@[itemCopy]];
     
-    QBPopupMenuItem *item_copy = [QBPopupMenuItem itemWithTitle:@"Copia" target:self action:@selector(copy_action:)];
-    QBPopupMenuItem *item_resend = [QBPopupMenuItem itemWithTitle:@"Copia" target:self action:@selector(resend_action:)];
-    QBPopupMenuItem *item_delete = [QBPopupMenuItem itemWithTitle:@"Copia" target:self action:@selector(delete_action:)];
+    QBPopupMenuItem *item_copy = [QBPopupMenuItem itemWithTitle:NSLocalizedString(@"copy", nil) target:self action:@selector(copy_action:)];
+    QBPopupMenuItem *item_info = [QBPopupMenuItem itemWithTitle:NSLocalizedString(@"info", nil) target:self action:@selector(info_action:)];
+//    QBPopupMenuItem *item_resend = [QBPopupMenuItem itemWithTitle:@"Copia" target:self action:@selector(resend_action:)];
+//    QBPopupMenuItem *item_delete = [QBPopupMenuItem itemWithTitle:@"Copia" target:self action:@selector(delete_action:)];
     
     //    QBPopupMenuItem *item5 = [QBPopupMenuItem itemWithImage:[UIImage imageNamed:@"clip"] target:self action:@selector(action)];
     //    QBPopupMenuItem *item6 = [QBPopupMenuItem itemWithTitle:@"Delete" image:[UIImage imageNamed:@"trash"] target:self action:@selector(action)];
-    NSArray *items = @[item_copy];
+    NSArray *items = @[item_copy, item_info];
     
     QBPopupMenu *popupMenu = [[QBPopupMenu alloc] initWithItems:items];
     popupMenu.highlightedColor = [[UIColor colorWithRed:0 green:0.478 blue:1.0 alpha:1.0] colorWithAlphaComponent:0.8];
     popupMenu.height = 30;
     popupMenu.navigationBarHeight = self.navigationController.navigationBar.frame.size.height;
     popupMenu.statusBarHeight = [UIApplication sharedApplication].statusBarFrame.size.height;
-    popupMenu.delegate = self;
+//    popupMenu.delegate = self;
     self.popupMenu = popupMenu;
 }
 
@@ -78,8 +87,23 @@ static NSString *COPY_LINK_KEY = @"Copy link";
     NSLog(@"Text copied!");
 }
 
+-(void)info_action:(id)sender {
+    NSLog(@"Message info action!");
+    [self performSegueWithIdentifier:@"info" sender:self];
+}
+
 static NSString *MATCH_TYPE_URL = @"URL";
 static NSString *MATCH_TYPE_CHAT_LINK = @"CHATLINK";
+
+//-(BOOL)photosViewController:(NYTPhotosViewController *)controller handleActionButtonTappedForPhoto:(id <NYTPhoto>)photo {
+//    NSLog(@"Activity...");
+//    UIImage *image = photo.image;
+//    UIActivityViewController *activityViewController = [[UIActivityViewController alloc] initWithActivityItems:@[image] applicationActivities:nil];
+//    activityViewController.completionWithItemsHandler = ^(NSString * __nullable activityType, BOOL completed, NSArray * __nullable returnedItems, NSError * __nullable activityError) {
+//    };
+//        [self presentViewController:activityViewController animated:YES completion:nil];
+//    return NO;
+//}
 
 - (void)longTapOnCell:(UIGestureRecognizer *)recognizer
 {
@@ -88,15 +112,36 @@ static NSString *MATCH_TYPE_CHAT_LINK = @"CHATLINK";
     }
     
     NSLog(@"Long tap.");
-    UILabel *label = (UILabel *)recognizer.view;
     
-    // get the index path of tapped cell:
     CGPoint tapLocation = [recognizer locationInView:self.tableView];
     NSIndexPath *indexPath = [self.tableView indexPathForRowAtPoint:tapLocation];
-    
-    
     ChatMessage *message = [self.conversationHandler.messages objectAtIndex:indexPath.row];
-    [self printMessage:message];
+    self.selectedMessage = message;
+    NSLog(@"Message.text: %@", message.text);
+    if ([message typeImage]) {
+        NSLog(@"Long tap On Cell: Image message");
+        [self processLongTapOnImageMessage:recognizer message:message];
+    }
+    else {
+        NSLog(@"Long tap On Cell: Text message");
+        [self processLongTapOnTextMessage:recognizer message:message];
+    }
+    
+    // get the index path of tapped cell:
+//    CGPoint tapLocation = [recognizer locationInView:self.tableView];
+//    NSIndexPath *indexPath = [self.tableView indexPathForRowAtPoint:tapLocation];
+    
+    
+//    ChatMessage *message = [self.conversationHandler.messages objectAtIndex:indexPath.row];
+    
+}
+
+-(void)processLongTapOnImageMessage:(UIGestureRecognizer *)recognizer message:(ChatMessage *)message {
+    NSLog(@"Processing tap on Image message. Not implemented.");
+}
+
+-(void)processLongTapOnTextMessage:(UIGestureRecognizer *)recognizer message:(ChatMessage *)message {
+    UILabel *label = (UILabel *)recognizer.view;
     ChatMessageComponents *components = [self.rowComponents objectForKey:message.messageId];
     
     CGPoint locationOfTouchInLabel = [recognizer locationInView:label];
@@ -171,22 +216,61 @@ static NSString *MATCH_TYPE_CHAT_LINK = @"CHATLINK";
 - (void)tapOnCell:(UIGestureRecognizer *)recognizer
 {
     NSLog(@"TAP on: %@", recognizer.view);
-    UILabel *label = (UILabel *)recognizer.view;
-    
     // get the index path:
     CGPoint tapLocation = [recognizer locationInView:self.tableView];
     NSIndexPath *indexPath = [self.tableView indexPathForRowAtPoint:tapLocation];
-    //    NSLog(@"TAP ON ROW %ld", indexPath.row);
-    //    UITableViewCell* cell = [self.tableView cellForRowAtIndexPath:pressIndexPath];
-    //    UILabel *message_label = (UILabel *)[cell viewWithTag:10];
-    //    self.selectedText = message_label.text;
+    ChatMessage *message = [self.conversationHandler.messages objectAtIndex:indexPath.row];
+    NSLog(@"Message.text: %@", message.text);
+    if ([message typeImage]) {
+        NSLog(@"tapOnCell: Image message");
+        [self processTapOnImageMessage:recognizer message:message];
+    }
+    else {
+        NSLog(@"tapOnCell: Text message");
+        [self processTapOnTextMessage:recognizer message:message];
+    }
+//    UIView *view = (UIView *)recognizer.view;
+//    if ([view isKindOfClass:[UIImageView class]]) {
+//        NSLog(@"UIImageView");
+//    }
+//    else if ([view isKindOfClass:[UILabel class]]) {
+//        NSLog(@"UILabel");
+//    }
+}
+
+-(void)processTapOnImageMessage:(UIGestureRecognizer *)recognizer message:(ChatMessage *)message {
+//    if (![recognizer.view isKindOfClass:[UIImageView class]]) {
+//        NSLog(@"Error. recognizer.view is not UILabel for a message of type text.");
+//        return;
+//    }
+    NSLog(@"Processing tap on Image message.");
+    self.selectedImageURL = [[NSString alloc] initWithFormat:@"file://%@", [message imagePathFromMediaFolder] ];
+    NSLog(@"Opening image: %@", self.selectedImageURL);
+//    [self performSegueWithIdentifier:@"imageView" sender:self];
+//    ChatNYTPhoto .image .placeholderImage
     
+    UIImage *image = [message imageFromMediaFolder];
+    ChatNYTPhoto *photo = [[ChatNYTPhoto alloc] init];
+    photo.image = image;
+    NSArray *photos = [NSArray arrayWithObjects:photo, nil];
+    NYTPhotosViewController *photosViewController = [[NYTPhotosViewController alloc] initWithPhotos:photos];
+//    photosViewController.delegate = self;
+    [self presentViewController:photosViewController animated:YES completion:nil];
+    // TODO - remove image browser, view on storyboard and class
+}
+
+-(void)processTapOnTextMessage:(UIGestureRecognizer *)recognizer message:(ChatMessage *)message {
+    if (![recognizer.view isKindOfClass:[UILabel class]]) {
+        NSLog(@"Error. recognizer.view is not UILabel for a message of type text.");
+        return;
+    }
+    NSLog(@"Processing tap on Text message.");
+    UILabel *label = (UILabel *)recognizer.view;
     CGPoint locationOfTouchInLabel = [recognizer locationInView:label];
     NSInteger indexOfCharacter = [self indexOfCharacterInLabel:label onTapPoint:locationOfTouchInLabel];
     
-    NSLog(@"INDEX: %ld", indexOfCharacter);
+//    NSLog(@"INDEX: %ld", indexOfCharacter);
     
-    ChatMessage *message = [self.conversationHandler.messages objectAtIndex:indexPath.row];
     ChatMessageComponents *components = [self.rowComponents objectForKey:message.messageId];
     
     NSString *text = components.text;
@@ -198,9 +282,8 @@ static NSString *MATCH_TYPE_CHAT_LINK = @"CHATLINK";
     
     NSTextCheckingResult *selectedMatch = nil;
     NSString *selectedmatchType = nil;
-    
     NSArray *urlsMatches = components.urlsMatches;
-    NSLog(@"\"%@\"",[text substringWithRange:NSMakeRange(indexOfCharacter, 1)]);
+//    NSLog(@"\"%@\"",[text substringWithRange:NSMakeRange(indexOfCharacter, 1)]);
     if (urlsMatches) {
         for (NSTextCheckingResult *match in urlsMatches) {
             if (NSLocationInRange(indexOfCharacter, match.range)) {
@@ -245,19 +328,6 @@ static NSString *MATCH_TYPE_CHAT_LINK = @"CHATLINK";
             //[[UIApplication sharedApplication] openURL:[NSURL URLWithString:self.selectedHighlightLink]];
             [self performSegueWithIdentifier:@"webView" sender:self];
         }
-//        else if ([selectedmatchType isEqualToString:MATCH_TYPE_CHAT_LINK]) {
-//            [self highlightTappedLinkWithTimeout:YES];
-//            NSLog(@"chat link: %@", self.selectedHighlightLink);
-//            NSArray *parts = [self.selectedHighlightLink componentsSeparatedByString:@"//"];
-//            for (NSString *p in parts) {
-//                NSLog(@"part: %@", p);
-//            }
-//            NSString *chatToUser = parts[1];
-//            ChatUser *user = [[ChatUser alloc] init];
-//            user.userId = chatToUser;
-//            [ChatUtil moveToConversationViewWithUser:user];
-//            NSLog(@"MATCH_TYPE_CHAT_LINK");
-//        }
     }
 }
 
@@ -356,27 +426,6 @@ static NSString *MATCH_TYPE_CHAT_LINK = @"CHATLINK";
     // test end
 }
 
-//-(void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
-//    if (actionSheet == self.linkMenu) {
-//        NSLog(@"Link menu!");
-//        NSString *option = [actionSheet buttonTitleAtIndex:buttonIndex];
-//        if ([option isEqualToString:NSLocalizedString(COPY_LINK_KEY, nil)]) {
-//            NSLog(@"Copy link");
-//            UIPasteboard *generalPasteboard = [UIPasteboard generalPasteboard];
-//            generalPasteboard.string = self.selectedHighlightLink;
-//            NSLog(@"Link copied!");
-//        }
-//        else if ([option isEqualToString:NSLocalizedString(OPEN_LINK_KEY, nil)]) {
-//            NSLog(@"Open link in browser");
-//            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:self.selectedHighlightLink]];
-//        }
-//        else {
-//            NSLog(@"MENU DISMISSED!");
-//        }
-//        [self unhighlightTappedLink];
-//    }
-//}
-
 -(void)setupMenuForSelectedLink {
     //    NSLog(@"self.linkMenu %@", self.linkMenu);
     //    NSLog(@"title: %@", self.selectedHighlightLink);
@@ -409,7 +458,7 @@ static NSString *MATCH_TYPE_CHAT_LINK = @"CHATLINK";
                            }];
     
     UIAlertAction* cancel = [UIAlertAction
-                             actionWithTitle:[ChatLocal translate:@"CancelLKey"]
+                             actionWithTitle:[ChatLocal translate:@"Cancel"]
                              style:UIAlertActionStyleDefault
                              handler:^(UIAlertAction * action)
                              {
@@ -435,12 +484,10 @@ static NSString *MATCH_TYPE_CHAT_LINK = @"CHATLINK";
     NSArray *messages = self.conversationHandler.messages;
     if (messages && messages.count > 0 && messages.count <= [self.tableView numberOfRowsInSection:section]) {
         NSIndexPath* ipath = [NSIndexPath indexPathForRow: messages.count-1 inSection:section];
-        NSLog(@"self.tableView %@", self.tableView);
         [self.tableView
          scrollToRowAtIndexPath:ipath
          atScrollPosition: UITableViewScrollPositionTop
          animated:animated];
-        NSLog(@"SCROLL OK!");
     }
 }
 
@@ -464,7 +511,7 @@ static NSString *MATCH_TYPE_CHAT_LINK = @"CHATLINK";
     if (messages) {
         rows_count = messages.count;
     }
-    NSLog(@">>> ROWS IN SECTION %ld = %ld", (long)section, (long)rows_count);
+//    NSLog(@">>> ROWS IN SECTION %ld = %ld", (long)section, (long)rows_count);
     return rows_count;
 }
 
@@ -481,8 +528,8 @@ static NSString *MATCH_TYPE_CHAT_LINK = @"CHATLINK";
             //            NSLog(@"returning estimated height for row %ld of %f", indexPath.row, cell_height);
             return cell_height;
         }else {
-            //            NSLog(@"OOPS NO estimated height for row: %ld", indexPath.row);
-            
+            // NSLog(@"OOPS NO estimated height for row: %ld", indexPath.row);
+            return UITableViewAutomaticDimension;
         }
     }
     return UITableViewAutomaticDimension;
@@ -494,7 +541,6 @@ static NSString *MATCH_TYPE_CHAT_LINK = @"CHATLINK";
     [self.rowHeights setObject:@(cell_height) forKey:@(indexPath.row)];
 }
 
-
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     
@@ -502,184 +548,215 @@ static NSString *MATCH_TYPE_CHAT_LINK = @"CHATLINK";
     static NSString *cellMessageInfo = @"CellMessageInfo";
     static NSString *cellMessageRight = @"CellMessageRight";
     static NSString *cellMessageLeft = @"CellMessageLeft";
-    
-    NSDate *dateToday = [NSDate date];//ISTANZIO DATA PREVIEW
-    //    UIColor *colorCloud;
-    //    UIColor *messageColor;
-    UITableViewCell *cell;
-    int numberDaysPrevChat = 0;
-    int numberDaysNextChat = 0;
-    NSString *dateChat;
+    static NSString *cellImageRight = @"CellImageRight";
+    static NSString *cellImageLeft = @"CellImageLeft";
     ChatMessage *message;
-    ChatMessage *previousMessage;
-    ChatMessage *nextMessage;
     
     NSArray *messages = self.conversationHandler.messages;
-//    NSLog(@"ALL MESSAGES:");
-//    int i = 0;
-//    for (ChatMessage *m in messages) {
-//        NSLog(@"MESSAGE[%d]: %@",i, m.text);
-//        i += 1;
-//    }
     if (messages && messages.count > 0) {
         message = (ChatMessage *)[messages objectAtIndex:indexPath.row];
-        [self analyzeMessageText:message forIndexPath:indexPath];
+        [self analyzeMessageText:message];
         
 //        NSLog(@"type: %@ text: %@", message.mtype, message.text);
         if ([message.mtype isEqualToString:MSG_TYPE_INFO]) {
-            NSLog(@"MSG_TYPE_INFO");
-            cell = [tableView dequeueReusableCellWithIdentifier:cellMessageInfo forIndexPath:indexPath];
-            UIView *sfondo = (UIView *)[cell viewWithTag:50];
-            sfondo.layer.masksToBounds = YES;
-            sfondo.layer.shadowOffset = CGSizeMake(-15, 20);
-            sfondo.layer.shadowRadius = 5;
-            sfondo.layer.shadowOpacity = 0.5;
+//            NSLog(@"MSG_TYPE_INFO");
+            ChatInfoMessageCell *cell = [tableView dequeueReusableCellWithIdentifier:cellMessageInfo forIndexPath:indexPath];
+            [cell configure:message indexPath:indexPath rowComponents:self.rowComponents];
+            return cell;
         }
-        else if ([message.sender isEqualToString:self.vc.senderId]) {
-//            NSLog(@"cellMessageRight");
-            cell = [tableView dequeueReusableCellWithIdentifier:cellMessageRight forIndexPath:indexPath];
+        else if ([self isOutgoing:message]) {
+            if ([message.mtype isEqualToString:MSG_TYPE_IMAGE]) {
+                ChatImageMessageRightCell *cell = [tableView dequeueReusableCellWithIdentifier:cellImageRight forIndexPath:indexPath];
+                [cell configure:message
+                    messages:messages
+                    indexPath:indexPath
+                    viewController:self rowComponents:self.rowComponents
+                    imageCache:self.imageCache
+                    completion:^(UIImage *image) {
+                        [self.imageCache addImage:image withKey:message.messageId];
+                        if ([self isIndexPathVisible:indexPath]) {
+                            ChatImageMessageRightCell *updateCell = (id)[self.tableView cellForRowAtIndexPath:indexPath];
+                            if (updateCell) {
+                                if (image) {
+                                    [self.tableView beginUpdates];
+                                    updateCell.messageImageView.image = image;
+                                    [self.tableView endUpdates];
+                                }
+                                else {
+                                    [self downloadImage:message onIndexPath:indexPath];
+                                }
+                            }
+                        }
+                     }
+                 ];
+                return cell;
+            }
+            else {
+                ChatTextMessageRightCell *cell = [tableView dequeueReusableCellWithIdentifier:cellMessageRight forIndexPath:indexPath];
+//                NSLog(@"cell class: %@", NSStringFromClass([cell class]));
+                [cell configure:message messages:messages indexPath:indexPath viewController:self rowComponents:self.rowComponents];
+                return cell;
+            }
         }
         else {
-//            NSLog(@"cellMessageLeft");
-            cell = [tableView dequeueReusableCellWithIdentifier:cellMessageLeft forIndexPath:indexPath];
-        }
-        
-        UIView *sfondoBox = (UIView *)[cell viewWithTag:50];
-        sfondoBox.layer.masksToBounds = YES;
-        sfondoBox.layer.cornerRadius = 8.0;
-        
-        cell.selectionStyle = UITableViewCellSelectionStyleNone;
-        
-        UILabel *labelMessage = (UILabel *)[cell viewWithTag:10];
-        
-        UIGestureRecognizer *longTapGestureRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(longTapOnCell:)];
-        UIGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapOnCell:)];
-        [labelMessage addGestureRecognizer:longTapGestureRecognizer];
-        [labelMessage addGestureRecognizer:tapGestureRecognizer];
-        labelMessage.userInteractionEnabled = YES;
-        
-        //[str addAttribute: NSLinkAttributeName value: @"http://www.google.com" range: NSMakeRange(0, 3)];
-        
-        [self attributedString:labelMessage text:message indexPath:indexPath];
-        
-        UILabel *labelTime = (UILabel *)[cell viewWithTag:40];
-        labelTime.text = [message dateFormattedForListView];
-        
-        UILabel *labelNameUser = (UILabel *)[cell viewWithTag:20];
-        NSString *text_name_user = [self displayUserOfMessage:message];
-        labelNameUser.text = text_name_user;
-        
-        UILabel *labelDay = (UILabel *)[cell viewWithTag:30];
-        if(indexPath.row>0){
-            previousMessage = (ChatMessage *)[messages objectAtIndex:(indexPath.row-1)];
-            if(messages.count > (indexPath.row+1)){
-                nextMessage = (ChatMessage *)[messages objectAtIndex:(indexPath.row+1)];
-                numberDaysNextChat = (int)[ChatUtil daysBetweenDate:message.date andDate:nextMessage.date];
+            if ([message.mtype isEqualToString:MSG_TYPE_IMAGE]) {
+                ChatImageMessageLeftCell *cell = [tableView dequeueReusableCellWithIdentifier:cellImageLeft forIndexPath:indexPath];
+                [cell configure:message
+                       messages:messages
+                      indexPath:indexPath
+                 viewController:self rowComponents:self.rowComponents
+                     imageCache:self.imageCache
+                     completion:^(UIImage *image) {
+                         [self.imageCache addImage:image withKey:message.messageId];
+                         if ([self isIndexPathVisible:indexPath]) {
+                             ChatImageMessageRightCell *updateCell = (id)[self.tableView cellForRowAtIndexPath:indexPath];
+                             if (updateCell) {
+                                 if (image) {
+                                     [self.tableView beginUpdates];
+                                     updateCell.messageImageView.image = image;
+                                     [self.tableView endUpdates];
+                                 }
+                                 else {
+                                     [self downloadImage:message onIndexPath:indexPath];
+                                 }
+                             }
+                         }
+                     }
+                 ];
+                return cell;
+//                ChatTextMessageLeftCell *cell = [tableView dequeueReusableCellWithIdentifier:cellMessageLeft forIndexPath:indexPath];
+//                [cell configure:message messages:messages indexPath:indexPath viewController:self rowComponents:self.rowComponents];
+//                return cell;
             }
-            numberDaysPrevChat = (int)[ChatUtil daysBetweenDate:previousMessage.date andDate:message.date];
-            dateChat = [self formatDateMessage:numberDaysPrevChat message:message row:indexPath.row];
-        }else{
-            numberDaysPrevChat = (int)[ChatUtil daysBetweenDate:message.date andDate:dateToday];
-            dateChat = [self formatDateMessage:numberDaysPrevChat message:message row:indexPath.row];
+            else {
+                ChatTextMessageLeftCell *cell = [tableView dequeueReusableCellWithIdentifier:cellMessageLeft forIndexPath:indexPath];
+//                NSLog(@"cell class: %@", NSStringFromClass([cell class]));
+                [cell configure:message messages:messages indexPath:indexPath viewController:self rowComponents:self.rowComponents];
+                return cell;
+            }
         }
-        if(numberDaysPrevChat>0){
-            //            [self changeConstraint:viewBox toItem:cell.contentView  topValue:21];
-            //            [self showDateLabel:labelDay];
-            labelDay.text = dateChat;
-        }else{
-            //            [self hideDateLabel:labelDay];
-            labelDay.text = @"";
-        }
-        
-        //-----------------------------------------------------------//
-        //START STATE MESSAGE
-        //-----------------------------------------------------------//
-        
-        UIImageView *status_image_view = (UIImageView *)[cell viewWithTag:22];
-        switch (message.status) {
-            case MSG_STATUS_SENDING:
-                //                NSLog(@"SENDING!!!!!!!!!!");
-                status_image_view.image = [UIImage imageNamed:@"chat_watch"];
-                //message_view.textColor = [UIColor lightGrayColor];
-                break;
-            case MSG_STATUS_SENT:
-                //                NSLog(@"SENT!!!!!!!!!!");
-                status_image_view.image = [UIImage imageNamed:@"chat_check"];
-                //message_view.textColor = messageColor;
-                break;
-            case MSG_STATUS_RETURN_RECEIPT:
-                //                NSLog(@"RECEIVED!!!!!!!!!!");
-                status_image_view.image = [UIImage imageNamed:@"chat_double_check"];
-                //message_view.textColor = messageColor;
-                break;
-            case MSG_STATUS_FAILED:
-                //                NSLog(@"FAILED!!!!!!!!!!");
-                status_image_view.image = [UIImage imageNamed:@"chat_failed"];
-                //message_view.textColor = [UIColor redColor];
-                break;
-            default:
-                break;
-        }
-        //-----------------------------------------------------------//
-        //END STATE MESSAGE
-        //-----------------------------------------------------------//
-//        NSLog(@"FINE ELABORAZIONE CELLA.");
-        //        UITextView *textMessage = (UITextView *)[cell viewWithTag:10];
-        //        textMessage.text = [NSString stringWithFormat:@"%@", message.text];
-        //        //textMessage.selectable = NO;
-        //        //textMessage.userInteractionEnabled = NO;
-        //        //@property(nonatomic,getter=isSelectable) BOOL selectable NS_AVAILABLE_IOS(7_0);
-        //        textMessage.dataDetectorTypes = UIDataDetectorTypeAll;
-        //        textMessage.delegate = self;
-        //        [textMessage sizeToFit];
     }
-    else {
-        cell = [tableView dequeueReusableCellWithIdentifier:noMessagesCell forIndexPath:indexPath];
-    }
-    return cell;
+    return [tableView dequeueReusableCellWithIdentifier:noMessagesCell forIndexPath:indexPath];
 }
 
--(void)attributedString:(UILabel *)label text:(ChatMessage *)message indexPath:(NSIndexPath *)indexPath {
-    // consider use of: https://github.com/TTTAttributedLabel/TTTAttributedLabel
-//    NSLog(@"string text: %@", message.text);
+- (void)downloadImage:(ChatMessage *)message onIndexPath:(NSIndexPath *)indexPath {
+    NSLog(@"Downloading image: %@", message.imageURL);
+    ChatMessagesTVC * __weak weakSelf = self;
+    [self.conversationHandler.imageDownloader downloadImage:message onIndexPath:indexPath completionHandler:^(NSIndexPath * indexPath, UIImage *image, NSError *error) {
+        if (error) {
+            NSLog(@"Image downloaded with error. %@", [error localizedDescription]);
+        }
+        ChatMessagesTVC *strongSelf = weakSelf;
+        if (strongSelf == nil) {
+            return;
+        }
+        [strongSelf.imageCache addImage:image withKey:message.messageId];
+        if ([strongSelf isIndexPathVisible:indexPath]) {
+            ChatImageMessageRightCell *updateCell = (id)[strongSelf.tableView cellForRowAtIndexPath:indexPath];
+            if (updateCell) {
+                updateCell.messageImageView.image = image;
+            }
+        }
+    }];
     
-    NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:message.text];
-//    NSLog(@"attributedString.string.length: %lu", (unsigned long)attributedString.string.length);
-    [attributedString addAttributes:@{NSFontAttributeName: label.font} range:NSMakeRange(0, attributedString.string.length)];
-    ChatMessageComponents *components = [self.rowComponents objectForKey:message.messageId];
-//    NSLog(@"componenents[%lu] text: %@ urlsMatches: %@ linkMatches: %@",indexPath.row, components.text, components.urlsMatches, components.chatLinkMatches);
-    NSArray *urlMatches = components.urlsMatches;
-//    NSLog(@"urlMatches %@ .count: %lu", urlMatches, (unsigned long)urlMatches.count);
-    if (urlMatches) {
-        for (NSTextCheckingResult *match in urlMatches) {
-            [attributedString addAttribute:NSForegroundColorAttributeName value:[UIColor blueColor] range:match.range];
-        }
-    }
-    NSArray *chatLinkMatches = components.chatLinkMatches;
-//    NSLog(@"chatLinkMatches %@ .count: %lu", chatLinkMatches, (unsigned long)chatLinkMatches.count);
-    if (chatLinkMatches) {
-        for (NSTextCheckingResult *match in chatLinkMatches) {
-            [attributedString addAttribute:NSForegroundColorAttributeName value:[UIColor brownColor] range:match.range];
-        }
-    }
-    label.attributedText = attributedString;
+//    NSURLSessionConfiguration *_config = [NSURLSessionConfiguration defaultSessionConfiguration];
+//    NSURLSession *_session = [NSURLSession sessionWithConfiguration:_config];
+//
+//    NSURL *url = [NSURL URLWithString:message.imageURL];
+//    NSLog(@"Image url: %@", message.imageURL);
+//    if (!url) {
+//        NSLog(@"ERROR - Can't download image, URL is null");
+//        return;
+//    }
+//    NSString *path = [message imagePathFromMediaFolder];
+//    NSLog(@"image path to save: %@", path);
+//    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:60.0];
+//
+//    NSURLSessionDataTask *task = [_session dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+//        NSLog(@"image downloaded.");
+//        if (error) {
+//            NSLog(@"%@", error);
+//            return;
+//        }
+//
+//        if (data) {
+//            UIImage *image = [UIImage imageWithData:data];
+//            if (image) {
+//                NSData* imageData = [NSData dataWithData:UIImagePNGRepresentation(image)];
+//                NSError *writeError = nil;
+//                NSLog(@"image path: %@", path);
+//                [message createMediaFolderPathIfNotExists];
+//                if(![imageData writeToFile:path options:NSDataWritingAtomic error:&writeError]) {
+//                    NSLog(@"%@: Error saving image: %@", [self class], [writeError localizedDescription]);
+//                }
+//                dispatch_async(dispatch_get_main_queue(), ^{
+//                    [self.imageCache addImage:image withKey:message.messageId];
+//                    if ([self isIndexPathVisible:indexPath]) {
+//                        ChatImageMessageRightCell *updateCell = (id)[self.tableView cellForRowAtIndexPath:indexPath];
+//                        if (updateCell) {
+//                            updateCell.messageImageView.image = image;
+//                        }
+//                    }
+//                });
+//            }
+//        }
+//    }];
+//    [task resume];
 }
 
--(void)analyzeMessageText:(ChatMessage *)message forIndexPath:(NSIndexPath *)indexPath {
+-(BOOL)isIndexPathVisible:(NSIndexPath *)indexPath {
+    NSArray *indexes = [self.tableView indexPathsForVisibleRows];
+    for (NSIndexPath *index in indexes) {
+        if (indexPath.row == index.row && indexPath.section == index.section) {
+            return YES;
+        }
+    }
+    return NO;
+}
+
+-(void)messageUpdated:(ChatMessage *)message {
+    // TODO
+    // all this stuff on ContainerTVC
+    // indexPathMessage = [self findIndexPathForMessage:message];
+    // indexes = [self.tableView indexPathsForVisibleRows];
+    // if (indexPathMessage <= indexes.row.max && indexPathMessage >= indexes.row.min)
+    //      if ([self isIndexPathVisible:indexPath]) {
+    //      ChatImageMessageRightCell *updateCell = (id)[self.tableView cellForRowAtIndexPath:indexPath];
+    //      if (updateCell) {
+    //            [self.tableView beginUpdates];
+    //            updateCell.messageImageView.image = image;
+    //            [self.tableView endUpdates];
+    //      }
+    [self reloadDataTableView];
+}
+
+-(void)messageDeleted:(ChatMessage *)message {
+    [self reloadDataTableView];
+}
+
+
+-(BOOL)isOutgoing:(ChatMessage *)message {
+    return [message.sender isEqualToString:self.vc.senderId];
+}
+
+-(void)analyzeMessageText:(ChatMessage *)message {
     // TEST URLs
-//    NSLog(@"CREATING COMPONENTS[%ld], TEXT: %@", (long)indexPath.row, message.text);
+//    NSLog(@"Text: %@", message.text);
+    NSString *text = message.text;
+    if (!text) {
+        text = @""; // TEST CAN'T BE NIL!!!!
+    }
     ChatMessageComponents *components = [self.rowComponents objectForKey:message.messageId];
     if (components) {
-//        NSLog(@"COMPONENTS[%ld] ALREADY CREATED. %@",indexPath.row, components.text);
+        // COMPONENTS ALREADY CREATED
         return;
     }
     components = [[ChatMessageComponents alloc] init];
-    components.text = message.text;
+    components.text = text;
 //    NSLog(@"CREATED componenst[%lu].text=%@", indexPath.row, components.text);
     // HTTP URLs
     NSError *error;
     NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"(?i)\\b((?:[a-z][\\w-]+:(?:/{1,3}|[a-z0-9%])|www\\d{0,3}[.]|[a-z0-9.\\-]+[.][a-z]{2,4}/)(?:[^\\s()<>]+|\\(([^\\s()<>]+|(\\([^\\s()<>]+\\)))*\\))+(?:\\(([^\\s()<>]+|(\\([^\\s()<>]+\\)))*\\)|[^\\s`!()\\[\\]{};:'\".,<>?«»“”‘’]))" options:NSRegularExpressionCaseInsensitive error:&error];
-    NSString *text = message.text; //@"andrea qui: http://www.google.com e qui: http://libero.it/dico?io?4&pippo=pluto%2S fine";
     NSArray *arrayOfAllMatches = [regex matchesInString:text options:0 range:NSMakeRange(0, [text length])];
     if (arrayOfAllMatches) {
         components.urlsMatches = arrayOfAllMatches;
@@ -690,9 +767,9 @@ static NSString *MATCH_TYPE_CHAT_LINK = @"CHATLINK";
     NSError *error_chat;
     NSRegularExpression *regex_chat = [NSRegularExpression regularExpressionWithPattern:@"(chat://)([a-zA-Z0-9_])+" options:NSRegularExpressionCaseInsensitive error:&error_chat];
     
-    NSString *_text = message.text; //@"andrea qui: chat:antonio e qui: chat:mario_fino0 fine";
+//    NSString *_text = message.text; //@"andrea qui: chat:antonio e qui: chat:mario_fino0 fine";
 //    NSLog(@"analizzo il testo: %@", _text);
-    NSArray *_arrayOfAllMatches = [regex_chat matchesInString:_text options:0 range:NSMakeRange(0, [_text length])];
+    NSArray *_arrayOfAllMatches = [regex_chat matchesInString:text options:0 range:NSMakeRange(0, [text length])];
 //    NSLog(@"match trovati: %@", _arrayOfAllMatches);
     if (_arrayOfAllMatches) {
         components.chatLinkMatches = _arrayOfAllMatches;
@@ -708,63 +785,6 @@ static NSString *MATCH_TYPE_CHAT_LINK = @"CHATLINK";
     [self.rowComponents setObject:components forKey:message.messageId];
 }
 
--(NSString *)displayUserOfMessage:(ChatMessage *)m {
-    NSString *displayName;
-    
-    // use fullname if available
-    if (m.senderFullname) {
-        NSString *trimmedFullname = [m.senderFullname stringByTrimmingCharactersInSet:
-                                     [NSCharacterSet whitespaceCharacterSet]];
-        if (trimmedFullname.length > 0 && ![trimmedFullname isEqualToString:@"(null)"]) {
-            displayName = trimmedFullname;
-        }
-    }
-    
-    // if fullname not available use username instead
-    if (!displayName) {
-        displayName = m.sender;
-    }
-    
-    return displayName;
-}
-
--(NSString*)formatDateMessage:(int)numberDaysBetweenChats message:(ChatMessage*)message row:(CGFloat)row {
-    NSString *dateChat;
-    if(numberDaysBetweenChats>0 || row==0){
-        NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-        NSDate *today;
-        today = [NSDate date];
-        int days = (int)[ChatUtil daysBetweenDate:message.date andDate:today];
-        if(days==0){
-            dateChat = [ChatLocal translate:@"today"];
-        }
-        else if(days==1){
-            dateChat = [ChatLocal translate:@"yesterday"];
-        }
-        else if(days<8){
-            [dateFormatter setDateFormat:@"EEEE"];
-            dateChat = [dateFormatter stringFromDate:message.date];
-        }
-        else{
-            [dateFormatter setDateFormat:@"dd MMM"];
-            dateChat = [dateFormatter stringFromDate:message.date];
-        }
-    }
-    return dateChat;
-}
-
--(void)printMessage:(ChatMessage *)message {
-//    NSLog(@"message.text: %@", message.text);
-//    NSLog(@"message.type: %@", message.mtype);
-//    NSLog(@"message.archived: %d", message.archived);
-//    NSLog(@"message.attributes:");
-//    NSDictionary *attributes = message.attributes;
-//    NSArray *keys = [attributes allKeys];
-//    for (NSString *k in keys) {
-//        NSLog(@"\"%@\":\"%@\"", k, attributes[k]);
-//    }
-}
-
 -(void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
     NSLog(@"prepareForSegue: %@",segue.identifier);
     if ([segue.identifier isEqualToString:@"webView"]) {
@@ -773,10 +793,18 @@ static NSString *MATCH_TYPE_CHAT_LINK = @"CHATLINK";
         vc.titlePage = @"";
         vc.urlPage = self.selectedHighlightLink;
     }
+//    if ([segue.identifier isEqualToString:@"imageView"]) {
+//        ChatImageBrowserVC *vc = (ChatImageBrowserVC *)[segue destinationViewController];
+//        vc.imageURL = self.selectedImageURL;
+//    }
+    else if ([segue.identifier isEqualToString:@"info"]) {
+        ChatInfoMessageTVC *vc = (ChatInfoMessageTVC *)[segue destinationViewController];
+        vc.message = self.selectedMessage;
+    }
 }
 
 -(void)dealloc {
-    NSLog(@"DEALLOCATING CHAT MESSAGES TVC.");
+    NSLog(@"DEALLOCATING: ChatMessagesTVC.");
 }
 
 @end

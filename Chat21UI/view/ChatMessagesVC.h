@@ -102,4 +102,6 @@
 -(void)dismissKeyboardFromTableView:(BOOL)activate;
 -(void)updateUnreadMessagesCount;
 
+- (IBAction)unwindToMessagesVC:(UIStoryboardSegue*)sender;
+
 @end

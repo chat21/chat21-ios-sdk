@@ -83,7 +83,7 @@
     FIRDatabaseReference *onlineRef = [ChatPresenceHandler onlineRefForUser:userid];
     [onlineRef observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
         if(snapshot.exists) {
-            NSLog(@"ONLINE: %@", snapshot);
+//            NSLog(@"ONLINE: %@", snapshot);
             callback(YES);
 //            self.online = YES;
 //            [self onlineStatus];

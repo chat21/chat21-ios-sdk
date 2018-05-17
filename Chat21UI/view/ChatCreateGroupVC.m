@@ -44,7 +44,7 @@
     NSString *takePhotoButtonTitle = [ChatLocal translate:@"TakePhotoLKey"];
     NSString *chooseExistingButtonTitle = NSLocalizedString(@"PhotoFromGalleryLKey", nil);
     
-    self.photoMenuSheet = [[UIActionSheet alloc] initWithTitle:nil delegate:self cancelButtonTitle:NSLocalizedString(@"CancelLKey", nil) destructiveButtonTitle:nil otherButtonTitles:takePhotoButtonTitle, chooseExistingButtonTitle, nil];
+    self.photoMenuSheet = [[UIActionSheet alloc] initWithTitle:nil delegate:self cancelButtonTitle:NSLocalizedString(@"Cancel", nil) destructiveButtonTitle:nil otherButtonTitles:takePhotoButtonTitle, chooseExistingButtonTitle, nil];
     self.photoMenuSheet.actionSheetStyle = UIActionSheetStyleBlackOpaque;
 }
 
@@ -54,7 +54,7 @@
     NSString *takePhotoButtonTitle = NSLocalizedString(@"TakePhotoLKey", nil);
     NSString *chooseExistingButtonTitle = NSLocalizedString(@"PhotoFromGalleryLKey", nil);
     
-    self.photoMenuSheet = [[UIActionSheet alloc] initWithTitle:nil delegate:self cancelButtonTitle:NSLocalizedString(@"CancelLKey", nil) destructiveButtonTitle:nil otherButtonTitles:removePhotoButtonTitle, takePhotoButtonTitle, chooseExistingButtonTitle, nil];
+    self.photoMenuSheet = [[UIActionSheet alloc] initWithTitle:nil delegate:self cancelButtonTitle:NSLocalizedString(@"Cancel", nil) destructiveButtonTitle:nil otherButtonTitles:removePhotoButtonTitle, takePhotoButtonTitle, chooseExistingButtonTitle, nil];
     self.photoMenuSheet.actionSheetStyle = UIActionSheetStyleBlackOpaque;
 }
 

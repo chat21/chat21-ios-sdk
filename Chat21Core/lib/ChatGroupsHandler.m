@@ -107,6 +107,40 @@
     }
 }
 
+//+(void)createGroupFromPushNotification:(ChatGroup *)group {
+////    NSLog(@"Groups in memory before push:");
+////    [self printAllGroupsInMemory];
+////    [self insertInMemory:group];
+////    NSLog(@"Groups in memory after push:");
+////    [self printAllGroupsInMemory];
+//    ChatGroupsDB *db = [ChatGroupsDB getSharedInstance];
+//    // TEST
+////    NSArray *groups_before = [db getAllGroupsForUser:[ChatManager getInstance].loggedUser.userId];
+////    NSLog(@"GROUPS BEFORE PUSH");
+////    for (ChatGroup *g in groups_before) {
+////        NSLog(@"name: %@ [%@]", g.name, g.groupId);
+////    }
+//    
+//    [db insertGroupOnlyIfNotExistsSyncronized:group completion:^{
+//        // TODO print all groups from db before
+//        NSLog(@"Group %@ [%@] created by push notification", group.name, group.groupId);
+//        // TODO print all groups from db after
+////        NSLog(@"GROUPS AFTER PUSH");
+////        NSArray *groups_after = [db getAllGroupsForUser:[ChatManager getInstance].loggedUser.userId];
+////        for (ChatGroup *g in groups_after) {
+////            NSLog(@"name: %@ [%@]", g.name, g.groupId);
+////        }
+//    }];
+//}
+
+
+-(void)printAllGroupsInMemory {
+    for (id k in self.groups) {
+        ChatGroup *g = self.groups[k];
+        NSLog(@"group id: %@, name: %@, members: %@", g.groupId, g.name, [ChatGroup membersDictionary2String:g.members]);
+    }
+}
+
 -(ChatGroup *)groupById:(NSString *)groupId {
     return self.groups[groupId];
 }

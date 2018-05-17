@@ -29,6 +29,7 @@
 -(BOOL)insertMessageIfNotExists:(ChatMessage *)message;
 -(BOOL)insertMessage:(ChatMessage *)message;
 -(BOOL)updateMessage:(NSString *)messageId withStatus:(int)status;
+-(BOOL)updateMessage:(NSString *)messageId status:(int)status text:(NSString *)text snapshotAsJSONString:(NSString *)snapshotAsJSONString;
 -(NSArray*)getAllMessages;
 -(NSArray*)getAllMessagesForConversation:(NSString *)conversationId start:(int)start count:(int)count;
 -(NSArray*)getAllMessagesForConversation:(NSString *)conversationId;

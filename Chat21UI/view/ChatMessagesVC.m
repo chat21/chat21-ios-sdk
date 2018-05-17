@@ -31,6 +31,10 @@
 #import "ChatPresenceHandler.h"
 #import "ChatContactsDB.h"
 #import "ChatLocal.h"
+#import <DBChooser/DBChooser.h>
+#import "ChatMessageMetadata.h"
+#import "ChatImageUtil.h"
+#import "ChatImagePreviewVC.h"
 
 @interface ChatMessagesVC (){
     SystemSoundID soundID;
@@ -48,7 +52,7 @@
     
     [self customizeTitle];
     
-    NSLog(@"self.recipient.fullname: %@", self.recipient.fullname);
+//    NSLog(@"self.recipient.fullname: %@", self.recipient.fullname);
     keyboardShow = NO;
     
     self.me = [ChatManager getInstance].loggedUser;
@@ -67,12 +71,6 @@
     if (self.recipient) { // online status only in DM mode
         [self setupForDirectMessageMode];
     }
-//    else if (self.group && !self.group.completeData) {
-//        // group's metadata not available, downloading
-//        // the conversationHandler object needs all group's metadata (members)
-//        // so it can't be initialized without completing group's info
-//        [self loadGroupInfo];
-//    }
     else if (self.group) { // all group metadata ok
         [self setupForGroupMode];
     }
@@ -250,7 +248,6 @@
 
 
 -(void)viewWillDisappear:(BOOL)animated {
-    NSLog(@"VIEW WILL DISAPPEAR... %@", self);
     [super viewWillDisappear:animated];
     [self dismissKeyboard];
     [self removeUnreadBadge];
@@ -258,7 +255,6 @@
         self.navigationController.interactivePopGestureRecognizer.delegate = nil;
     }
     if (self.isMovingFromParentViewController) {
-        NSLog(@"isMovingFromParentViewController: OK");
         [self resetTitleView];
         self.tabBarController.tabBar.hidden=NO;
         [self removeSubscribers];
@@ -406,7 +402,6 @@
 }
 
 -(void)removeUnreadBadge {
-    NSLog(@"Removing unread label... %@", self.unreadLabel);
     [self.unreadLabel removeFromSuperview];
 }
 
@@ -436,7 +431,6 @@
 }
 
 -(void)resetTitleView {
-    NSLog(@"RESETTING TITLE VIEW");
     self.usernameButton = nil;
     self.statusLabel = nil;
     self.activityIndicator = nil;
@@ -516,43 +510,110 @@
 }
 
 - (IBAction)addContentAction:(id)sender {
-    //    UIAlertController * view=   [UIAlertController
-    //                                 alertControllerWithTitle:nil
-    //                                 message:@"Allega"
-    //                                 preferredStyle:UIAlertControllerStyleActionSheet];
-    //
-    //    UIAlertAction* documenti = [UIAlertAction
-    //                           actionWithTitle:@"Documenti"
-    //                           style:UIAlertActionStyleDefault
-    //                           handler:^(UIAlertAction * action)
-    //                           {
-    //                               NSLog(@"Documenti");
-    //                               UIStoryboard *sb = [UIStoryboard storyboardWithName:@"DocNavigator" bundle:nil];
-    //                               UINavigationController *nc = [sb instantiateViewControllerWithIdentifier:@"NavigatorController"];
-    //                               DocNavigatorTVC *navigatorVC = (DocNavigatorTVC *)[[nc viewControllers] objectAtIndex:0];
-    //                               navigatorVC.selectionMode = YES;
-    //                               navigatorVC.selectionDelegate = self;
-    //                               [self.navigationController presentViewController:nc animated:YES completion:nil];
-    //                           }];
-    ////    UIAlertAction* dropbox = [UIAlertAction
-    ////                           actionWithTitle:@"Dropbox"
-    ////                           style:UIAlertActionStyleDefault
-    ////                           handler:^(UIAlertAction * action)
-    ////                           {
-    ////                               NSLog(@"Open dropbox");
-    ////                               [self openDropbox];
-    ////                           }];
-    //    UIAlertAction* cancel = [UIAlertAction
-    //                             actionWithTitle:NSLocalizedString(@"CancelLKey", nil)
-    //                             style:UIAlertActionStyleCancel
-    //                             handler:^(UIAlertAction * action)
-    //                             {
-    //                                 NSLog(@"cancel");
-    //                             }];
-    //    [view addAction:documenti];
-    ////    [view addAction:dropbox];
-    //    [view addAction:cancel];
-    //    [self presentViewController:view animated:YES completion:nil];
+        UIAlertController * view=   [UIAlertController
+                                     alertControllerWithTitle:nil
+                                     message:NSLocalizedString(@"Attach", nil)
+                                     preferredStyle:UIAlertControllerStyleActionSheet];
+        UIAlertAction* dropbox = [UIAlertAction
+                               actionWithTitle:NSLocalizedString(@"Dropbox", nil)
+                               style:UIAlertActionStyleDefault
+                               handler:^(UIAlertAction * action)
+                               {
+                                   NSLog(@"Open dropbox");
+                                   [self openDropbox];
+                               }];
+        UIAlertAction* photo = [UIAlertAction
+                              actionWithTitle:NSLocalizedString(@"Photo", nil)
+                              style:UIAlertActionStyleDefault
+                              handler:^(UIAlertAction * action)
+                              {
+                                  NSLog(@"Open photo");
+                                  [self takePhoto];
+                              }];
+        UIAlertAction* photo_from_library = [UIAlertAction
+                            actionWithTitle:NSLocalizedString(@"Photo from library", nil)
+                            style:UIAlertActionStyleDefault
+                            handler:^(UIAlertAction * action)
+                            {
+                                NSLog(@"Open photo");
+                                [self chooseExisting];
+                            }];
+        UIAlertAction* cancel = [UIAlertAction
+                                 actionWithTitle:NSLocalizedString(@"Cancel", nil)
+                                 style:UIAlertActionStyleCancel
+                                 handler:^(UIAlertAction * action)
+                                 {
+                                     NSLog(@"cancel");
+                                 }];
+//        [view addAction:documenti];
+    [view addAction:photo];
+    [view addAction:photo_from_library];
+    [view addAction:dropbox];
+    [view addAction:cancel];
+    [self presentViewController:view animated:YES completion:nil];
+}
+
+-(void)openDropbox {
+    [[DBChooser defaultChooser] openChooserForLinkType:DBChooserLinkTypePreview
+                                    fromViewController:self completion:^(NSArray *results)
+     {
+         if ([results count]) {
+             // Process results from Chooser
+             DBChooserResult *r = results[0];
+             // properties: r.name, r.link, r.size, r.iconURL
+             NSDictionary *thumbs = r.thumbnails;
+             // ** MEMO THUMBS **
+             //             if (thumbs) {
+             //                 NSArray*keys=[thumbs allKeys];
+             //                 for (NSObject *k in keys) {
+             //                     NSLog(@"r.thumb[%@]: %@", k, thumbs[k]);
+             //                 }
+             //                 NSLog(@"r.thumbs.64x64px %@", thumbs[@"64x64"]);
+             //                 NSLog(@"r.thumbs.200x200px %@", thumbs[@"200x200"]);
+             //                 NSLog(@"r.thumbs.640x480px %@", thumbs[@"640x480"]);
+             //             } else {
+             //                 NSLog(@"No r.thumbs");
+             //             }
+             // ** END MEMO **
+             [self sendDropboxMessage:r.name link:[r.link absoluteString] size:[NSNumber numberWithLongLong:r.size] iconURL:[r.iconURL absoluteString] thumbs:thumbs];
+         } else {
+             NSLog(@"Action canceled");
+         }
+     }];
+}
+
+-(void)sendDropboxMessage:(NSString *)name link:(NSString *)link size:(NSNumber *)size iconURL:(NSString *)iconURL thumbs:(NSDictionary *)thumbs {
+    
+    // check: if in a group, are you still a member?
+    if (self.group) {
+        if ([self.group isMember:self.me.userId]) {
+        } else {
+            [self hideBottomView:YES];
+            [self.messageTextField resignFirstResponder];
+            return;
+        }
+    }
+    
+    NSMutableDictionary *attributes = [[NSMutableDictionary alloc] init];
+    NSLog(@"dropbox.link: %@", link);
+    NSLog(@"dropbox.size: %@", size);
+    NSLog(@"dropbox.iconurl: %@", iconURL);
+    
+    [attributes setValue:link forKey:@"link"];
+    [attributes setValue:size forKey:@"size"];
+    [attributes setValue:iconURL forKey:@"iconURL"];
+    if (thumbs) {
+        NSArray*keys=[thumbs allKeys];
+        for (NSString *k in keys) {
+            NSURL *turl = (NSURL *)thumbs[k];
+            [attributes setValue:[turl absoluteString] forKey:k];
+        }
+    }
+    NSString *text = [NSString stringWithFormat:@"%@ %@", name, link];
+    [self.conversationHandler sendTextMessage:text subtype:MSG_TYPE_DROPBOX attributes:attributes completion:^(ChatMessage *message, NSError *error) {
+        NSLog(@"Message %@ successfully sent. ID: %@", message.text, message.messageId);
+    }];
+//    [self.conversationHandler sendMessageWithText:text type:MSG_TYPE_DROPBOX attributes:attributes];
 }
 
 -(void)dismissKeyboardFromTableView:(BOOL)activated {
@@ -704,61 +765,32 @@
     NSString *trimmed_text = [text stringByTrimmingCharactersInSet:
                               [NSCharacterSet whitespaceCharacterSet]];
     if(trimmed_text.length > 0) {
-        [self.conversationHandler sendTextMessage:text attributes:attributes completion:^(ChatMessage *message, NSError *error) {
+        [self.conversationHandler sendTextMessage:text subtype:nil attributes:attributes completion:^(ChatMessage *message, NSError *error) {
             NSLog(@"Message %@ successfully sent. ID: %@", message.text, message.messageId);
         }];
         self.messageTextField.text = @"";
     }
 }
 
-//-(void)sendDropboxMessage:(NSString *)name link:(NSString *)link size:(NSNumber *)size iconURL:(NSString *)iconURL thumbs:(NSDictionary *)thumbs {
-//
-//    // check: if in a group, are you still a member?
-//    if (self.group) {
-//        if ([self.group isMember:self.me.userId]) {
-//        } else {
-//            [self hideBottomView:YES];
-//            [self.messageTextField resignFirstResponder];
-//            return;
-//        }
-//    }
-//
-//    NSMutableDictionary *attributes = [[NSMutableDictionary alloc] init];
-//    NSLog(@"dropbox.link: %@", link);
-//    NSLog(@"dropbox.size: %@", size);
-//    NSLog(@"dropbox.iconurl: %@", iconURL);
-//
-//    [attributes setValue:link forKey:@"link"];
-//    [attributes setValue:size forKey:@"size"];
-//    [attributes setValue:iconURL forKey:@"iconURL"];
-//    if (thumbs) {
-//        NSArray*keys=[thumbs allKeys];
-//        for (NSString *k in keys) {
-//            NSURL *turl = (NSURL *)thumbs[k];
-//            [attributes setValue:[turl absoluteString] forKey:k];
-//        }
-//    }
-//    NSString *text = [NSString stringWithFormat:@"%@ %@", name, link];
-//    [self.conversationHandler sendTextMessage:text attributes:attributes completion:^(ChatMessage *message, NSError *error) {
-//        NSLog(@"Dropbox message %@ successfully sent. ID: %@", message.text, message.messageId);
-//    }];
-//}
-
 -(void)messageUpdated:(ChatMessage *)message {
-    [containerTVC reloadDataTableView];
+    [containerTVC messageUpdated:message];
+//    [containerTVC reloadDataTableView];
 }
 
 -(void)messageDeleted:(ChatMessage *)message {
-    [containerTVC reloadDataTableView];
+    // TODO never delete a message.
+    // Place a placeholder message with text: "this message was removed", message.status = removed.
+    [containerTVC messageDeleted:message];
 }
 
+// TODO (move from VC to TVC like messageDeleted and messageUpdated)
 -(void)messageReceived:(ChatMessage *)message {
     if (!self.messagesArriving) { // self.messagesArriving = YES => bulk messages update
         [self startNewMessageTimer];
         self.messagesArriving = YES;
         // fist message always shown
         [self renderMessages];
-        [self playSound];
+//        [self playSound];
     }
     else {
         NSLog(@"MESSAGES STILL ARRIVING, NOT RENDERING!");
@@ -809,11 +841,6 @@ static float messageTime = 0.5;
 }
 
 -(void)playSound {
-//    double now = [[NSDate alloc] init].timeIntervalSince1970;
-//    if (now - self.lastPlayedSoundTime < 3) {
-//        NSLog(@"TOO EARLY TO PLAY ANOTHER SOUND");
-//        return;
-//    }
     // help: https://github.com/TUNER88/iOSSystemSoundsLibrary
     // help: http://developer.boxcar.io/blog/2014-10-08-notification_sounds/
     NSString *path = [NSString stringWithFormat:@"%@/inline.caf", [[NSBundle mainBundle] resourcePath]];
@@ -827,7 +854,7 @@ static float messageTime = 0.5;
 }
 
 -(void)dealloc {
-    NSLog(@"Deallocating MessagesViewController.");
+    NSLog(@"DEALLOCATING: MessagesViewController.");
 }
 
 //EXTRA
@@ -885,14 +912,6 @@ static float messageTime = 0.5;
         return;
     }
     [self groupConfigurationChanged:group];
-//    if ([group isMember:self.me.userId]) {
-//        [self.conversationHandler connect];
-//        [self groupConfigurationChanged:group];
-//    }
-//    else {
-//        [self.conversationHandler dispose];
-//        [self groupConfigurationChanged:group];
-//    }
 }
 
 // In a storyboard-based application, you will often want to do a little preparation before navigation
@@ -902,6 +921,12 @@ static float messageTime = 0.5;
         NSLog(@"vc %@", vc);
         //        vc.applicationContext = self.applicationContext;
         vc.group = self.group;
+    }
+    else if ([[segue identifier] isEqualToString:@"imagePreview"]) {
+        ChatImagePreviewVC *vc = (ChatImagePreviewVC *)[segue destinationViewController];
+        NSLog(@"vc %@", vc);
+        vc.image = self.scaledImage;
+        vc.recipientFullname = self.recipient.fullname;
     }
 }
 
@@ -931,24 +956,85 @@ static float messageTime = 0.5;
     self.imagePickerController.delegate = self;
     self.imagePickerController.sourceType = UIImagePickerControllerSourceTypeCamera;
     // enable to crop
-    self.imagePickerController.allowsEditing = YES;
+//    self.imagePickerController.allowsEditing = YES;
 }
 
 -(void)initializePhotoLibrary {
     NSLog(@"initializePhotoLibrary...");
     self.photoLibraryController = [[UIImagePickerController alloc] init];
     self.photoLibraryController.delegate = self;
-    self.photoLibraryController.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;// SavedPhotosAlbum;// SavedPhotosAlbum;
-    self.photoLibraryController.allowsEditing = YES;
-    //self.photoLibraryController.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
+    self.photoLibraryController.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;// SavedPhotosAlbum;
+//    self.photoLibraryController.allowsEditing = YES;
 }
 
 -(void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info {
+    // TODO apri showImagePreview
     [picker dismissViewControllerAnimated:YES completion:nil];
     [self afterPickerCompletion:picker withInfo:info];
 }
 
 -(void)afterPickerCompletion:(UIImagePickerController *)picker withInfo:(NSDictionary *)info {
+    UIImage *bigImage = [info objectForKey:@"UIImagePickerControllerOriginalImage"];
+//    for(id i in info.allKeys) {
+//        NSLog(@"k: %@, v: %@ [class:%@]", i, info[i], NSStringFromClass([info[i] class]));
+//    }
+    NSURL *local_image_url = [info objectForKey:@"UIImagePickerControllerImageURL"];
+    NSString *image_original_file_name = [local_image_url lastPathComponent];
+    NSLog(@"image_original_file_name: %@", image_original_file_name);
+    self.scaledImage = bigImage;
+    // save image in photos
+//    if (picker == self.imagePickerController) {
+//        UIImageWriteToSavedPhotosAlbum(self.bigImage, self,
+//                                       @selector(image:didFinishSavingWithError:contextInfo:), nil);
+//    }
+    NSLog(@"image: %@", self.scaledImage);
+    self.scaledImage = [ChatImageUtil adjustEXIF:self.scaledImage];
+    self.scaledImage = [ChatImageUtil scaleImage:self.scaledImage toSize:CGSizeMake(600, 600)];
+    [self performSegueWithIdentifier:@"imagePreview" sender:nil];
+}
+
+- (IBAction)unwindToMessagesVC:(UIStoryboardSegue*)sender {
+    NSLog(@"exited");
+    [self dismissViewControllerAnimated:YES completion:nil];
+    UIViewController *sourceViewController = sender.sourceViewController;
+    if ([sourceViewController isKindOfClass:[ChatImagePreviewVC class]]) {
+        ChatImagePreviewVC *vc = (ChatImagePreviewVC *) sourceViewController;
+        if (vc.image) {
+            UIImage *imageToSend = vc.image;
+            NSLog(@"image to send: %@", imageToSend);
+            [self sendImage:imageToSend];
+        }
+        else {
+            NSLog(@"operation canceled");
+        }
+    }
+}
+
+-(void)sendImage:(UIImage *)image {
+    [self.conversationHandler appendImagePlaceholderMessageWithImage:image attributes:nil completion:^(ChatMessage *message, NSError *error) {
+        NSLog(@"Image placeholder message created and appended.");
+        // save image to cache
+        [[ChatImageCache getSharedInstance] addImage:image withKey:message.messageId];
+        [self.conversationHandler uploadImage:image fileName:message.imageFilename completion:^(NSURL *downloadURL, NSError *error) {
+            NSLog(@"Image uploaded. Download url: %@", downloadURL);
+            if (error) {
+                NSLog(@"Error during image upload.");
+                message.status = MSG_STATUS_FAILED;
+                [self.conversationHandler updateMessageStatus:MSG_STATUS_FAILED forMessage:message];
+            }
+            else {
+                NSString *image_text = [ChatMessage imageTextPlaceholder:downloadURL.absoluteString];
+                message.metadata.src = downloadURL.absoluteString;
+                message.text = image_text;
+                message.status = MSG_STATUS_SENDING;
+                [self.conversationHandler sendImagePlaceholderMessage:message completion:^(ChatMessage *m, NSError *e) {
+                    NSLog(@"Image message successfully sent.");
+                }];
+            }
+        } progressCallback:^(double fraction) {
+            NSLog(@"progress: %f", fraction);
+        }];
+    }];
 }
 
 - (void)image:(UIImage *)image didFinishSavingWithError:(NSError *)error contextInfo:(void *)contextInfo

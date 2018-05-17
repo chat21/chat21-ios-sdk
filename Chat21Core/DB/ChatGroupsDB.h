@@ -23,9 +23,8 @@
 
 // groups
 -(void)insertOrUpdateGroupSyncronized:(ChatGroup *)group completion:(void(^)()) callback;
-//-(void)getAllGroupsSyncronizedWithCompletion:(void(^)(NSArray<ChatGroup*> *)) callback;
+//-(void)insertGroupOnlyIfNotExistsSyncronized:(ChatGroup *)group completion:(void(^)()) callback; // only used by group-created-by-push-notification
 -(NSMutableArray *)getAllGroupsForUser:(NSString *)user;
-//-(void)getAllGroupsForUserSyncronized:(NSString *)user completion:(void(^)(NSArray<ChatGroup*> *)) callback;
 -(void)getGroupByIdSyncronized:(NSString *)groupId completion:(void(^)(ChatGroup *)) callback;
 -(void)removeGroupSyncronized:(NSString *)groupId completion:(void(^)(BOOL error)) callback;
 

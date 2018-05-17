@@ -6,17 +6,16 @@
   Copyright © 2018 Frontiere21. All rights reserved.
 */
 
-"CancelLKey" = "Cancel";
-"DoneLKey" = "Done";
-"CloseLKey" = "Close";
-"BackLKey" = "Back";
-"SendLKey" = "Public";
-"RequiredPlaceholderLKey" = "Required";
-"ConnectionErrorLKey" = "Connection error!";
+//"Done" = "Done";
+//"Close" = "Close";
+//"Back" = "Back";
+//"Send" = "Public";
+//"RequiredPlaceholderLKey" = "Required";
+//"ConnectionErrorLKey" = "Connection error!";
 "TimeToStringDateFormat" = "MMMM d";
-"Saving" = "Saving...";
-"NetworkErrorTitle" = "Network error";
-"NetworkError" = "An network error occurred during connection.";
+//"Saving" = "Saving...";
+//"NetworkErrorTitle" = "Network error";
+//"NetworkError" = "An network error occurred during connection.";
 
 "FewSecondsAgoLKey" = "few seconds ago";
 "AboutAMinuteAgoLKey" = "about a minute ago";
@@ -106,4 +105,6 @@
 "settingsLegalSection" = "Legal";
 "Remove this member?" = "Remove this member?";
 "Remove" = "Remove";
+"copy" = "Copy";
+"info" = "Info";
 

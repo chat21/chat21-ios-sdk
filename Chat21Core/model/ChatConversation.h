@@ -54,16 +54,9 @@ static NSString* const CONV_ATTRIBUTES_KEY = @"attributes";
 
 @property (nonatomic, assign) BOOL isDirect;
 
-// group conversation properties
-//@property (nonatomic, strong) NSString *groupId; // used to recover group information on demand
-//@property (nonatomic, strong) NSString *groupName; // replaces "conversWith" caption in the cell
-
 -(NSString *)dateFormattedForListView;
-//+(ChatConversation *)conversationFromSnapshotFactory:(FDataSnapshot *)snapshot;
 
 -(NSString *)textForLastMessage:(NSString *)me;
-
-//-(NSMutableDictionary *)asDictionary;
 
 +(ChatConversation *)conversationFromSnapshotFactory:(FIRDataSnapshot *)snapshot me:(ChatUser *)me;
 

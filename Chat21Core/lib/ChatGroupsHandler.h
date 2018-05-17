@@ -44,6 +44,7 @@
 //-(void)insertOrUpdateGroup:(ChatGroup *)group;
 -(void)insertOrUpdateGroup:(ChatGroup *)group completion:(void(^)()) callback;
 -(void)insertInMemory:(ChatGroup *)group;
+//+(void)createGroupFromPushNotification:(ChatGroup *)group;
 -(void)addSubscriber:(id<ChatGroupsSubscriber>)subscriber;
 -(void)removeSubscriber:(id<ChatGroupsSubscriber>)subscriber;
 @end

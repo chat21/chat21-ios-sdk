@@ -17,6 +17,8 @@
 @class ChatUser;
 @class ChatGroup;
 @class ChatMessage;
+@class ChatMessageMetadata;
+@class ChatImageDownloadManager;
 
 @interface ChatConversationHandler : NSObject //<ChatGroupsDelegate>
 
@@ -38,6 +40,7 @@
 @property (assign, nonatomic) FIRDatabaseHandle updated_messages_ref_handle;
 @property (strong, nonatomic) FirebaseCustomAuthHelper *authHelper;
 @property (strong, nonatomic) NSString *channel_type;
+@property (strong, nonatomic) ChatImageDownloadManager *imageDownloader;
 
 // observer
 @property (strong, nonatomic) NSMutableDictionary *eventObservers;
@@ -52,10 +55,19 @@
 -(id)initWithGroupId:(NSString *)groupId groupName:(NSString *)groupName;
 -(void)connect;
 -(void)dispose;
-//- (void)sendMessage:(NSString *)text;
-//-(void)sendMessageWithText:(NSString *)text type:(NSString *)type attributes:(NSDictionary *)attributes;
--(void)sendTextMessage:(NSString *)text attributes:(NSDictionary *)attributes completion:(void(^)(ChatMessage *message, NSError *error)) callback;
+-(void)sendTextMessage:(NSString *)text completion:(void(^)(ChatMessage *message, NSError *error)) callback;
+//-(void)sendTextMessage:(NSString *)text subtype:(NSString *)subtype attributes:(NSDictionary *)attributes completion:(void(^)(ChatMessage *message, NSError *error)) callback;
+-(void)sendTextMessage:(NSString *)text subtype:(NSString *)subtype attributes:(NSDictionary *)attributes completion:(void(^)(ChatMessage *message, NSError *error)) callback;
+//-(void)appendImagePlaceholderMessageWithFilename:(NSString *)imageFilename metadata:(ChatMessageMetadata *)metadata attributes:(NSDictionary *)attributes completion:(void(^)(ChatMessage *message, NSError *error))callback;
+-(void)appendImagePlaceholderMessageWithImage:(UIImage *)image attributes:(NSDictionary *)attributes completion:(void(^)(ChatMessage *message, NSError *error)) callback;
+-(void)sendImagePlaceholderMessage:(ChatMessage *)message completion:(void (^)(ChatMessage *, NSError *))callback;
+-(void)sendMessageType:(NSString *)type subtype:(NSString *)subtype text:(NSString *)text imageURL:(NSString *)imageURL metadata:(ChatMessageMetadata *)metadata attributes:(NSDictionary *)attributes completion:(void(^)(ChatMessage *message, NSError *error)) callback;
 -(void)restoreMessagesFromDB;
-+(NSMutableDictionary *)firebaseMessageFor:(ChatMessage *)message;
+-(NSString *)mediaFolderPath;
++(NSString *)mediaFolderPathOfRecipient:(NSString *)recipiendId;
+-(void)saveImageToRecipientMediaFolderAsPNG:(UIImage *)image imageFileName:(NSString *)imageFileName;
+-(void)uploadImage:(UIImage *)image fileName:(NSString *)fileName completion:(void(^)(NSURL *downloadURL, NSError *error)) callback progressCallback:(void(^)(double fraction))progressCallback;
+-(void)updateMessageStatus:(int)status forMessage:(ChatMessage *)message;
+//+(NSMutableDictionary *)firebaseMessageFor:(ChatMessage *)message;
 
 @end

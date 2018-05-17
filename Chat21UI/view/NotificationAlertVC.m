@@ -93,7 +93,7 @@ static float showTime = 4.0;
     
     
     
-    [self playSound];
+//    [self playSound];
     self.animating = YES;
     [UIView animateWithDuration:animationDurationShow
               delay:0

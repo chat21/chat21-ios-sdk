@@ -153,11 +153,11 @@
     return group_dict;
 }
 
--(BOOL)completeData {
-    BOOL complete = (self.members != nil);
-    NSLog(@"complete: %d", complete);
-    return complete;
-}
+//-(BOOL)completeData {
+//    BOOL complete = (self.members != nil);
+//    NSLog(@"complete: %d", complete);
+//    return complete;
+//}
 
 -(void)completeGroupMembersMetadataWithCompletionBlock:(void(^)())callback {
     ChatContactsDB *db = [ChatContactsDB getSharedInstance];
