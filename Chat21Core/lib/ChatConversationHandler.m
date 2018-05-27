@@ -628,9 +628,9 @@
                                                        NSLog(@"an error occurred!");
                                                        callback(nil, error);
                                                    } else {
-                                                       NSLog(@"Metadata contains file metadata such as size, content-type, and download URL");
+//                                                       NSLog(@"Metadata contains file metadata such as size, content-type, and download URL");
                                                        NSURL *downloadURL = metadata.downloadURL;
-                                                       NSLog(@"Download url: %@", downloadURL);
+//                                                       NSLog(@"Download url: %@", downloadURL);
                                                        callback(downloadURL, nil);
                                                    }
                                                }];

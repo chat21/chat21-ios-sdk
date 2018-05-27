@@ -78,12 +78,14 @@
     if (cached_image) {
         CGSize size = [ChatMessageCell computeImageSize:message];
         self.imageHeightConstraint.constant = size.height;
+        self.imageWidthConstraint.constant = size.width;
         self.messageImageView.image = cached_image;
         return;
     }
     else {
         CGSize size = [ChatMessageCell computeImageSize:message];
         self.imageHeightConstraint.constant = size.height;
+        self.imageWidthConstraint.constant = size.width;
         //        UIImage *placeholder_image = [message imagePlaceholder];
         self.messageImageView.image = nil;
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),^{

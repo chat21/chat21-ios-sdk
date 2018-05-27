@@ -1274,12 +1274,13 @@
                                             <color key="textColor" red="0.564658463" green="0.564658463" blue="0.564658463" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                             <nil key="highlightedColor"/>
                                         </label>
-                                        <view tag="50" contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="RWg-RR-JuC" userLabel="sfondo">
-                                            <rect key="frame" x="314" y="16" width="32" height="28"/>
+                                        <view tag="50" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="RWg-RR-JuC" userLabel="sfondo">
+                                            <rect key="frame" x="313" y="16" width="32" height="28"/>
                                             <subviews>
-                                                <imageView userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Czh-xk-qP5">
+                                                <imageView userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="Czh-xk-qP5">
                                                     <rect key="frame" x="3" y="3" width="25" height="22"/>
                                                     <constraints>
+                                                        <constraint firstAttribute="width" constant="25" id="XXO-Kv-LQj"/>
                                                         <constraint firstAttribute="height" constant="22" id="jjs-NQ-Jit"/>
                                                     </constraints>
                                                 </imageView>
@@ -1301,8 +1302,8 @@
                                                 <constraint firstAttribute="height" constant="14" id="OEj-7f-FCn"/>
                                             </constraints>
                                         </imageView>
-                                        <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" tag="40" contentMode="left" ambiguous="YES" text="00:00" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="8" translatesAutoresizingMaskIntoConstraints="NO" id="Gbi-wy-egX">
-                                            <rect key="frame" x="276" y="25" width="30" height="12"/>
+                                        <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" tag="40" contentMode="left" text="00:00" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="8" translatesAutoresizingMaskIntoConstraints="NO" id="Gbi-wy-egX">
+                                            <rect key="frame" x="275" y="25" width="30" height="12"/>
                                             <constraints>
                                                 <constraint firstAttribute="height" constant="12" id="NGP-W3-77G"/>
                                                 <constraint firstAttribute="width" constant="30" id="dt5-TQ-l2n"/>
@@ -1311,8 +1312,8 @@
                                             <color key="textColor" red="0.66666666669999997" green="0.66666666669999997" blue="0.66666666669999997" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                             <color key="highlightedColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         </label>
-                                        <progressView hidden="YES" opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="750" ambiguous="YES" progress="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="KB9-S5-Z3f">
-                                            <rect key="frame" x="314" y="16" width="32" height="2"/>
+                                        <progressView hidden="YES" opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="750" progress="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="KB9-S5-Z3f">
+                                            <rect key="frame" x="313" y="16" width="32" height="2"/>
                                             <constraints>
                                                 <constraint firstAttribute="height" constant="2" id="Avt-58-d6a"/>
                                             </constraints>
@@ -1346,6 +1347,7 @@
                                 <connections>
                                     <outlet property="dateLabel" destination="A4s-GN-D44" id="lz9-JG-Rxd"/>
                                     <outlet property="imageHeightConstraint" destination="jjs-NQ-Jit" id="awE-4b-gS5"/>
+                                    <outlet property="imageWidthConstraint" destination="XXO-Kv-LQj" id="Sh9-Kh-uNU"/>
                                     <outlet property="messageBackgroundView" destination="RWg-RR-JuC" id="gg8-gk-WaP"/>
                                     <outlet property="messageImageView" destination="Czh-xk-qP5" id="VlH-yZ-EIv"/>
                                     <outlet property="progressView" destination="KB9-S5-Z3f" id="0zL-YT-OwX"/>
@@ -2363,7 +2365,7 @@
         <image name="exiticonbutton.png" width="512" height="512"/>
         <image name="no_image_message_placeholder.png" width="500" height="500"/>
         <image name="plus_icon.png" width="32" height="32"/>
-        <image name="sendbutton.png" width="107" height="97"/>
+        <image name="sendbutton.png" width="137" height="136"/>
     </resources>
     <inferredMetricsTieBreakers>
         <segue reference="LM8-ZQ-TNp"/>

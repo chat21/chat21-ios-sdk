@@ -1032,7 +1032,7 @@ static float messageTime = 0.5;
                 }];
             }
         } progressCallback:^(double fraction) {
-            NSLog(@"progress: %f", fraction);
+//            NSLog(@"progress: %f", fraction);
         }];
     }];
 }
