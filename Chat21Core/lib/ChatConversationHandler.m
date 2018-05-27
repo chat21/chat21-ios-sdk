@@ -615,12 +615,12 @@
     NSString *file_path = [[NSString alloc] initWithFormat:@"images/%@.png", uuid];
     NSLog(@"image remote file path: %@", file_path);
     // Create a reference to the file you want to upload
-    FIRStorageReference *riversRef = [storageRef child:file_path];
+    FIRStorageReference *storeRef = [storageRef child:file_path];
     // Create file metadata including the content type
     FIRStorageMetadata *metadata = [[FIRStorageMetadata alloc] init];
     metadata.contentType = @"image/png";
     // Upload the file to the path
-    FIRStorageUploadTask *uploadTask = [riversRef putData:data
+    FIRStorageUploadTask *uploadTask = [storeRef putData:data
                                                  metadata:metadata
                                                completion:^(FIRStorageMetadata *metadata,
                                                             NSError *error) {
@@ -629,9 +629,13 @@
                                                        callback(nil, error);
                                                    } else {
 //                                                       NSLog(@"Metadata contains file metadata such as size, content-type, and download URL");
-                                                       NSURL *downloadURL = metadata.downloadURL;
-//                                                       NSLog(@"Download url: %@", downloadURL);
-                                                       callback(downloadURL, nil);
+                                                       
+                                                       [[storeRef child:metadata.path] downloadURLWithCompletion:^(NSURL * _Nullable URL, NSError * _Nullable error) {
+                                                           // NSLog(@"Download url: %@", downloadURL);
+                                                           callback(URL, nil);
+                                                       }];
+
+                                                       
                                                    }
                                                }];
     FIRStorageHandle observer = [uploadTask observeStatus:FIRStorageTaskStatusProgress

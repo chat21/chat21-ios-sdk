@@ -1,6 +1,5 @@
 //
 //  ChatMiniBrowserVC.m
-//  bppmobile
 //
 //  Created by Andrea Sponziello on 27/07/2017.
 //  Copyright © 2017 Frontiere21. All rights reserved.

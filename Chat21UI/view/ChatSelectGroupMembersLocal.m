@@ -1,6 +1,5 @@
 //
 //  ChatSelectGroupMembersLocal.m
-//  bppmobile
 //
 //  Created by Andrea Sponziello on 14/09/2017.
 //  Copyright © 2017 Frontiere21. All rights reserved.
@@ -108,14 +107,11 @@
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    NSLog(@"numberOfRowsInSection");
     if(self.users && self.users.count > 0) {
         NSInteger num = self.users.count;
-        NSLog(@"rows %ld", num);
         return num;
     } else if (self.members && self.members > 0) {
         NSInteger num = self.members.count;
-        NSLog(@"rows %ld", num);
         return num;
     }
     else {

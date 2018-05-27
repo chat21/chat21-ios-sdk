@@ -10,7 +10,7 @@
 #import <Firebase/Firebase.h>
 #import "ChatConversation.h"
 #import "ChatManager.h"
-#import "NotificationAlertView.h"
+//#import "NotificationAlertView.h"
 #import "ChatConversationsVC.h"
 #import "ChatLocal.h"
 

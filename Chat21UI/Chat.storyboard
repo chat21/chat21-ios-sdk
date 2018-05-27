@@ -202,7 +202,7 @@
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
                                         <label opaque="NO" userInteractionEnabled="NO" tag="2" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="Andrea Sponziello" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="12" translatesAutoresizingMaskIntoConstraints="NO" id="3Yn-j3-NMA">
-                                            <rect key="frame" x="93" y="5" width="159" height="21"/>
+                                            <rect key="frame" x="97" y="5" width="159" height="21"/>
                                             <constraints>
                                                 <constraint firstAttribute="width" constant="159" id="tXS-MC-K9g"/>
                                                 <constraint firstAttribute="height" constant="21" id="xPd-ve-UWw"/>
@@ -212,7 +212,7 @@
                                             <nil key="highlightedColor"/>
                                         </label>
                                         <label opaque="NO" userInteractionEnabled="NO" tag="4" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="08:59" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hdO-Zx-9Ff">
-                                            <rect key="frame" x="320" y="5" width="32" height="13"/>
+                                            <rect key="frame" x="541" y="5" width="32" height="13"/>
                                             <constraints>
                                                 <constraint firstAttribute="height" constant="13" id="9lJ-gc-2bB"/>
                                             </constraints>
@@ -221,14 +221,14 @@
                                             <nil key="highlightedColor"/>
                                         </label>
                                         <imageView userInteractionEnabled="NO" tag="1" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="EIW-hS-EUT">
-                                            <rect key="frame" x="20" y="5" width="60" height="60"/>
+                                            <rect key="frame" x="24" y="5" width="60" height="60"/>
                                             <constraints>
                                                 <constraint firstAttribute="height" constant="60" id="TcV-PV-lkj"/>
                                                 <constraint firstAttribute="width" constant="60" id="nS5-2k-6FN"/>
                                             </constraints>
                                         </imageView>
                                         <label hidden="YES" opaque="NO" userInteractionEnabled="NO" tag="3" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="Ciao. Un saluto dal tuo amico lontano. Vorrei sapere come ti senti oggi. Per il resto come te la passi?" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="7L8-nW-dJG">
-                                            <rect key="frame" x="93" y="28" width="204" height="38"/>
+                                            <rect key="frame" x="97" y="28" width="421" height="38"/>
                                             <constraints>
                                                 <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="38" id="Gvg-17-wi7"/>
                                             </constraints>
@@ -237,7 +237,7 @@
                                             <nil key="highlightedColor"/>
                                         </label>
                                         <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ZE6-IR-aGW">
-                                            <rect key="frame" x="82" y="69" width="251" height="1"/>
+                                            <rect key="frame" x="86" y="69" width="468" height="1"/>
                                             <color key="backgroundColor" red="0.92035776376724243" green="0.92035776376724243" blue="0.92035776376724243" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                             <constraints>
                                                 <constraint firstAttribute="height" constant="1" id="tq3-BS-vD6"/>
@@ -269,7 +269,7 @@
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
                                         <label opaque="NO" userInteractionEnabled="NO" tag="2" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Andrea Sponziello" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="12" translatesAutoresizingMaskIntoConstraints="NO" id="DaN-im-qgw">
-                                            <rect key="frame" x="93" y="8" width="159" height="21"/>
+                                            <rect key="frame" x="97" y="8" width="159" height="21"/>
                                             <constraints>
                                                 <constraint firstAttribute="width" constant="159" id="2O4-Og-QRJ"/>
                                                 <constraint firstAttribute="height" constant="21" id="jud-Gj-DOV"/>
@@ -279,7 +279,7 @@
                                             <nil key="highlightedColor"/>
                                         </label>
                                         <label opaque="NO" userInteractionEnabled="NO" tag="4" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="08:59" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="bt5-NG-t1t">
-                                            <rect key="frame" x="329" y="8" width="32" height="13"/>
+                                            <rect key="frame" x="333" y="8" width="32" height="13"/>
                                             <constraints>
                                                 <constraint firstAttribute="height" constant="13" id="HXb-J9-a4o"/>
                                             </constraints>
@@ -288,21 +288,21 @@
                                             <nil key="highlightedColor"/>
                                         </label>
                                         <imageView userInteractionEnabled="NO" tag="1" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="0Xc-OR-fVW">
-                                            <rect key="frame" x="20" y="8" width="60" height="60"/>
+                                            <rect key="frame" x="24" y="8" width="60" height="60"/>
                                             <constraints>
                                                 <constraint firstAttribute="height" constant="60" id="aGy-KZ-EvG"/>
                                                 <constraint firstAttribute="width" constant="60" id="wub-1C-ben"/>
                                             </constraints>
                                         </imageView>
                                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="xXY-it-d1u">
-                                            <rect key="frame" x="82" y="72" width="260" height="1"/>
+                                            <rect key="frame" x="86" y="72" width="260" height="1"/>
                                             <color key="backgroundColor" red="0.92035776380000001" green="0.92035776380000001" blue="0.92035776380000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                             <constraints>
                                                 <constraint firstAttribute="height" constant="1" id="kEs-db-xSJ"/>
                                             </constraints>
                                         </view>
                                         <label opaque="NO" userInteractionEnabled="NO" tag="20" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Sender-group:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="DOv-L3-Ct5">
-                                            <rect key="frame" x="93" y="29" width="159" height="16"/>
+                                            <rect key="frame" x="97" y="29" width="159" height="16"/>
                                             <constraints>
                                                 <constraint firstAttribute="height" constant="16" id="SY1-iv-1Mf"/>
                                                 <constraint firstAttribute="width" constant="159" id="uXy-BU-a73"/>
@@ -312,7 +312,7 @@
                                             <nil key="highlightedColor"/>
                                         </label>
                                         <label opaque="NO" userInteractionEnabled="NO" tag="22" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Messaggio dal gruppo" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="5mC-fd-Xc2">
-                                            <rect key="frame" x="93" y="43" width="213" height="24"/>
+                                            <rect key="frame" x="97" y="43" width="213" height="24"/>
                                             <constraints>
                                                 <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="24" id="Hxe-cU-DJT"/>
                                             </constraints>
@@ -321,7 +321,7 @@
                                             <nil key="highlightedColor"/>
                                         </label>
                                         <label hidden="YES" opaque="NO" userInteractionEnabled="NO" tag="3" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Ciao. Un saluto dal tuo amico lontano. Vorrei sapere come ti senti oggi. Per il resto come te la passi?" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Up0-Nv-UcT">
-                                            <rect key="frame" x="93" y="31" width="213" height="38"/>
+                                            <rect key="frame" x="97" y="31" width="213" height="38"/>
                                             <constraints>
                                                 <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="38" id="7yF-Dn-Hf0"/>
                                                 <constraint firstAttribute="height" constant="38" id="bZ1-fZ-niB"/>
@@ -363,7 +363,7 @@
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
                                         <label opaque="NO" userInteractionEnabled="NO" tag="50" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Nessuna conversazione" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="rXl-hD-2u7">
-                                            <rect key="frame" x="32.5" y="46.5" width="310" height="23"/>
+                                            <rect key="frame" x="145" y="46.5" width="310" height="23"/>
                                             <constraints>
                                                 <constraint firstAttribute="width" constant="310" id="xD7-Gq-C6G"/>
                                             </constraints>
@@ -621,11 +621,11 @@
         <scene sceneID="XXQ-0d-a3n">
             <objects>
                 <viewController title="Aggiungi Membri" id="kvy-2e-lfq" customClass="ChatSelectGroupMembersLocal" sceneMemberID="viewController">
-                    <view key="view" contentMode="scaleToFill" id="Ta2-Lt-hac">
+                    <view key="view" contentMode="scaleToFill" ambiguous="YES" id="Ta2-Lt-hac">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <searchBar contentMode="redraw" searchBarStyle="minimal" placeholder="Digita il nome del contatto" translatesAutoresizingMaskIntoConstraints="NO" id="d5m-sL-Gj6">
+                            <searchBar contentMode="redraw" ambiguous="YES" searchBarStyle="minimal" placeholder="Digita il nome del contatto" translatesAutoresizingMaskIntoConstraints="NO" id="d5m-sL-Gj6">
                                 <rect key="frame" x="38" y="64" width="549" height="56"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="549" id="DkN-7n-GgN"/>
@@ -633,7 +633,7 @@
                                 <color key="barTintColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <textInputTraits key="textInputTraits"/>
                             </searchBar>
-                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="SJn-H5-hjz">
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" ambiguous="YES" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="SJn-H5-hjz">
                                 <rect key="frame" x="0.0" y="108" width="375" height="527"/>
                                 <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <prototypes>
@@ -736,7 +736,7 @@
                                     </tableViewCell>
                                 </prototypes>
                             </tableView>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="A:" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="fmO-j5-Owe">
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="A:" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="fmO-j5-Owe">
                                 <rect key="frame" x="12" y="75" width="26" height="21"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="21" id="a1h-86-uiw"/>

@@ -34,19 +34,19 @@ static ChatUploadsController *sharedInstance = nil;
 -(void)addDataController:(ChatUpload *)dc {
     dc.uploadsController = self;
     [self.currentUploads setObject:dc forKey:dc.uploadId];
-    NSLog(@"Added controller. Total %ld", self.currentUploads.count);
+    NSLog(@"Added controller. Total %lu", (unsigned long)self.currentUploads.count);
 }
 
 -(void)didFinishConnection:(ChatUpload *)dc withError:(NSError *)error {
     NSLog(@"Connection for %@ finished. Finding and removing...", dc);
-    NSLog(@"Total controllers: %ld", self.currentUploads.count);
+    NSLog(@"Total controllers: %lu", (unsigned long)self.currentUploads.count);
     [self removeDataController:dc];
 }
 
 -(void)removeDataController:(ChatUpload *)dc {
     [dc cancel];
     [self.currentUploads removeObjectForKey:dc.uploadId];
-    NSLog(@"Controller was removed. Total %ld", self.currentUploads.count);
+    NSLog(@"Controller was removed. Total %lu", (unsigned long)self.currentUploads.count);
 }
 
 @end

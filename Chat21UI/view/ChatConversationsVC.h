@@ -11,7 +11,7 @@
 //#import "ChatModalCallerDelegate.h"
 #import "ChatUser.h"
 
-@import FirebaseDatabase;
+@import Firebase;
 
 @class ChatConversationsHandler;
 @class ChatGroupsHandler;

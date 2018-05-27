@@ -205,20 +205,6 @@ static NSString *FIRST_SYNCHRO_KEY = @"first-contacts-synchro";
 //    [self.contactsRef removeAllObservers];
 //}
 
--(void)firstLoadWithCompletion:(void(^)()) callback {
-    // FIRST SYNCHRONIZE CONTACTS FROM FILE
-    NSString *contacts_path = [[NSBundle mainBundle] pathForResource:@"bppmobileintranet-contacts" ofType:@"json"];
-    NSData *contacts_data = [NSData dataWithContentsOfFile:contacts_path];
-    NSDictionary *contacts_dict = [NSJSONSerialization JSONObjectWithData:contacts_data options:kNilOptions error:nil];
-    for (NSString* key in contacts_dict) {
-        ChatUser *user = [ChatContactsSynchronizer contactFromDictionaryFactory:contacts_dict[key]];
-//        NSLog(@"name: %@, id: %@", user.lastname, user.userId);
-        [[ChatContactsDB getSharedInstance] insertContact:user];
-    }
-    [self setFirstSynchroOver:YES];
-    callback();
-}
-
 -(void)insertOrUpdateContactOnDB:(ChatUser *)user {
 //    NSLog(@"INSERTING OR UPDATING CONTACT WITH NAME: %@ (%@ %@)", user.userId, user.firstname, user.lastname);
     __block ChatUser *_user = user;

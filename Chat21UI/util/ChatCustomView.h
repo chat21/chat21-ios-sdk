@@ -1,6 +1,5 @@
 //
 //  ChatCustomView.h
-//  bppmobile
 //
 //  Created by Andrea Sponziello on 14/09/2017.
 //  Copyright © 2017 Frontiere21. All rights reserved.
