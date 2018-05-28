@@ -630,9 +630,14 @@
                                                    } else {
 //                                                       NSLog(@"Metadata contains file metadata such as size, content-type, and download URL");
                                                        
-                                                       [[storeRef child:metadata.path] downloadURLWithCompletion:^(NSURL * _Nullable URL, NSError * _Nullable error) {
-                                                           // NSLog(@"Download url: %@", downloadURL);
-                                                           callback(URL, nil);
+                                                       [storeRef downloadURLWithCompletion:^(NSURL * _Nullable URL, NSError * _Nullable error) {
+                                                           if (error != nil) {
+                                                               NSLog(@"an error occurred! %@", error);
+                                                               callback(nil, error);
+                                                           } else {
+                                                               NSLog(@"Download url: %@", URL);
+                                                               callback(URL, error);
+                                                           }
                                                        }];
 
                                                        
