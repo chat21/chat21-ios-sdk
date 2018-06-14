@@ -40,12 +40,13 @@ static NotificationAlertView *notificationAlertInstance = nil;
     }];
 }
 
--(void)openConversationMessagesViewAsModalWith:(ChatUser *)recipient viewController:(UIViewController *)vc withCompletionBlock:(void (^)())completionBlock {
+-(void)openConversationMessagesViewAsModalWith:(ChatUser *)recipient viewController:(UIViewController *)vc attributes:(NSDictionary *)attributes withCompletionBlock:(void (^)())completionBlock {
     UINavigationController * nc = [self getMessagesViewController];
     ChatMessagesVC *messagesVc = (ChatMessagesVC *)[[nc viewControllers] objectAtIndex:0];
     messagesVc.recipient = recipient;
     messagesVc.isModal = YES;
     messagesVc.dismissModalCallback = completionBlock;
+    messagesVc.attributesToSendAsChatOpens = attributes;
     [vc presentViewController:nc animated:YES completion:^{
         // NO CALLBACK AFTER PRESENT ACTION COMPLETION
     }];
