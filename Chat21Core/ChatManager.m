@@ -847,6 +847,8 @@ static ChatManager *sharedInstance = nil;
         NSLog(@"Writing instanceId (FCMToken) %@ on path: %@", FCMToken, user_path);
         
         NSMutableDictionary *device_data = [[NSMutableDictionary alloc] init];
+        NSString *appName = [[[NSBundle mainBundle] infoDictionary] objectForKey:(id)kCFBundleNameKey];
+        [device_data setObject:appName forKey:@"app_name"];
         [device_data setObject:[[UIDevice currentDevice] model] forKey:@"device_model"];
         [device_data setObject:[[NSLocale currentLocale] objectForKey: NSLocaleLanguageCode] forKey:@"language"];
         [device_data setObject:@"iOS" forKey:@"platform"];

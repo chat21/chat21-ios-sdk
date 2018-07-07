@@ -510,7 +510,7 @@
 }
 
 - (IBAction)addContentAction:(id)sender {
-        UIAlertController * view=   [UIAlertController
+        UIAlertController * view =   [UIAlertController
                                      alertControllerWithTitle:nil
                                      message:NSLocalizedString(@"Attach", nil)
                                      preferredStyle:UIAlertControllerStyleActionSheet];
@@ -545,11 +545,15 @@
                                  {
                                      NSLog(@"cancel");
                                  }];
-//        [view addAction:documenti];
     [view addAction:photo];
     [view addAction:photo_from_library];
     [view addAction:dropbox];
     [view addAction:cancel];
+    UIPopoverPresentationController *popPresenter = [view
+                                                     popoverPresentationController];
+    UIButton *button = (UIButton *) sender;
+    popPresenter.sourceView = button;
+    popPresenter.sourceRect = button.bounds;
     [self presentViewController:view animated:YES completion:nil];
 }
 
@@ -926,7 +930,13 @@ static float messageTime = 0.5;
         ChatImagePreviewVC *vc = (ChatImagePreviewVC *)[segue destinationViewController];
         NSLog(@"vc %@", vc);
         vc.image = self.scaledImage;
-        vc.recipientFullname = self.recipient.fullname;
+        if (self.recipient) {
+            vc.recipientFullname = self.recipient.fullname;
+        }
+        else if (self.group) { // all group metadata ok
+            vc.recipientFullname = self.group.name;
+        }
+        
     }
 }
 

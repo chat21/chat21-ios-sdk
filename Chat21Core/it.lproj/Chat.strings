@@ -108,3 +108,10 @@
 "Remove" = "Rimuovi";
 "copy" = "Copia";
 "info" = "Info";
+"digit message" = "Digita un messaggio";
+"ArchiveConversationAction" = "Archivia";
+"ReadConversationAction" = "Letto";
+"UnreadConversationAction" = "Non letto";
+
+"Network Error Title" = "Errore di rete";
+"Network Error Message" = "Si è verificato un errore di rete.";

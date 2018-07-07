@@ -30,6 +30,8 @@
 #import "ChatUIManager.h"
 #import "ChatMessage.h"
 #import "ChatLocal.h"
+#import "TiledeskAppService.h"
+
 
 @interface ChatConversationsVC ()
 - (IBAction)writeToAction:(id)sender;
@@ -369,20 +371,64 @@
     return YES;
 }
 
-// Override to support editing the table view.
-- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
-    NSLog(@"commitEditingStyle");
-    if (editingStyle == UITableViewCellEditingStyleDelete) {
-        //add code here for when you hit delete
-        NSString *title = [ChatLocal translate:@"DeleteConversationTitle"];
-        NSString *msg = [ChatLocal translate:@"DeleteConversationMessage"];
-        NSString *cancel = [ChatLocal translate:@"Cancel"];
-        
-        UIAlertView* alertView = [[UIAlertView alloc] initWithTitle:title message:msg delegate:self cancelButtonTitle:cancel otherButtonTitles:@"OK", nil];
-        self.removingConversationAtIndexPath = indexPath;
-        [alertView show];
+-(NSArray *)tableView:(UITableView *)tableView editActionsForRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+    if (indexPath.section != 1) {
+        return @[];
     }
+    
+    ChatConversation *conversation = nil;
+    NSArray<ChatConversation*> *conversations = self.conversationsHandler.conversations;
+    if (conversations && conversations.count > 0) {
+        conversation = (ChatConversation *)[conversations objectAtIndex:indexPath.row];
+    }
+    
+    if (conversation == nil) {
+        return @[];
+    }
+    
+    // Archive option
+    UITableViewRowAction *archiveAction = [UITableViewRowAction rowActionWithStyle:UITableViewRowActionStyleNormal title:[ChatLocal translate:@"ArchiveConversationAction"] handler:^(UITableViewRowAction *action, NSIndexPath *indexPath){
+        NSLog(@"Archiving...");
+        [TiledeskAppService archiveConversation:conversation completion:^(NSError *error) {
+            if (error) {
+                NSLog(@"Archive operation failed with error: %@", error);
+            }
+            else {
+                NSLog(@"Conversation %@ successfully archived.", conversation.conversationId);
+            }
+        }];
+        // else if conv startsWith support-group-
+    }];
+    archiveAction.backgroundColor = [UIColor colorWithRed:0.286 green:0.439 blue:0.639 alpha:1.0];
+    
+    // Read option
+    NSString *title = [ChatLocal translate:@"ReadConversationAction"];
+    title = conversation.is_new ? [ChatLocal translate:@"ReadConversationAction"] : [ChatLocal translate:@"UnreadConversationAction"];
+    UITableViewRowAction *readAction = [UITableViewRowAction rowActionWithStyle:UITableViewRowActionStyleNormal title:title  handler:^(UITableViewRowAction *action, NSIndexPath *indexPath) {
+        NSLog(@"Read...");
+        FIRDatabaseReference *conversation_ref = [self.conversationsHandler.conversationsRef child:conversation.conversationId];
+        ChatManager *chat = [ChatManager getInstance];
+        [chat updateConversationIsNew:conversation_ref is_new:!conversation.is_new];
+    }];
+    readAction.backgroundColor = [UIColor blueColor];
+    return @[readAction, archiveAction];
 }
+
+//// Override to support editing the table view.
+//- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
+//    NSLog(@"commitEditingStyle");
+//    if (editingStyle == UITableViewCellEditingStyleDelete) {
+//        //add code here for when you hit delete
+//        NSString *title = [ChatLocal translate:@"DeleteConversationTitle"];
+//        NSString *msg = [ChatLocal translate:@"DeleteConversationMessage"];
+//        NSString *cancel = [ChatLocal translate:@"Cancel"];
+//
+//        UIAlertView* alertView = [[UIAlertView alloc] initWithTitle:title message:msg delegate:self cancelButtonTitle:cancel otherButtonTitles:@"OK", nil];
+//        self.removingConversationAtIndexPath = indexPath;
+//        [alertView show];
+//    }
+//}
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
@@ -672,93 +718,6 @@
 -(void)disposeResources {
 //    [self terminatePendingImageConnections];
 }
-
-//-(void)printDBConvs {
-//    NSString *current_user = self.me.userId;
-//    NSLog(@"Conversations for user %@...", current_user);
-//    NSArray *convs = [[ChatDB getSharedInstance] getAllConversations];//ForUser:current_user];
-//    for (ChatConversation *conv in convs) {
-//        NSLog(@"[%@] new?%d sender:%@ recip: %@ groupId: %@ \"%@\"", conv.conversationId, conv.is_new, conv.sender, conv.recipient, conv.groupId, conv.last_message_text);
-//    }
-//}
-
-//-(void)printDBGroups {
-//    NSString *current_user = [ChatManager getSharedInstance].loggedUser.userId;
-//    NSLog(@"Groups for user %@...", current_user);
-//    NSArray *groups = [[ChatGroupsDB getSharedInstance] getAllGroupsForUser:current_user];
-//    NSLog(@"GROUPS >>");
-//    for (ChatGroup *g in groups) {
-//        NSLog(@"ID:%@ NAME:%@ OWN:%@ MBRS:%@", g.groupId, g.name, g.owner, [ChatGroup membersDictionary2String:g.members]);
-//    }
-//}
-
-//- (void)setupViewController:(UIViewController *)controller didFinishSetupWithInfo:(NSDictionary *)setupInfo {
-//    NSLog(@"setupViewController...");
-//    if([controller isKindOfClass:[ChatSelectUserLocalVC class]])
-//    {
-//        ChatUser *user = nil;
-//        if ([setupInfo objectForKey:@"user"]) {
-//            user = [setupInfo objectForKey:@"user"];
-//            NSLog(@">>>>>> SELECTED: user %@", user.userId);
-//        }
-//        [self dismissViewControllerAnimated:YES completion:^{
-//            if (user) {
-////                self.selectedRecipientFullname = user.fullname;
-//                [self openConversationWithUser:user];
-//            }
-//        }];
-//    }
-//    if([controller isKindOfClass:[ChatSelectGroupLocalTVC class]])
-//    {
-//        ChatGroup *group = nil;
-//        if ([setupInfo objectForKey:@"group"]) {
-//            group = [setupInfo objectForKey:@"group"];
-//            NSLog(@">>>>>> SELECTED: group %@", group.groupId);
-//        }
-//        [self dismissViewControllerAnimated:YES completion:^{
-//            if (group) {
-//                self.selectedGroupId = group.groupId;
-//                [self openConversationWithUser:nil orGroup:group.groupId sendMessage:nil attributes:nil];
-//            }
-//        }];
-//    }
-//    else if([controller isKindOfClass:[ChatSelectGroupMembersLocal class]])
-//    {
-//        [self dismissViewControllerAnimated:YES completion:nil];
-//        NSMutableArray<ChatUser *> *groupMembers = (NSMutableArray<ChatUser *> *)[setupInfo objectForKey:@"groupMembers"];
-//        NSMutableArray *membersIDs = [[NSMutableArray alloc] init];
-//        for (ChatUser *u in groupMembers) {
-//            [membersIDs addObject:u.userId];
-//        }
-//        // adding group's owner to members
-//        [membersIDs addObject:self.me.userId];
-//        NSString *groupId = (NSString *)[setupInfo objectForKey:@"newGroupId"];
-//        NSLog(@"New Group ID: %@", groupId);
-//        NSString *groupName = (NSString *)[setupInfo objectForKey:@"groupName"];
-//        NSLog(@"New Group Name: %@", groupName);
-//        ChatManager *chat = [ChatManager getInstance];
-//        [chat createGroup:groupId name:groupName owner:self.me.userId members:membersIDs];
-//    }
-//}
-
-//- (void)setupViewController:(UIViewController *)controller didCancelSetupWithInfo:(NSDictionary *)setupInfo {
-//    if([controller isKindOfClass:[ChatSelectUserLocalVC class]])
-//    {
-//        NSLog(@"User selection Canceled.");
-//        [self dismissViewControllerAnimated:YES completion:nil];
-//    }
-//    else if([controller isKindOfClass:[SHPChatCreateGroupVC class]])
-//    {
-//        NSLog(@"Group creation canceled.");
-//        [self dismissViewControllerAnimated:YES completion:nil];
-//    }
-//    else
-//    if([controller isKindOfClass:[ChatSelectGroupLocalTVC class]])
-//    {
-//        NSLog(@"Group selection canceled.");
-//        [self dismissViewControllerAnimated:YES completion:nil];
-//    }
-//}
 
 - (IBAction)cancelAction:(id)sender {
     NSLog(@"Dismissing Conversations View.");

@@ -116,7 +116,7 @@ static NSString * AFBase64EncodedStringFromString(NSString *string) {
     NSLog(@"error: %@",error);
     [activityIndicator stopAnimating];
     self.navigationItem.rightBarButtonItem = refreshButtonItem;
-    UIAlertView *userAdviceAlert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"NetworkErrorTitleLKey", nil) message:NSLocalizedString(@"NetworkErrorLKey", nil) delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
+    UIAlertView *userAdviceAlert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Network Error Title", nil) message:NSLocalizedString(@"Network Error Message", nil) delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
     [userAdviceAlert show];
     //[alertView release];
 }
