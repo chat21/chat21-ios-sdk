@@ -63,4 +63,41 @@
     }];
 }
 
++(void)archiveAndCloseSupportConversation:(ChatConversation *)conversation completion:(void (^)(NSError *error))callback {
+    FIRUser *fir_user = [FIRAuth auth].currentUser;
+    [fir_user getIDTokenWithCompletion:^(NSString * _Nullable token, NSError * _Nullable error) {
+        if (error) {
+            NSLog(@"Error while getting current FIrebase token: %@", error);
+            callback(error);
+            return;
+        }
+        NSLog(@"Firebase token ok: %@", token);
+        NSString *service_url = [ChatService archiveAndCloseSupportConversationService:conversation.conversationId];
+        NSLog(@"URL: %@", service_url);
+        NSURL *url = [NSURL URLWithString:service_url];
+        NSURLSession *session = [NSURLSession sharedSession];
+        
+        NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url
+                                                               cachePolicy:NSURLRequestUseProtocolCachePolicy
+                                                           timeoutInterval:60.0];
+        NSString *authorization_field = [[NSString alloc] initWithFormat:@"Bearer %@", token];
+        [request addValue:authorization_field forHTTPHeaderField:@"Authorization"];
+        [request addValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
+        [request setHTTPMethod:@"PUT"];
+        
+        NSURLSessionTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+            if (error) {
+                NSLog(@"firebase auth ERROR: %@", error);
+                callback(error);
+            }
+            else {
+                NSString *token = [[NSString alloc] initWithData:data encoding:NSASCIIStringEncoding];
+                NSLog(@"token response: %@", token);
+                callback(nil);
+            }
+        }];
+        [task resume];
+    }];
+}
+
 @end

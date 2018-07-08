@@ -389,14 +389,29 @@
     // Archive option
     UITableViewRowAction *archiveAction = [UITableViewRowAction rowActionWithStyle:UITableViewRowActionStyleNormal title:[ChatLocal translate:@"ArchiveConversationAction"] handler:^(UITableViewRowAction *action, NSIndexPath *indexPath){
         NSLog(@"Archiving...");
-        [ChatService archiveConversation:conversation completion:^(NSError *error) {
-            if (error) {
-                NSLog(@"Archive operation failed with error: %@", error);
-            }
-            else {
-                NSLog(@"Conversation %@ successfully archived.", conversation.conversationId);
-            }
-        }];
+        NSString *conversationId = conversation.conversationId;
+        if ([conversationId hasPrefix:@"support-group-"]) {
+            NSLog(@"Archiving and closing support conversation...");
+            [ChatService archiveAndCloseSupportConversation:conversation completion:^(NSError *error) {
+                if (error) {
+                    NSLog(@"Archive and Close operation failed with error: %@", error);
+                }
+                else {
+                    NSLog(@"Support conversation %@ successfully archived and closed.", conversation.conversationId);
+                }
+            }];
+        }
+        else {
+            NSLog(@"Archiving and closing conversation...");
+            [ChatService archiveConversation:conversation completion:^(NSError *error) {
+                if (error) {
+                    NSLog(@"Archive operation failed with error: %@", error);
+                }
+                else {
+                    NSLog(@"Conversation %@ successfully archived.", conversation.conversationId);
+                }
+            }];
+        }
         // else if conv startsWith support-group-
     }];
     archiveAction.backgroundColor = [UIColor colorWithRed:0.286 green:0.439 blue:0.639 alpha:1.0];
