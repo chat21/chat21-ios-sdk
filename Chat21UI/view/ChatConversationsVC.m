@@ -30,8 +30,7 @@
 #import "ChatUIManager.h"
 #import "ChatMessage.h"
 #import "ChatLocal.h"
-#import "TiledeskAppService.h"
-
+#import "ChatService.h"
 
 @interface ChatConversationsVC ()
 - (IBAction)writeToAction:(id)sender;
@@ -390,7 +389,7 @@
     // Archive option
     UITableViewRowAction *archiveAction = [UITableViewRowAction rowActionWithStyle:UITableViewRowActionStyleNormal title:[ChatLocal translate:@"ArchiveConversationAction"] handler:^(UITableViewRowAction *action, NSIndexPath *indexPath){
         NSLog(@"Archiving...");
-        [TiledeskAppService archiveConversation:conversation completion:^(NSError *error) {
+        [ChatService archiveConversation:conversation completion:^(NSError *error) {
             if (error) {
                 NSLog(@"Archive operation failed with error: %@", error);
             }
