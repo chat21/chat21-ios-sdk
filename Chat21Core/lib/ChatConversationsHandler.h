@@ -41,5 +41,6 @@
 -(void)connect;
 -(void)dispose;
 -(NSMutableArray *)restoreConversationsFromDB;
+-(int)removeLocalConversation:(ChatConversation *)conversation;
 
 @end

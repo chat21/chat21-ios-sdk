@@ -34,7 +34,7 @@
 @property (strong, nonatomic) NSString *selectedGroupId;
 @property (strong, nonatomic) NSString *selectedGroupName;
 @property (strong, nonatomic) ChatUser *me;
-@property (strong, nonatomic) NSIndexPath *removingConversationAtIndexPath;
+//@property (strong, nonatomic) NSIndexPath *removingConversationAtIndexPath;
 @property (strong, nonatomic) UIBarButtonItem *backButton;
 @property (strong, nonatomic) ChatImageCache *imageCache;
 @property (assign, nonatomic) int unread_count;

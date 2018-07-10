@@ -76,6 +76,10 @@
     
     self.conversations_ref_handle_added = [[self.conversationsRef queryOrderedByChild:@"timestamp"] observeEventType:FIRDataEventTypeChildAdded withBlock:^(FIRDataSnapshot *snapshot) {
         NSLog(@"NEW CONVERSATION SNAPSHOT: %@", snapshot);
+        if (![self isValidConversationSnapshot:snapshot]) {
+            NSLog(@"Invalid conversation snapshot, discarding.");
+            return;
+        }
         ChatConversation *conversation = [ChatConversation conversationFromSnapshotFactory:snapshot me:self.loggeduser];
         if ([self.currentOpenConversationId isEqualToString:conversation.conversationId] && conversation.is_new == YES) {
             // changes (forces) the "is_new" flag to FALSE;
@@ -140,6 +144,53 @@
     } withCancelBlock:^(NSError *error) {
         NSLog(@"%@", error.description);
     }];
+}
+
+-(BOOL)isValidConversationSnapshot:(FIRDataSnapshot *)snapshot {
+    if (snapshot.value[CONV_RECIPIENT_KEY] == nil) {
+        NSLog(@"CONV:RECIPIENT is mandatory. Discarding message.");
+        return NO;
+    }
+    else if (snapshot.value[CONV_LAST_MESSAGE_TEXT_KEY] == nil) {
+        NSLog(@"CONV:TEXT is mandatory. Discarding message.");
+        return NO;
+    }
+    else if (snapshot.value[CONV_SENDER_KEY] == nil) {
+        NSLog(@"CONV:SENDER is mandatory. Discarding message.");
+        return NO;
+    }
+    else if (snapshot.value[CONV_TIMESTAMP_KEY] == nil) {
+        NSLog(@"MSG:TIMESTAMP is mandatory. Discarding message.");
+        return NO;
+    }
+    else if (snapshot.value[CONV_STATUS_KEY] == nil) {
+        NSLog(@"MSG:TIMESTAMP is mandatory. Discarding message.");
+        return NO;
+    }
+    //    else if (snapshot.value[MSG_FIELD_STATUS] == nil) {
+    //        NSLog(@"MSG:STATUS is mandatory. Discarding message.");
+    //        return NO;
+    //    }
+    
+    return YES;
+}
+
+-(int)removeLocalConversation:(ChatConversation *)conversation {
+    [self removeConversationOnDB:conversation];
+    return [self removeConversationFromMemory:conversation];
+}
+
+-(int)removeConversationFromMemory:(ChatConversation *)conversation {
+    for (int i = 0; i < self.conversations.count; i++) {
+        ChatConversation *conv = self.conversations[i];
+        if (conversation.conversationId == conv.conversationId) {
+            [self.conversations removeObjectAtIndex:i];
+//            NSLog(@"Conversation found & removed");
+//            [self notifyEvent:ChatEventConversationDeleted conversation:conversation];
+            return i;
+        }
+    }
+    return -1;
 }
 
 -(void)insertOrUpdateConversationOnDB:(ChatConversation *)conversation {

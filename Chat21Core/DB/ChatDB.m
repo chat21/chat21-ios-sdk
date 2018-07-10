@@ -105,6 +105,7 @@ static ChatDB *sharedInstance = nil;
     } else {
         if (self.logQuery) {NSLog(@"Database %@ already exists. Opening.", databasePath);}
         if (sqlite3_open(dbpath, &database) == SQLITE_OK) {
+            [self upgradeSchema:dbpath];
             return  isSuccess;
         }
         else {
@@ -113,6 +114,33 @@ static ChatDB *sharedInstance = nil;
         }
     }
     return isSuccess;
+}
+
+-(void)upgradeSchema:(const char *)dbpath {
+    // version schema
+    // or test if the column exists
+    // https://stackoverflow.com/questions/3604310/alter-table-add-column-if-not-exists-in-sqlite
+    NSLog(@"Upgrading schema");
+    int result;
+    result = sqlite3_open_v2(dbpath, &database, SQLITE_OPEN_CREATE | SQLITE_OPEN_READWRITE, NULL);
+    if (result == SQLITE_OK) {
+        NSLog(@"alter table messages add column archived integer");
+        char *errMsg;
+        if (self.logQuery) {NSLog(@"**** UPGRADING TABLE MESSAGES...");}
+        // added => archived:BOOL
+        const char *sql_stmt_alter =
+        "alter table messages add column archived integer";
+        if (sqlite3_exec(database, sql_stmt_alter, NULL, NULL, &errMsg) != SQLITE_OK) {
+            if (self.logQuery) {NSLog(@"Failed to alter table messages");}
+        }
+        else {
+            if (self.logQuery) {NSLog(@"Table messages successfully altered.");}
+        }
+        sqlite3_close(database);
+    }
+    else {
+        if (self.logQuery) {NSLog(@"Failed to alter table messages.");}
+    }
 }
 
 // only for test
@@ -462,7 +490,7 @@ static NSString *SELECT_FROM_MESSAGES_STATEMENT = @"select messageId, conversati
         // conversationId
         // user
         // sender
-        // sender_fullname
+        // sender_fullnam
         // recipient
         // recipient_fullname
         // last_message_text

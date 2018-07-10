@@ -315,7 +315,6 @@
 }
 
 -(void)conversationDeleted:(ChatConversation *)conversation {
-    NSLog(@"Deleting conversation...");
     NSLog(@"Conversation removed %@ by %@ (sender: %@)", conversation.last_message_text, conversation.conversWith_fullname, conversation.sender);
     [self.tableView reloadData];
     dispatch_async(dispatch_get_main_queue(), ^(void) {
@@ -390,6 +389,12 @@
     UITableViewRowAction *archiveAction = [UITableViewRowAction rowActionWithStyle:UITableViewRowActionStyleNormal title:[ChatLocal translate:@"ArchiveConversationAction"] handler:^(UITableViewRowAction *action, NSIndexPath *indexPath){
         NSLog(@"Archiving...");
         NSString *conversationId = conversation.conversationId;
+        
+        // instantly removes the conversation from memory & local db
+        [self.conversationsHandler removeLocalConversation:conversation];
+        [self removeConversationAtIndex:indexPath];
+        
+        // now remotly archives the conversation
         if ([conversationId hasPrefix:@"support-group-"]) {
             NSLog(@"Archiving and closing support conversation...");
             [ChatService archiveAndCloseSupportConversation:conversation completion:^(NSError *error) {
@@ -682,33 +687,33 @@
 
 // end user images
 
-- (void)alertView:(UIAlertView *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
-    switch (buttonIndex) {
-        case 0:
-        {
-            // cancel
-            NSLog(@"Delete canceled");
-            break;
-        }
-        case 1:
-        {
-            // ok
-            NSLog(@"Deleting conversation...");
-            NSInteger conversationIndex = self.removingConversationAtIndexPath.row;
-            [self removeConversationAtIndex:conversationIndex];
-        }
-    }
-}
+//- (void)alertView:(UIAlertView *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
+//    switch (buttonIndex) {
+//        case 0:
+//        {
+//            // cancel
+//            NSLog(@"Delete canceled");
+//            break;
+//        }
+//        case 1:
+//        {
+//            // ok
+//            NSLog(@"Deleting conversation...");
+//            NSInteger conversationIndex = self.removingConversationAtIndexPath.row;
+//            [self removeConversationAtIndex:conversationIndex];
+//        }
+//    }
+//}
 
--(void)removeConversationAtIndex:(NSInteger)conversationIndex {
-    ChatConversation *removingConversation = (ChatConversation *)[self.conversationsHandler.conversations objectAtIndex:conversationIndex];
-    NSLog(@"Removing conversation id %@ / ref %@",removingConversation.conversationId, removingConversation.ref);
+-(void)removeConversationAtIndex:(NSIndexPath *)conversationIndexPath {
+//    ChatConversation *removingConversation = (ChatConversation *)[self.conversationsHandler.conversations objectAtIndex:conversationIndex];
+//    NSLog(@"Removing conversation id %@ / ref %@",removingConversation.conversationId, removingConversation.ref);
     
     [self.tableView beginUpdates];
-    ChatManager *chat = [ChatManager getInstance];
-    [chat removeConversation:removingConversation];
-    [self.conversationsHandler.conversations removeObjectAtIndex:conversationIndex];
-    [self.tableView deleteRowsAtIndexPaths:@[self.removingConversationAtIndexPath] withRowAnimation:UITableViewRowAnimationFade];
+//    ChatManager *chat = [ChatManager getInstance];
+//    [chat removeConversation:removingConversation];
+//    [self.conversationsHandler.conversations removeObjectAtIndex:conversationIndex];
+    [self.tableView deleteRowsAtIndexPaths:@[conversationIndexPath] withRowAnimation:UITableViewRowAnimationFade];
     /* http://stackoverflow.com/questions/5454708/nsinternalinconsistencyexception-invalid-number-of-rows
      If you delete the last row in your table, the UITableView code expects there to be 0 rows remaining. It
      calls your UITableViewDataSource methods to determine how many are left. Since you have a "No data"
@@ -716,17 +721,17 @@
      insertRowsAtIndexPaths:withRowAnimation: to insert your "No data" row.
      */
     if (self.conversationsHandler.conversations.count <= 0) {
-        [self.tableView insertRowsAtIndexPaths:[NSArray arrayWithObject:self.removingConversationAtIndexPath] withRowAnimation:UITableViewRowAnimationFade];
+        [self.tableView insertRowsAtIndexPaths:[NSArray arrayWithObject:conversationIndexPath] withRowAnimation:UITableViewRowAnimationFade];
     }
     [self.tableView endUpdates];
     
     [self update_unread];
     
     // verify
-    ChatConversation *conv = [[ChatDB getSharedInstance] getConversationById:removingConversation.conversationId];
-    NSLog(@"Verifying conv %@", conv);
-    NSArray *messages = [[ChatDB getSharedInstance] getAllMessagesForConversation:removingConversation.conversationId];
-    NSLog(@"resting messages count %lu", (unsigned long)messages.count);
+//    ChatConversation *conv = [[ChatDB getSharedInstance] getConversationById:removingConversation.conversationId];
+//    NSLog(@"Verifying conv %@", conv);
+//    NSArray *messages = [[ChatDB getSharedInstance] getAllMessagesForConversation:removingConversation.conversationId];
+//    NSLog(@"resting messages count %lu", (unsigned long)messages.count);
 }
 
 -(void)disposeResources {
