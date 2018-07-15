@@ -16,6 +16,7 @@
 @interface CellConfigurator : NSObject
 
 +(UITableViewCell *)configureConversationCell:(ChatConversation *)conversation tableView:(UITableView *)tableView indexPath:(NSIndexPath *)indexPath conversationsVC:(ChatConversationsVC *)vc;
++(void)changeReadStatus:(ChatConversation *)conversation forCell:(UITableViewCell *)cell;
 
 @end
 

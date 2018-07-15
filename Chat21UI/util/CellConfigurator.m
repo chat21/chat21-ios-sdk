@@ -124,6 +124,32 @@
     return cell;
 }
 
++(void)changeReadStatus:(ChatConversation *)conversation forCell:(UITableViewCell *)cell {
+    UILabel *subject_label = (UILabel *)[cell viewWithTag:2];
+    UILabel *message_label = (UILabel *)[cell viewWithTag:3];
+    UILabel *group_message_label = (UILabel *)[cell viewWithTag:22];
+    if (conversation.is_new) {
+        // BOLD STYLE
+        subject_label.font = [UIFont boldSystemFontOfSize:subject_label.font.pointSize];
+        // CONV_STATUS_JUST_CREATED
+        message_label.textColor = [UIColor blackColor];
+        message_label.font = [UIFont boldSystemFontOfSize:message_label.font.pointSize];
+        // CONV_STATUS_LAST_MESSAGE
+        group_message_label.textColor = [UIColor blackColor];
+        group_message_label.font = [UIFont boldSystemFontOfSize:message_label.font.pointSize];
+    }
+    else {
+        // NORMAL STYLE
+        subject_label.font = [UIFont systemFontOfSize:subject_label.font.pointSize];
+        // CONV_STATUS_JUST_CREATED
+        message_label.textColor = [UIColor lightGrayColor];
+        message_label.font = [UIFont systemFontOfSize:message_label.font.pointSize];
+        // CONV_STATUS_LAST_MESSAGE
+        group_message_label.textColor = [UIColor lightGrayColor];
+        group_message_label.font = [UIFont systemFontOfSize:message_label.font.pointSize];
+    }
+}
+
 +(UITableViewCell *)configureDirectConversationCell:(ChatConversation *)conversation tableView:(UITableView *)tableView indexPath:(NSIndexPath *)indexPath conversationsVC:(ChatConversationsVC *)vc {
     //    NSLog(@"-------------- DIRECT %@ SENDR %@" , conversation.last_message_text, conversation.sender);
     NSString *me = [ChatManager getInstance].loggedUser.userId;

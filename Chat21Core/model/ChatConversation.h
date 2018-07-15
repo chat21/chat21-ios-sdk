@@ -41,6 +41,7 @@ static NSString* const CONV_ATTRIBUTES_KEY = @"attributes";
 @property (nonatomic, strong) NSString *user; // used to query conversations on local DB
 @property (nonatomic, strong) NSString *last_message_text;
 @property (nonatomic, assign) BOOL is_new;
+@property (nonatomic, assign) BOOL archived;
 @property (nonatomic, strong) NSDate *date;
 @property (nonatomic, strong) NSString *sender;
 @property (nonatomic, strong) NSString *senderFullname;
@@ -50,6 +51,7 @@ static NSString* const CONV_ATTRIBUTES_KEY = @"attributes";
 @property (nonatomic, strong) NSString *conversWith_fullname;
 @property (nonatomic, strong) NSString *channel_type;
 @property (nonatomic, assign) int status;
+@property (nonatomic, assign) int indexInMemory;
 @property (nonatomic, strong) NSDictionary *attributes; // firebase
 
 @property (nonatomic, assign) BOOL isDirect;

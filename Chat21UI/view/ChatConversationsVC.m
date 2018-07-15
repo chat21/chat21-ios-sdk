@@ -270,6 +270,17 @@
     self.changed_handle = [handler observeEvent:ChatEventConversationChanged withCallback:^(ChatConversation *conversation) {
         [self conversationReceived:conversation];
     }];
+    self.read_status_changed_handle = [handler observeEvent:ChatEventConversationReadStatusChanged withCallback:^(ChatConversation *conversation) {
+        NSLog(@"Conversation %@ '%@' read status changed to: %d, index: %d", conversation.conversationId, conversation, conversation.is_new, conversation.indexInMemory);
+        NSIndexPath* indexPathToReload = [NSIndexPath indexPathForRow:conversation.indexInMemory inSection:1];
+        UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:indexPathToReload];
+        [CellConfigurator changeReadStatus:conversation forCell:cell];
+//        if ([conversation.conversationId isEqualToString:self.justUpdatedReadStatusConversationId]) {
+//        NSIndexPath* indexPathToReload = [NSIndexPath indexPathForRow:conversation.indexInMemory inSection:1];
+//        [self reloadRowAtIndexPath:indexPathToReload];
+//        }
+//        self.justUpdatedReadStatusConversationId = nil;
+    }];
     self.deleted_handle = [handler observeEvent:ChatEventConversationDeleted withCallback:^(ChatConversation *conversation) {
         [self conversationDeleted:conversation];
     }];
@@ -278,9 +289,11 @@
 -(void)removeSubscribers {
     [self.conversationsHandler removeObserverWithHandle:self.added_handle];
     [self.conversationsHandler removeObserverWithHandle:self.changed_handle];
+    [self.conversationsHandler removeObserverWithHandle:self.read_status_changed_handle];
     [self.conversationsHandler removeObserverWithHandle:self.deleted_handle];
     self.added_handle = 0;
     self.changed_handle = 0;
+    self.read_status_changed_handle = 0;
     self.deleted_handle = 0;
     ChatManager *chatm = [ChatManager getInstance];
     [chatm.connectionStatusHandler removeObserverWithHandle:self.connectedHandle];
@@ -426,12 +439,26 @@
     title = conversation.is_new ? [ChatLocal translate:@"ReadConversationAction"] : [ChatLocal translate:@"UnreadConversationAction"];
     UITableViewRowAction *readAction = [UITableViewRowAction rowActionWithStyle:UITableViewRowActionStyleNormal title:title  handler:^(UITableViewRowAction *action, NSIndexPath *indexPath) {
         NSLog(@"Read...");
+        BOOL read_stastus = !conversation.is_new;
+        conversation.is_new = read_stastus;
+        // instantly updates the conversation in memory & local db
+        [self.conversationsHandler updateLocalConversation:conversation];
+        UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:indexPath];
+        [CellConfigurator changeReadStatus:conversation forCell:cell];
+//        [self reloadRowAtIndexPath:indexPath];
+//        self.justUpdatedReadStatusConversationId = conversation.conversationId;
+        
         FIRDatabaseReference *conversation_ref = [self.conversationsHandler.conversationsRef child:conversation.conversationId];
         ChatManager *chat = [ChatManager getInstance];
-        [chat updateConversationIsNew:conversation_ref is_new:!conversation.is_new];
+        [chat updateConversationIsNew:conversation_ref is_new:read_stastus];
     }];
     readAction.backgroundColor = [UIColor blueColor];
     return @[readAction, archiveAction];
+}
+
+-(void)reloadRowAtIndexPath:(NSIndexPath *)indexPath {
+    NSArray* rowsToReload = [NSArray arrayWithObjects:indexPath, nil];
+    [self.tableView reloadRowsAtIndexPaths:rowsToReload withRowAnimation:UITableViewRowAnimationNone];
 }
 
 //// Override to support editing the table view.
@@ -535,6 +562,9 @@
     }
     
     selectedConversation.is_new = NO;
+    // instantly updates the conversation in memory & local db
+    [self.conversationsHandler updateLocalConversation:selectedConversation];
+    [self reloadRowAtIndexPath:indexPath];
     ChatManager *chatm = [ChatManager getInstance];
     [chatm updateConversationIsNew:selectedConversation.ref is_new:selectedConversation.is_new];
     

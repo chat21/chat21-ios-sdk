@@ -30,6 +30,7 @@
 @property (strong, nonatomic) NSString *selectedRecipientFullname;
 @property (strong, nonatomic) NSString *selectedRecipientTextToSend;
 @property (strong, nonatomic) NSDictionary *selectedRecipientAttributesToSend;
+@property (strong, nonatomic) NSString *justUpdatedReadStatusConversationId;
 @property (assign, nonatomic) BOOL groupsMode;
 @property (strong, nonatomic) NSString *selectedGroupId;
 @property (strong, nonatomic) NSString *selectedGroupName;
@@ -51,6 +52,7 @@
 // subscribers
 @property (assign, nonatomic) NSUInteger added_handle;
 @property (assign, nonatomic) NSUInteger changed_handle;
+@property (assign, nonatomic) NSUInteger read_status_changed_handle;
 @property (assign, nonatomic) NSUInteger deleted_handle;
 // status
 @property (assign, nonatomic) NSUInteger connectedHandle;

@@ -19,12 +19,16 @@
 @property (strong, nonatomic) ChatUser *loggeduser;
 @property (strong, nonatomic) NSString *me;
 //@property (strong, nonatomic) FirebaseCustomAuthHelper *authHelper;
-@property (strong, nonatomic) NSMutableArray *conversations;
+@property (strong, nonatomic) NSMutableArray<ChatConversation *> *conversations;
+@property (strong, nonatomic) NSMutableArray *archivedConversations;
 @property (strong, nonatomic) NSString *firebaseToken;
 @property (strong, nonatomic) FIRDatabaseReference *conversationsRef;
+@property (strong, nonatomic) FIRDatabaseReference *archivedConversationsRef;
 @property (assign, nonatomic) FIRDatabaseHandle conversations_ref_handle_added;
 @property (assign, nonatomic) FIRDatabaseHandle conversations_ref_handle_changed;
 @property (assign, nonatomic) FIRDatabaseHandle conversations_ref_handle_removed;
+@property (assign, nonatomic) FIRDatabaseHandle archived_conversations_ref_handle_added;
+@property (assign, nonatomic) FIRDatabaseHandle archived_conversations_ref_handle_removed;
 //@property (assign, nonatomic) id <SHPConversationsViewDelegate> delegateView;
 @property (strong, nonatomic) NSString *currentOpenConversationId;
 @property (nonatomic, strong) FIRDatabaseReference *rootRef;
@@ -41,6 +45,7 @@
 -(void)connect;
 -(void)dispose;
 -(NSMutableArray *)restoreConversationsFromDB;
+-(void)updateLocalConversation:(ChatConversation *)conversation;
 -(int)removeLocalConversation:(ChatConversation *)conversation;
 
 @end

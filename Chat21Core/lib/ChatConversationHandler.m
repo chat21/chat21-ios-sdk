@@ -158,13 +158,11 @@
     
     self.messages_ref_handle = [[[self.messagesRef queryOrderedByChild:@"timestamp"] queryStartingAtValue:@(lasttime)] observeEventType:FIRDataEventTypeChildAdded withBlock:^(FIRDataSnapshot *snapshot) {
         // IMPORTANT: this query ignores messages without a timestamp.
-        // IMPORTANT: This callback is called also for newly locally created messages not still sent.
+        // IMPORTANT: This callback is called also for newly locally created messages still not sent.
 //        NSLog(@"NEW MESSAGE SNAPSHOT: %@", snapshot);
         if (![self isValidMessageSnapshot:snapshot]) {
             NSLog(@"Discarding invalid snapshot: %@", snapshot);
             return;
-        } else {
-//            NSLog(@"Snapshot valid.");
         }
         ChatMessage *message = [ChatMessage messageFromfirebaseSnapshotFactory:snapshot];
         message.conversationId = self.conversationId; // DB query is based on this attribute!!! (conversationID = Recipient)
@@ -187,7 +185,7 @@
         // Note: we always get the last message sent. So this check is necessary to avoid this message notified as "new" (...playing sound etc.)
         ChatMessage *message_archived = [[ChatDB getSharedInstance] getMessageById:message.messageId];
         if (!message_archived) {
-            [self insertMessageInMemory:message]; // memory
+            [self insertMessageInMemory:message];
             [self insertMessageOnDBIfNotExists:message];
             [self notifyEvent:ChatEventMessageAdded message:message];
         }
@@ -543,13 +541,6 @@
 -(void)updateMessageStatusInMemory:(NSString *)messageId withStatus:(int)status {
     ChatMessage *message = [self findMessageInMemoryById:messageId];
     message.status = status;
-//    for (ChatMessage* msg in self.messages) {
-//        if([msg.messageId isEqualToString: messageId]) {
-//            NSLog(@"message found, updating status %d", status);
-//            msg.status = status;
-//            break;
-//        }
-//    }
 }
 
 -(void)updateMessageInMemory:(NSString *)messageId status:(int)status text:(NSString *)text imageURL:(NSString *)imageURL {
@@ -557,7 +548,6 @@
     m.status = status;
     m.text = text;
     m.metadata.src = imageURL;
-//    m.imageURL = imageURL;
 }
 
 -(ChatMessage *)findMessageInMemoryById:(NSString *)messageId {

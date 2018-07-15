@@ -91,4 +91,9 @@
     return ([self.channel_type isEqualToString:MSG_CHANNEL_TYPE_DIRECT] || self.channel_type == nil) ? YES : NO;
 }
 
+//- (BOOL)isEqual:(id)object {
+//    ChatConversation *conv = (ChatConversation *)object;
+//    return [self.conversationId isEqual:conv.conversationId] ? true : false;
+//}
+
 @end

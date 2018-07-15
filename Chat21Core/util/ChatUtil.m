@@ -111,6 +111,13 @@
     return conversations_path;
 }
 
++(NSString *)archivedConversationsPathForUserId:(NSString *)user_id {
+    // path: apps/{tenant}/users/{userId}/archived_conversations
+    NSString *tenant = [ChatManager getInstance].tenant;
+    NSString *conversations_path = [[NSString alloc] initWithFormat:@"/apps/%@/users/%@/archived_conversations", tenant, user_id];
+    return conversations_path;
+}
+
 // +(FIRDatabaseReference *)groupsRefWithBase:(NSString *)firebasePath {
 //     FIRDatabaseReference *rootRef = [[FIRDatabase database] reference];
 //     NSString *groups_path = [ChatUtil groupsPath];

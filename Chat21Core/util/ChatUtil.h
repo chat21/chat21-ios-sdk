@@ -22,6 +22,7 @@
 // firebase paths
 +(NSString *)conversationPathForUser:(NSString *)user_id conversationId:(NSString *)conversationId;
 +(NSString *)conversationsPathForUserId:(NSString *)user_id;
++(NSString *)archivedConversationsPathForUserId:(NSString *)user_id;
 +(NSString *)contactsPath;
 +(NSString *)contactPathOfUser:(NSString *)userid;
 +(NSString *)groupsPath;
