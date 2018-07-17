@@ -110,8 +110,10 @@
 "info" = "Info";
 "digit message" = "Digit a message";
 "ArchiveConversationAction" = "Archive";
+"UnarchiveConversationAction" = "Unarchive";
 "ReadConversationAction" = "Read";
 "UnreadConversationAction" = "Unread";
+"ArchivedConversationsTitle" = "Archived";
 
 "Network Error Title" = "Network error";
 "Network Error Message" = "A network error occurred.";

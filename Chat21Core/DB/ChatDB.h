@@ -41,7 +41,7 @@
 -(BOOL)insertConversation:(ChatConversation *)conversation;
 -(BOOL)updateConversation:(ChatConversation *)conversation;
 -(NSArray*)getAllConversations;
--(NSArray*)getAllConversationsForUser:(NSString *)user;
+- (NSArray*)getAllConversationsForUser:(NSString *)user archived:(BOOL)archived limit:(int)limit;
 -(ChatConversation *)getConversationById:(NSString *)conversationId;
 -(BOOL)removeConversation:(NSString *)conversationId;
 

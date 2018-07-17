@@ -49,15 +49,22 @@
     NSLog(@"******************************* END.");
 }
 
--(NSMutableArray *)restoreConversationsFromDB {
-    self.conversations = [[[ChatDB getSharedInstance] getAllConversationsForUser:self.me] mutableCopy]; // start:0 end:40
+-(void)restoreConversationsFromDB {
+    self.conversations = [[[ChatDB getSharedInstance] getAllConversationsForUser:self.me archived:NO limit:0] mutableCopy];
     for (ChatConversation *c in self.conversations) {
         if (c.conversationId) {
             FIRDatabaseReference *conversation_ref = [self.conversationsRef child:c.conversationId];
             c.ref = conversation_ref;
         }
     }
-    return self.conversations;
+    
+    self.archivedConversations = [[[ChatDB getSharedInstance] getAllConversationsForUser:self.me archived:YES limit:150] mutableCopy];
+    for (ChatConversation *c in self.archivedConversations) {
+        if (c.conversationId) {
+            FIRDatabaseReference *conversation_ref = [self.archivedConversationsRef child:c.conversationId];
+            c.ref = conversation_ref;
+        }
+    }
 }
 
 //-(NSMutableArray *)restoreArchivedConversationsFromDB {
@@ -73,7 +80,7 @@
 
 -(void)connect {
     [self connect_conversations];
-//    [self connect_archived_conversations];
+    [self connect_archived_conversations];
 }
 
 -(void)connect_conversations {
@@ -181,48 +188,47 @@
     return nil;
 }
 
-//-(void)connect_archived_conversations {
-//    // if already connected, return.
-//    if (self.archived_conversations_ref_handle_added) { //conversations_ref_handle_added) {
-//        return;
-//    }
-//    ChatManager *chat = [ChatManager getInstance];
-//    NSString *archived_conversations_path = [ChatUtil archivedConversationsPathForUserId:self.loggeduser.userId];
-//    FIRDatabaseReference *rootRef = [[FIRDatabase database] reference];
-//    self.archivedConversationsRef = [rootRef child: archived_conversations_path];
-//    [self.archivedConversationsRef keepSynced:YES];
-//
-//    NSInteger lasttime = 0;
-//    NSMutableArray *conversations = self.archivedConversations;
-//    if (conversations && conversations.count > 0) {
-//        ChatConversation *conversation = [conversations lastObject];
-//        NSLog(@"****** MOST RECENT conversation TIME %@ %@", conversation, conversation.date);
-//        lasttime = conversation.date.timeIntervalSince1970 * 1000; // objc return time in seconds, firebase saves time in milliseconds. queryStartingAtValue: will respond to events at nodes with a value greater than or equal to startValue. So seconds is always < then milliseconds. * 1000 translates seconds in millis and the query is ok.
-//    } else {
-//        lasttime = 0;
-//    }
-//
-//    self.archived_conversations_ref_handle_added = [[[self.archivedConversationsRef queryOrderedByChild:@"timestamp"] queryStartingAtValue:@(lasttime)] observeEventType:FIRDataEventTypeChildAdded withBlock:^(FIRDataSnapshot *snapshot) {
-//        NSLog(@"NEW ARCHIVED CONVERSATION SNAPSHOT: %@", snapshot);
-//        if (![self isValidConversationSnapshot:snapshot]) {
-//            NSLog(@"Invalid conversation snapshot, discarding.");
-//            return;
-//        }
-//        ChatConversation *conversation = [ChatConversation conversationFromSnapshotFactory:snapshot me:self.loggeduser];
-//        if (conversation.status == CONV_STATUS_FAILED) {
-//            // a remote conversation can't be in failed status. force to last_message status
-//            // if the sender WRONGLY set the conversation STATUS to 0 this will block the access to the conversation.
-//            // IN FUTURE SERVER-SIDE HANDLING OF MESSAGE SENDING, WILL BE THE SERVER-SIDE SCRIPT RESPONSIBLE OF SETTING THE CONV STATUS AND THIS VERIFICATION CAN BE REMOVED.
-//            conversation.status = CONV_STATUS_LAST_MESSAGE;
-//        }
-//        // TODO set conversation.archived = YES
-//        conversation.archived = YES;
-//        [self insertArchivedConversationInMemory:conversation];
-//        [self insertOrUpdateArchivedConversationOnDB:conversation];
-//    } withCancelBlock:^(NSError *error) {
-//        NSLog(@"%@", error.description);
-//    }];
-//
+-(void)connect_archived_conversations {
+    // if already connected, return.
+    if (self.archived_conversations_ref_handle_added) { //conversations_ref_handle_added) {
+        return;
+    }
+    NSString *archived_conversations_path = [ChatUtil archivedConversationsPathForUserId:self.loggeduser.userId];
+    FIRDatabaseReference *rootRef = [[FIRDatabase database] reference];
+    self.archivedConversationsRef = [rootRef child: archived_conversations_path];
+    [self.archivedConversationsRef keepSynced:YES];
+
+    NSInteger lasttime = 0;
+    NSMutableArray *conversations = self.archivedConversations;
+    if (conversations && conversations.count > 0) {
+        ChatConversation *conversation = [conversations firstObject];
+        lasttime = conversation.date.timeIntervalSince1970 * 1000; // objc return time in seconds, firebase saves time in milliseconds. queryStartingAtValue: will respond to events at nodes with a value greater than or equal to startValue. So seconds is always < then milliseconds. * 1000 translates seconds in millis and the query is ok.
+    } else {
+        lasttime = 0;
+    }
+    
+    self.archived_conversations_ref_handle_added = [[[self.archivedConversationsRef queryOrderedByChild:@"timestamp"] queryStartingAtValue:@(lasttime)] observeEventType:FIRDataEventTypeChildAdded withBlock:^(FIRDataSnapshot *snapshot) {
+        NSLog(@"NEW ARCHIVED CONVERSATION SNAPSHOT: %@", snapshot);
+        if (![self isValidConversationSnapshot:snapshot]) {
+            NSLog(@"Invalid conversation snapshot, discarding.");
+            return;
+        }
+        ChatConversation *conversation = [ChatConversation conversationFromSnapshotFactory:snapshot me:self.loggeduser];
+        if (conversation.status == CONV_STATUS_FAILED) {
+            // a remote conversation can't be in failed status. force to last_message status
+            // if the sender WRONGLY set the conversation STATUS to 0 this will block the access to the conversation.
+            // IN FUTURE SERVER-SIDE HANDLING OF MESSAGE SENDING, WILL BE THE SERVER-SIDE SCRIPT RESPONSIBLE OF SETTING THE CONV STATUS AND THIS VERIFICATION CAN BE REMOVED.
+            conversation.status = CONV_STATUS_LAST_MESSAGE;
+        }
+        // TODO set conversation.archived = YES
+        conversation.archived = YES;
+        [self insertArchivedConversationInMemory:conversation];
+        [self insertOrUpdateConversationOnDB:conversation];
+        [self notifyEvent:ChatEventArchivedConversationAdded conversation:conversation];
+    } withCancelBlock:^(NSError *error) {
+        NSLog(@"%@", error.description);
+    }];
+
 //    self.archived_conversations_ref_handle_removed =
 //    [self.archivedConversationsRef observeEventType:FIRDataEventTypeChildRemoved withBlock:^(FIRDataSnapshot *snapshot) {
 //        NSLog(@"************************* CONVERSATION REMOVED ****************************");
@@ -240,7 +246,7 @@
 //    } withCancelBlock:^(NSError *error) {
 //        NSLog(@"%@", error.description);
 //    }];
-//}
+}
 
 -(BOOL)isValidConversationSnapshot:(FIRDataSnapshot *)snapshot {
     if (snapshot.value[CONV_RECIPIENT_KEY] == nil) {
@@ -271,17 +277,43 @@
     return YES;
 }
 
-//-(void)updateConversationStatusOnDB:(NSString *)messageId withStatus:(int)status {
-//    [[ChatDB getSharedInstance] updateMessage:messageId withStatus:status];
-//}
-
 -(void)insertConversationOnDBIfNotExists:(ChatMessage *)message {
     [[ChatDB getSharedInstance] insertMessageIfNotExists:message];
 }
 
+// MEMORY DB - CONVERSATIONS
+
 -(void)insertConversationInMemory:(ChatConversation *)conversation {
+    [self insertConversationInMemory:conversation fromConversations:self.conversations];
+}
+
+-(void)updateConversationInMemory:(ChatConversation *)conversation {
+    [self updateConversationInMemory:conversation fromConversations:self.conversations];
+}
+
+-(int)removeConversationInMemory:(ChatConversation *)conversation {
+    return [self removeConversationInMemory:conversation fromConversations:self.conversations];
+}
+
+// MEMORY DB - ARCHIVED-CONVERSATIONS
+
+-(void)insertArchivedConversationInMemory:(ChatConversation *)conversation {
+    [self insertConversationInMemory:conversation fromConversations:self.archivedConversations];
+}
+
+-(void)updateArchivedConversationInMemory:(ChatConversation *)conversation {
+    [self updateConversationInMemory:conversation fromConversations:self.archivedConversations];
+}
+
+-(int)removeArchivedConversationInMemory:(ChatConversation *)conversation {
+    return [self removeConversationInMemory:conversation fromConversations:self.archivedConversations];
+}
+
+// MEMORY DB
+
+-(void)insertConversationInMemory:(ChatConversation *)conversation fromConversations:(NSMutableArray<ChatConversation *> *)conversations {
     BOOL found = NO;
-    for (ChatConversation* conv in self.conversations) {
+    for (ChatConversation* conv in conversations) {
         if([conv.conversationId isEqualToString: conversation.conversationId]) {
             NSLog(@"conv found, skipping insert");
             found = YES;
@@ -293,60 +325,39 @@
         return;
     }
     else {
-        [self.conversations insertObject:conversation atIndex:0];
-//        [self insertConversationSortedByDate:conversation];
-//        NSUInteger newIndex = [self.conversations indexOfObject:conversation
-//                                             inSortedRange:(NSRange){0, [self.conversations count]}
-//                                                   options:NSBinarySearchingInsertionIndex
-//                                           usingComparator:^NSComparisonResult(id a, id b) {
-//                                               NSDate *first = [(ChatConversation *)a date];
-//                                               NSDate *second = [(ChatConversation *)b date];
-//                                               return [first compare:second];
-//                                           }];
-//        [self.conversations insertObject:conversation atIndex:newIndex];
+        [conversations insertObject:conversation atIndex:0];
     }
 }
 
--(void)updateConversationInMemory:(ChatConversation *)conversation {
-    for (int i = 0; i < self.conversations.count; i++) {
-        ChatConversation *conv = self.conversations[i];
+-(void)updateConversationInMemory:(ChatConversation *)conversation fromConversations:(NSMutableArray<ChatConversation *> *)conversations {
+    for (int i = 0; i < conversations.count; i++) {
+        ChatConversation *conv = conversations[i];
         if([conv.conversationId isEqualToString: conversation.conversationId]) {
             NSLog(@"conv found, date new conv: %@, date old conv: %@", conversation.date, conv.date);
             if ([conv.date isEqualToDate:conversation.date]) {
-                self.conversations[i] = conversation; // replace conversation in the same position
+                conversations[i] = conversation; // replace conversation in the same position
                 return;
             }
             else {
-                [self.conversations removeObjectAtIndex:i]; // remove conversation...
-                [self.conversations insertObject:conversation atIndex:0]; // ...then put it on top
+                [conversations removeObjectAtIndex:i]; // remove conversation...
+                [conversations insertObject:conversation atIndex:0]; // ...then put it on top
                 return;
             }
         }
     }
 }
 
--(void)removeConversationInMemory:(ChatConversation *)conversation {
-    for (int i = 0; i < self.conversations.count; i++) {
-        ChatConversation *conv = self.conversations[i];
+-(int)removeConversationInMemory:(ChatConversation *)conversation fromConversations:(NSMutableArray<ChatConversation *> *)conversations {
+    for (int i = 0; i < conversations.count; i++) {
+        ChatConversation *conv = conversations[i];
         if([conv.conversationId isEqualToString: conversation.conversationId]) {
-            NSLog(@"conv found, removing");
-            [self.conversations removeObjectAtIndex:i];
-            break;
+            [conversations removeObjectAtIndex:i];
+            return i;
         }
     }
+    return -1;
 }
 
-//-(void)insertConversationSortedByDate:(ChatConversation *)conversation {
-//    NSUInteger newIndex = [self.conversations indexOfObject:conversation
-//                                              inSortedRange:(NSRange){0, [self.conversations count]}
-//                                                    options:NSBinarySearchingInsertionIndex
-//                                            usingComparator:^NSComparisonResult(id a, id b) {
-//                                                NSDate *first = [(ChatConversation *)a date];
-//                                                NSDate *second = [(ChatConversation *)b date];
-//                                                return [first compare:second];
-//                                            }];
-//    [self.conversations insertObject:conversation atIndex:newIndex];
-//}
 -(void)updateLocalConversation:(ChatConversation *)conversation {
     [self updateConversationInMemory:conversation];
     [self insertOrUpdateConversationOnDB:conversation];
@@ -354,21 +365,19 @@
 
 -(int)removeLocalConversation:(ChatConversation *)conversation {
     [self removeConversationOnDB:conversation];
-    return [self removeConversationFromMemory:conversation];
+    return [self removeConversationInMemory:conversation];
 }
 
--(int)removeConversationFromMemory:(ChatConversation *)conversation {
-    for (int i = 0; i < self.conversations.count; i++) {
-        ChatConversation *conv = self.conversations[i];
-        if (conversation.conversationId == conv.conversationId) {
-            [self.conversations removeObjectAtIndex:i];
-//            NSLog(@"Conversation found & removed");
-//            [self notifyEvent:ChatEventConversationDeleted conversation:conversation];
-            return i;
-        }
-    }
-    return -1;
-}
+//-(int)removeConversationFromMemory:(ChatConversation *)conversation {
+//    for (int i = 0; i < self.conversations.count; i++) {
+//        ChatConversation *conv = self.conversations[i];
+//        if ([conv.conversationId isEqualToString: conversation.conversationId]) {
+//            [self.conversations removeObjectAtIndex:i];
+//            return i;
+//        }
+//    }
+//    return -1;
+//}
 
 -(void)insertOrUpdateConversationOnDB:(ChatConversation *)conversation {
     conversation.user = self.me;

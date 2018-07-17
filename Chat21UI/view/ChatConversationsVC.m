@@ -56,7 +56,6 @@
     
     self.groupsMode =  [ChatManager getInstance].groupsMode;
 
-//    [self backButtonSetup];
     [self customizeTitleView];
     [self setupTitle:@"Chat"];
     [self setUIStatusDisconnected];
@@ -67,6 +66,28 @@
         // show and translate cancel button
         self.cancelButton.title = [ChatLocal translate:@"cancel"];
     }
+    
+    // right toolbar
+    UIImage *archived_image = [UIImage imageNamed:@"baseline_history_black_24pt"];
+    UIImage *write_to_image = [UIImage imageNamed:@"baseline_create_black_24pt"];
+    
+    UIBarButtonItem *archived_button = [[UIBarButtonItem alloc] initWithImage:archived_image style:UIBarButtonItemStylePlain target:self action:@selector(archived_action:)];
+    UIBarButtonItem *write_to_button = [[UIBarButtonItem alloc] initWithImage:write_to_image style:UIBarButtonItemStylePlain target:self action:@selector(write_to_action:)];
+    
+    self.navigationItem.rightBarButtonItems = @[write_to_button, archived_button];
+//    let editButton   = UIBarButtonItem(image: editImage,  style: .Plain, target: self, action: "didTapEditButton:")
+//    let searchButton = UIBarButtonItem(image: searchImage,  style: .Plain, target: self, action: "didTapSearchButton:")
+    
+//    self.navigationItem.rightBarButtonItems = [editButton, searchButton]
+}
+
+-(void)archived_action:(id)sender {
+    NSLog(@"archived action");
+    [[ChatUIManager getInstance] pushArchivedConversationsView:self];
+}
+
+-(void)write_to_action:(id)sender {
+    [self writeToAction:sender];
 }
 
 -(void)setUIStatusConnected {
@@ -236,29 +257,6 @@
     self.conversationsHandler = handler;
 }
 
-//-(void)initConversationsHandler {
-//    ChatManager *chatm = [ChatManager getInstance];
-//    ChatConversationsHandler *handler = chatm.conversationsHandler; // [chatm getConversationsHandler];
-//    if (!handler) {
-//        NSLog(@"Conversations Handler not found. Creating & initializing a new one.");
-//        handler = [chat createConversationsHandler];
-//        self.conversationsHandler = handler;
-//        [self subscribe:handler];
-//
-//        NSLog(@"Restoring DB archived conversations...");
-//        [handler restoreConversationsFromDB];
-//        NSLog(@"%lu archived conversations restored", (unsigned long)self.conversationsHandler.conversations.count);
-//        [self update_unread];
-//
-//        NSLog(@"Connecting handler...");
-//        [handler connect];
-//    } else {
-//        NSLog(@"Conversations Handler instance already set.");
-//        [self subscribe:handler];
-//        self.conversationsHandler = handler;
-//    }
-//}
-
 -(void)subscribe:(ChatConversationsHandler *)handler {
     if (self.added_handle > 0) {
         NSLog(@"Subscribe(): just subscribed to conversations handler. Do nothing.");
@@ -272,14 +270,10 @@
     }];
     self.read_status_changed_handle = [handler observeEvent:ChatEventConversationReadStatusChanged withCallback:^(ChatConversation *conversation) {
         NSLog(@"Conversation %@ '%@' read status changed to: %d, index: %d", conversation.conversationId, conversation, conversation.is_new, conversation.indexInMemory);
-        NSIndexPath* indexPathToReload = [NSIndexPath indexPathForRow:conversation.indexInMemory inSection:1];
-        UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:indexPathToReload];
-        [CellConfigurator changeReadStatus:conversation forCell:cell];
-//        if ([conversation.conversationId isEqualToString:self.justUpdatedReadStatusConversationId]) {
-//        NSIndexPath* indexPathToReload = [NSIndexPath indexPathForRow:conversation.indexInMemory inSection:1];
-//        [self reloadRowAtIndexPath:indexPathToReload];
-//        }
-//        self.justUpdatedReadStatusConversationId = nil;
+        NSIndexPath* indexPathToReload = [NSIndexPath indexPathForRow:conversation.indexInMemory inSection:SECTION_CONVERSATIONS_INDEX];
+//        UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:indexPathToReload];
+//        [CellConfigurator changeReadStatus:conversation forCell:cell];
+        [ChatConversationsVC updateReadStatusForConversation:conversation atIndexPath:indexPathToReload inTableView:self.tableView];
     }];
     self.deleted_handle = [handler observeEvent:ChatEventConversationDeleted withCallback:^(ChatConversation *conversation) {
         [self conversationDeleted:conversation];
@@ -376,7 +370,7 @@
 // for some items. By default, all items are editable.
 - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
     // Return YES if you want the specified item to be editable.
-    if (indexPath.section == 0) {
+    if (indexPath.section == SECTION_GROUP_MENU_INDEX) {
         return NO;
     }
     return YES;
@@ -384,7 +378,7 @@
 
 -(NSArray *)tableView:(UITableView *)tableView editActionsForRowAtIndexPath:(NSIndexPath *)indexPath {
     
-    if (indexPath.section != 1) {
+    if (indexPath.section != SECTION_CONVERSATIONS_INDEX) {
         return @[];
     }
     
@@ -443,10 +437,9 @@
         conversation.is_new = read_stastus;
         // instantly updates the conversation in memory & local db
         [self.conversationsHandler updateLocalConversation:conversation];
-        UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:indexPath];
-        [CellConfigurator changeReadStatus:conversation forCell:cell];
-//        [self reloadRowAtIndexPath:indexPath];
-//        self.justUpdatedReadStatusConversationId = conversation.conversationId;
+//        UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:indexPath];
+//        [CellConfigurator changeReadStatus:conversation forCell:cell];
+        [ChatConversationsVC updateReadStatusForConversation:conversation atIndexPath:indexPath inTableView:self.tableView];
         
         FIRDatabaseReference *conversation_ref = [self.conversationsHandler.conversationsRef child:conversation.conversationId];
         ChatManager *chat = [ChatManager getInstance];
@@ -456,9 +449,11 @@
     return @[readAction, archiveAction];
 }
 
--(void)reloadRowAtIndexPath:(NSIndexPath *)indexPath {
-    NSArray* rowsToReload = [NSArray arrayWithObjects:indexPath, nil];
-    [self.tableView reloadRowsAtIndexPaths:rowsToReload withRowAnimation:UITableViewRowAnimationNone];
++(void)updateReadStatusForConversation:(ChatConversation *)conversation atIndexPath:(NSIndexPath *)indexPath inTableView:(UITableView *)tableView {
+//    NSArray* rowsToReload = [NSArray arrayWithObjects:indexPath, nil];
+//    [self.tableView reloadRowsAtIndexPaths:rowsToReload withRowAnimation:UITableViewRowAnimationNone];
+    UITableViewCell *cell = [tableView cellForRowAtIndexPath:indexPath];
+    [CellConfigurator changeReadStatus:conversation forCell:cell];
 }
 
 //// Override to support editing the table view.
@@ -485,7 +480,7 @@
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
     // Return the number of rows in the section.
-    if (section == 0) {
+    if (section == SECTION_GROUP_MENU_INDEX) {
         return 1;
     } else {
         NSArray *conversations = self.conversationsHandler.conversations;
@@ -499,7 +494,7 @@
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    if (indexPath.section == 0) {
+    if (indexPath.section == SECTION_GROUP_MENU_INDEX) {
         if (self.groupsMode) {
             return 44;
         } else {
@@ -516,7 +511,7 @@
     
     UITableViewCell *cell;
     NSArray *conversations = self.conversationsHandler.conversations;
-    if (indexPath.section == 0) {
+    if (indexPath.section == SECTION_GROUP_MENU_INDEX) {
         cell = [tableView dequeueReusableCellWithIdentifier:menuCellName forIndexPath:indexPath];
         // Chat
         UIButton *new_group_button = [cell viewWithTag:10];
@@ -524,11 +519,11 @@
         UIButton *groups_button = [cell viewWithTag:20];
         [groups_button setTitle:[ChatLocal translate:@"Groups"] forState:UIControlStateNormal];
     }
-    else if (indexPath.section == 1) {
+    else if (indexPath.section == SECTION_CONVERSATIONS_INDEX) {
         if (conversations && conversations.count > 0) {
             ChatConversation *conversation = (ChatConversation *)[conversations objectAtIndex:indexPath.row];
 //            NSLog(@"Conversation.sender %@", conversation.sender);
-            cell = [CellConfigurator configureConversationCell:conversation tableView:tableView indexPath:indexPath conversationsVC:self];
+            cell = [CellConfigurator configureConversationCell:conversation tableView:tableView indexPath:indexPath imageCache:self.imageCache];
         } else {
             cell = [tableView dequeueReusableCellWithIdentifier:messageCellName forIndexPath:indexPath];
             UILabel *message1 = (UILabel *)[cell viewWithTag:50];
@@ -541,7 +536,7 @@
 
 - (void)tableView:(UITableView *)_tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
-    if (indexPath.section == 0) { // toolbar
+    if (indexPath.section == SECTION_GROUP_MENU_INDEX) { // toolbar
         return;
     }
     NSArray *conversations = self.conversationsHandler.conversations;
@@ -564,7 +559,7 @@
     selectedConversation.is_new = NO;
     // instantly updates the conversation in memory & local db
     [self.conversationsHandler updateLocalConversation:selectedConversation];
-    [self reloadRowAtIndexPath:indexPath];
+    [ChatConversationsVC updateReadStatusForConversation:selectedConversation atIndexPath:indexPath inTableView:self.tableView];
     ChatManager *chatm = [ChatManager getInstance];
     [chatm updateConversationIsNew:selectedConversation.ref is_new:selectedConversation.is_new];
     

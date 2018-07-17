@@ -21,6 +21,9 @@
 @class ChatContactsSynchronizer;
 @class ChatGroup;
 
+static const int SECTION_GROUP_MENU_INDEX = 0;
+static const int SECTION_CONVERSATIONS_INDEX = 1;
+
 @interface ChatConversationsVC : UITableViewController <ChatPresenceViewDelegate, UIActionSheetDelegate>
 - (IBAction)newGroupAction:(id)sender;
 - (IBAction)groupsAction:(id)sender;
@@ -30,7 +33,6 @@
 @property (strong, nonatomic) NSString *selectedRecipientFullname;
 @property (strong, nonatomic) NSString *selectedRecipientTextToSend;
 @property (strong, nonatomic) NSDictionary *selectedRecipientAttributesToSend;
-@property (strong, nonatomic) NSString *justUpdatedReadStatusConversationId;
 @property (assign, nonatomic) BOOL groupsMode;
 @property (strong, nonatomic) NSString *selectedGroupId;
 @property (strong, nonatomic) NSString *selectedGroupName;
@@ -81,6 +83,8 @@
 
 -(void)setUIStatusDisconnected;
 -(void)setUIStatusConnected;
+
++(void)updateReadStatusForConversation:(ChatConversation *)conversation atIndexPath:(NSIndexPath *)indexPath inTableView:(UITableView *)tableView;
 
 //-(void)logout;
 

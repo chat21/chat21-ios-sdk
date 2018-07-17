@@ -15,6 +15,7 @@
 #import "ChatCreateGroupVC.h"
 #import "ChatGroup.h"
 #import "ChatSelectGroupLocalTVC.h"
+#import "ChatArchivedConversationsTVC.h"
 
 static ChatUIManager *sharedInstance = nil;
 static NotificationAlertView *notificationAlertInstance = nil;
@@ -78,6 +79,18 @@ static NotificationAlertView *notificationAlertInstance = nil;
     [vc presentViewController:nc animated:YES completion:^{
         // NO CALLBACK AFTER PRESENT ACTION COMPLETION
     }];
+}
+
+-(void)pushArchivedConversationsView:(UIViewController *)vc {
+    ChatArchivedConversationsTVC * archived_conv_vc = [self getArchivedConversationsViewController];
+    [vc.navigationController pushViewController:archived_conv_vc animated:YES];
+}
+
+-(ChatArchivedConversationsTVC *)getArchivedConversationsViewController {
+    UIStoryboard *sb = [UIStoryboard storyboardWithName:@"Chat" bundle:nil];
+    ChatArchivedConversationsTVC *vc = [sb instantiateViewControllerWithIdentifier:@"ArchivedConversations"];
+    NSLog(@"archivedConversationsVC instance %@", vc);
+    return vc;
 }
 
 -(UINavigationController *)getConversationsViewController {

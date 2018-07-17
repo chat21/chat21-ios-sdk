@@ -20,7 +20,7 @@
 @property (strong, nonatomic) NSString *me;
 //@property (strong, nonatomic) FirebaseCustomAuthHelper *authHelper;
 @property (strong, nonatomic) NSMutableArray<ChatConversation *> *conversations;
-@property (strong, nonatomic) NSMutableArray *archivedConversations;
+@property (strong, nonatomic) NSMutableArray<ChatConversation *> *archivedConversations;
 @property (strong, nonatomic) NSString *firebaseToken;
 @property (strong, nonatomic) FIRDatabaseReference *conversationsRef;
 @property (strong, nonatomic) FIRDatabaseReference *archivedConversationsRef;
@@ -44,7 +44,7 @@
 -(id)initWithTenant:(NSString *)tenant user:(ChatUser *)user;
 -(void)connect;
 -(void)dispose;
--(NSMutableArray *)restoreConversationsFromDB;
+-(void)restoreConversationsFromDB;
 -(void)updateLocalConversation:(ChatConversation *)conversation;
 -(int)removeLocalConversation:(ChatConversation *)conversation;
 

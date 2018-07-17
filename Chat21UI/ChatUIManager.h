@@ -22,6 +22,7 @@
 -(void)openSelectContactViewAsModal:(UIViewController *)vc withCompletionBlock:(void (^)(ChatUser *contact, BOOL canceled))completionBlock;
 -(void)openCreateGroupViewAsModal:(UIViewController *)vc withCompletionBlock:(void (^)(ChatGroup *group, BOOL canceled))completionBlock;
 -(void)openSelectGroupViewAsModal:(UIViewController *)vc withCompletionBlock:(void (^)(ChatGroup *group, BOOL canceled))completionBlock;
+-(void)pushArchivedConversationsView:(UIViewController *)vc;
 -(UINavigationController *)getSelectContactViewController;
 -(UINavigationController *)getConversationsViewController;
 -(UINavigationController *)getMessagesViewController;
