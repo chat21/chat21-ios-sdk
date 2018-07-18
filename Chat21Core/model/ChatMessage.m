@@ -228,6 +228,7 @@
     // firebase message dictionary
     NSMutableDictionary *message_dict = [[NSMutableDictionary alloc] init];
     // always
+    [message_dict setObject:[FIRServerValue timestamp] forKey:MSG_FIELD_TIMESTAMP];
     [message_dict setObject:self.text forKey:MSG_FIELD_TEXT];
     [message_dict setObject:self.channel_type forKey:MSG_FIELD_CHANNEL_TYPE];
     if (self.senderFullname) {
