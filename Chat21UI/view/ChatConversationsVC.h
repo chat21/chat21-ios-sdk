@@ -84,7 +84,7 @@ static const int SECTION_CONVERSATIONS_INDEX = 1;
 -(void)setUIStatusDisconnected;
 -(void)setUIStatusConnected;
 
-+(void)updateReadStatusForConversation:(ChatConversation *)conversation atIndexPath:(NSIndexPath *)indexPath inTableView:(UITableView *)tableView;
++(void)updateReadStatusForConversationCell:(ChatConversation *)conversation atIndexPath:(NSIndexPath *)indexPath inTableView:(UITableView *)tableView;
 
 //-(void)logout;
 

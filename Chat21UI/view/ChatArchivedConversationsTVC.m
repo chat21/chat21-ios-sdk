@@ -213,7 +213,8 @@
     selectedConversation.is_new = NO;
     // instantly updates the conversation in memory & local db
     [self.conversationsHandler updateLocalConversation:selectedConversation];
-    [ChatConversationsVC updateReadStatusForConversation:selectedConversation atIndexPath:indexPath inTableView:self.tableView];
+    // instantly updates the conversation status on tableView's cell
+    [ChatConversationsVC updateReadStatusForConversationCell:selectedConversation atIndexPath:indexPath inTableView:self.tableView];
     ChatManager *chatm = [ChatManager getInstance];
     [chatm updateConversationIsNew:selectedConversation.ref is_new:selectedConversation.is_new];
     [self performSegueWithIdentifier:@"CHAT_SEGUE" sender:self];

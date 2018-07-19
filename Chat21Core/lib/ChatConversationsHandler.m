@@ -51,20 +51,20 @@
 
 -(void)restoreConversationsFromDB {
     self.conversations = [[[ChatDB getSharedInstance] getAllConversationsForUser:self.me archived:NO limit:0] mutableCopy];
-    for (ChatConversation *c in self.conversations) {
-        if (c.conversationId) {
-            FIRDatabaseReference *conversation_ref = [self.conversationsRef child:c.conversationId];
-            c.ref = conversation_ref;
-        }
-    }
+//    for (ChatConversation *c in self.conversations) {
+//        if (c.conversationId) {
+//            FIRDatabaseReference *conversation_ref = [self.conversationsRef child:c.conversationId];
+//            c.ref = conversation_ref;
+//        }
+//    }
     
     self.archivedConversations = [[[ChatDB getSharedInstance] getAllConversationsForUser:self.me archived:YES limit:150] mutableCopy];
-    for (ChatConversation *c in self.archivedConversations) {
-        if (c.conversationId) {
-            FIRDatabaseReference *conversation_ref = [self.archivedConversationsRef child:c.conversationId];
-            c.ref = conversation_ref;
-        }
-    }
+//    for (ChatConversation *c in self.archivedConversations) {
+//        if (c.conversationId) {
+//            FIRDatabaseReference *conversation_ref = [self.archivedConversationsRef child:c.conversationId];
+//            c.ref = conversation_ref;
+//        }
+//    }
 }
 
 //-(NSMutableArray *)restoreArchivedConversationsFromDB {

@@ -34,6 +34,20 @@
     }
 }
 
+-(FIRDatabaseReference *)ref {
+    NSString *conversations_path;
+    if (self.archived) {
+        conversations_path = [ChatUtil archivedConversationsPathForUserId:self.user];
+    }
+    else {
+        conversations_path = [ChatUtil conversationsPathForUserId:self.user];
+    }
+    FIRDatabaseReference *rootRef = [[FIRDatabase database] reference];
+    FIRDatabaseReference *ref = [[rootRef child: conversations_path] child:self.conversationId];
+    NSLog(@"Conversation ref: %@", ref);
+    return ref;
+}
+
 +(ChatConversation *)conversationFromSnapshotFactory:(FIRDataSnapshot *)snapshot me:(ChatUser *)me {
     NSString *text = snapshot.value[CONV_LAST_MESSAGE_TEXT_KEY];
     NSString *recipient = snapshot.value[CONV_RECIPIENT_KEY];

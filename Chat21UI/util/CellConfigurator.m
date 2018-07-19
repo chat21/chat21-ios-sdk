@@ -15,6 +15,7 @@
 #import "ChatGroupsHandler.h"
 #import "ChatGroup.h"
 #import "ChatUtil.h"
+#import <QuartzCore/QuartzCore.h>
 
 @implementation CellConfigurator
 
@@ -70,6 +71,18 @@
         NSString *sender_display_text = [CellConfigurator displayUserOfGroupConversation:conversation];
         sender_label.text = sender_display_text;
     }
+    
+    [CellConfigurator archiveLabel:cell archived:conversation.archived];
+//    UILabel *archived_label = (UILabel *)[cell viewWithTag:80];
+//    if (archived_label) {
+//        if (conversation.archived) {
+//            archived_label.hidden = NO;
+//            [CellConfigurator styleArchiveLabel:archived_label];
+//        }
+//        else {
+//            archived_label.hidden = YES;
+//        }
+//    }
     
     
     // CONVERSATION IMAGE
@@ -216,6 +229,8 @@
         message_label.textColor = [UIColor lightGrayColor];
         message_label.font = [UIFont systemFontOfSize:message_label.font.pointSize];
     }
+    
+    [CellConfigurator archiveLabel:cell archived:conversation.archived];
     return cell;
 }
 
@@ -236,6 +251,22 @@
     }
     NSString *_displayName = [[NSString alloc] initWithFormat:@"%@:", displayName];
     return _displayName;
+}
+
++(void)archiveLabel:(UITableViewCell *)cell archived:(BOOL)archived {
+    UILabel *label = (UILabel *)[cell viewWithTag:80];
+    if (label) {
+        if (archived) {
+            label.hidden = NO;
+            label.layer.cornerRadius = 5.0f;
+            label.layer.masksToBounds = NO;
+            label.layer.borderWidth = .5f;
+            label.layer.borderColor = [UIColor grayColor].CGColor;
+        }
+        else {
+            label.hidden = YES;
+        }
+    }
 }
 
 +(void)setImageForCell:(UITableViewCell *)cell imageURL:(NSString *)imageURL imageCache:(ChatImageCache *)imageCache {

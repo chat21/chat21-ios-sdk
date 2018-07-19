@@ -11,6 +11,7 @@
 @implementation ChatLocal
 
 +(NSString *)translate:(NSString *)key {
+    NSLog(@"translate: %@ with: %@", key, NSLocalizedStringFromTable(key, @"Chat", nil));
     return NSLocalizedStringFromTable(key, @"Chat", nil);
 }
 

@@ -273,7 +273,7 @@
         NSIndexPath* indexPathToReload = [NSIndexPath indexPathForRow:conversation.indexInMemory inSection:SECTION_CONVERSATIONS_INDEX];
 //        UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:indexPathToReload];
 //        [CellConfigurator changeReadStatus:conversation forCell:cell];
-        [ChatConversationsVC updateReadStatusForConversation:conversation atIndexPath:indexPathToReload inTableView:self.tableView];
+        [ChatConversationsVC updateReadStatusForConversationCell:conversation atIndexPath:indexPathToReload inTableView:self.tableView];
     }];
     self.deleted_handle = [handler observeEvent:ChatEventConversationDeleted withCallback:^(ChatConversation *conversation) {
         [self conversationDeleted:conversation];
@@ -439,7 +439,7 @@
         [self.conversationsHandler updateLocalConversation:conversation];
 //        UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:indexPath];
 //        [CellConfigurator changeReadStatus:conversation forCell:cell];
-        [ChatConversationsVC updateReadStatusForConversation:conversation atIndexPath:indexPath inTableView:self.tableView];
+        [ChatConversationsVC updateReadStatusForConversationCell:conversation atIndexPath:indexPath inTableView:self.tableView];
         
         FIRDatabaseReference *conversation_ref = [self.conversationsHandler.conversationsRef child:conversation.conversationId];
         ChatManager *chat = [ChatManager getInstance];
@@ -449,7 +449,7 @@
     return @[readAction, archiveAction];
 }
 
-+(void)updateReadStatusForConversation:(ChatConversation *)conversation atIndexPath:(NSIndexPath *)indexPath inTableView:(UITableView *)tableView {
++(void)updateReadStatusForConversationCell:(ChatConversation *)conversation atIndexPath:(NSIndexPath *)indexPath inTableView:(UITableView *)tableView {
 //    NSArray* rowsToReload = [NSArray arrayWithObjects:indexPath, nil];
 //    [self.tableView reloadRowsAtIndexPaths:rowsToReload withRowAnimation:UITableViewRowAnimationNone];
     UITableViewCell *cell = [tableView cellForRowAtIndexPath:indexPath];
@@ -559,7 +559,7 @@
     selectedConversation.is_new = NO;
     // instantly updates the conversation in memory & local db
     [self.conversationsHandler updateLocalConversation:selectedConversation];
-    [ChatConversationsVC updateReadStatusForConversation:selectedConversation atIndexPath:indexPath inTableView:self.tableView];
+    [ChatConversationsVC updateReadStatusForConversationCell:selectedConversation atIndexPath:indexPath inTableView:self.tableView];
     ChatManager *chatm = [ChatManager getInstance];
     [chatm updateConversationIsNew:selectedConversation.ref is_new:selectedConversation.is_new];
     

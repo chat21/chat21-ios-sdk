@@ -18,5 +18,7 @@
 +(UITableViewCell *)configureConversationCell:(ChatConversation *)conversation tableView:(UITableView *)tableView indexPath:(NSIndexPath *)indexPath imageCache:(ChatImageCache *)imageCache;
 +(void)changeReadStatus:(ChatConversation *)conversation forCell:(UITableViewCell *)cell;
 +(void)setImageForCell:(UITableViewCell *)cell imageURL:(NSString *)imageURL imageCache:(ChatImageCache *)imageCache;
++(void)archiveLabel:(UITableViewCell *)cell archived:(BOOL)archived;
+
 @end
 
