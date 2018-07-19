@@ -95,7 +95,7 @@
     [self.conversationsRef keepSynced:YES];
     
     // TEST
-    [self printAllConversations];
+//    [self printAllConversations];
     
     NSInteger lasttime = 0;
     NSMutableArray *conversations = self.conversations;
@@ -146,12 +146,15 @@
             [chat updateConversationIsNew:conversation_ref is_new:conversation.is_new];
         }
         conversation.archived = NO;
-        [self updateConversationInMemory:conversation];
-        [self insertOrUpdateConversationOnDB:conversation];
+        
+        // search the conversation and his index in memory
         NSDictionary *found_conversation_values = [self findConversationInMemoryById:conversation.conversationId];
         ChatConversation *found_conversation = found_conversation_values[@"conversation"];
         int found_index = ((NSNumber *) found_conversation_values[@"index"]).intValue;
-        conversation.indexInMemory = found_index;
+        
+        [self updateConversationInMemory:conversation];
+        [self insertOrUpdateConversationOnDB:conversation];
+        conversation.indexInMemory = found_index; // Next step: create an event object with properties .conversation, .indexInMemory. For the moment the conversation will hold his position in memory array.
         if ([conversation.date isEqualToDate:found_conversation.date]) {
             [self notifyEvent:ChatEventConversationReadStatusChanged conversation:conversation];
         }

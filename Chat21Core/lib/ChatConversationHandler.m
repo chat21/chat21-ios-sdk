@@ -183,12 +183,8 @@
         }
         // updates or insert new messages
         // Note: we always get the last message sent. So this check is necessary to avoid this message notified as "new" (...playing sound etc.)
-        ChatMessage *message_archived = [[ChatDB getSharedInstance] getMessageById:message.messageId];
-        if (!message_archived) {
-            [self insertMessageInMemory:message];
-            [self insertMessageOnDBIfNotExists:message];
-            [self notifyEvent:ChatEventMessageAdded message:message];
-        }
+        [self insertMessageIfNotExists:message];
+        [self notifyEvent:ChatEventMessageAdded message:message];
     } withCancelBlock:^(NSError *error) {
         NSLog(@"%@", error.description);
     }];
@@ -204,27 +200,46 @@
         if (![self isValidMessageSnapshot:snapshot]) {
             NSLog(@"Discarding invalid snapshot: %@", snapshot);
             return;
-        } else {
-//            NSLog(@"Snapshot valid.");
         }
         ChatMessage *message = [ChatMessage messageFromfirebaseSnapshotFactory:snapshot];
-        if (message.status == MSG_STATUS_SENDING) {
-            NSLog(@"Queed message updated. Data saved successfully.");
-            int status = MSG_STATUS_SENT;
-            [self updateMessageStatusInMemory:message.messageId withStatus:status];
-            [self updateMessageStatusOnDB:message.messageId withStatus:status];
-            [self notifyEvent:ChatEventMessageChanged message:message];
-        } else if (message.status == MSG_STATUS_RETURN_RECEIPT) {
-            NSLog(@"Message update: return receipt.");
-            [self updateMessageStatusInMemory:message.messageId withStatus:message.status];
-            [self updateMessageStatusOnDB:message.messageId withStatus:message.status];
-            [self notifyEvent:ChatEventMessageChanged message:message];
-//            [self finishedReceivingMessage:message];
-//            [self sendReadNotificationForMessage:message];
+        if (message.status == MSG_STATUS_SENDING || message.status == MSG_STATUS_SENT || message.status == MSG_STATUS_RETURN_RECEIPT) {
+            NSLog(@"Message updated. Data saved successfully.");
+//            int status = message.status;
+//            if (message.status == MSG_STATUS_SENDING) {
+//                status = MSG_STATUS_SENT;
+//            }
+            ChatMessage *message_archived = [[ChatDB getSharedInstance] getMessageById:message.messageId];
+            if (message_archived) {
+                [self updateMessageStatusInMemory:message.messageId withStatus:message.status];
+                [self updateMessageStatusOnDB:message.messageId withStatus:message.status];
+                [self notifyEvent:ChatEventMessageChanged message:message];
+            }
+            else {
+                [self insertMessageIfNotExists:message];
+                [self notifyEvent:ChatEventMessageAdded message:message];
+            }
+//            [self updateMessageStatusInMemory:message.messageId withStatus:status];
+//            [self updateMessageStatusOnDB:message.messageId withStatus:status];
+            //[self notifyEvent:ChatEventMessageChanged message:message];
         }
+//        else if (message.status == MSG_STATUS_RETURN_RECEIPT) {
+//            NSLog(@"Message update: return receipt.");
+//            [self updateMessageStatusInMemory:message.messageId withStatus:message.status];
+//            [self updateMessageStatusOnDB:message.messageId withStatus:message.status];
+            //[self notifyEvent:ChatEventMessageChanged message:message];
+//        }
+        
     } withCancelBlock:^(NSError *error) {
         NSLog(@"%@", error.description);
     }];
+}
+
+-(void)insertMessageIfNotExists:(ChatMessage *)message {
+    //ChatMessage *message_archived = [[ChatDB getSharedInstance] getMessageById:message.messageId];
+//    if (!message_archived) {
+        [self insertMessageInMemoryIfNotExists:message];
+        [self insertMessageOnDBIfNotExists:message];
+//    }
 }
 
 -(BOOL)isValidMessageSnapshot:(FIRDataSnapshot *)snapshot {
@@ -419,7 +434,7 @@
 //    FIRDatabaseReference *messageRef = [self.messagesRef childByAutoId]; // CHILD'S AUTOGEN UNIQUE ID
 //    message.messageId = messageRef.key;
     // save message locally
-    [self insertMessageInMemory:message];
+    [self insertMessageInMemoryIfNotExists:message];
     [self insertMessageOnDBIfNotExists:message];
     [self notifyEvent:ChatEventMessageAdded message:message];
     return message.messageId;
@@ -567,7 +582,7 @@
     [[ChatDB getSharedInstance] insertMessageIfNotExists:message];
 }
 
--(void)insertMessageInMemory:(ChatMessage *)message {
+-(void)insertMessageInMemoryIfNotExists:(ChatMessage *)message {
     // find message...
     BOOL found = NO;
     for (ChatMessage* msg in self.messages) {

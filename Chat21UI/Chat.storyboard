@@ -1842,7 +1842,7 @@
                         <outlet property="sendButton" destination="nvi-z9-0uL" id="JUj-dX-Cyf"/>
                         <outlet property="viewContainer" destination="T46-i9-Q59" id="R2N-ie-Fm1"/>
                         <segue destination="AwH-i1-wi5" kind="show" identifier="GroupInfo" id="H6P-aU-qVr"/>
-                        <segue destination="vpO-G0-0np" kind="presentation" identifier="imagePreviewDEPREC" id="L1S-as-9Vq"/>
+                        <segue destination="vpO-G0-0np" kind="presentation" identifier="imagePreview" id="L1S-as-9Vq"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="z9s-Xu-ncu" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -2415,9 +2415,9 @@
                                             </constraints>
                                         </view>
                                         <label opaque="NO" userInteractionEnabled="NO" tag="80" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="ARCHIVED" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="KfG-MK-G5Z">
-                                            <rect key="frame" x="293" y="45" width="60" height="14"/>
+                                            <rect key="frame" x="277" y="43" width="69" height="16"/>
                                             <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                            <fontDescription key="fontDescription" type="boldSystem" pointSize="11"/>
+                                            <fontDescription key="fontDescription" type="boldSystem" pointSize="13"/>
                                             <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                             <nil key="highlightedColor"/>
                                         </label>
@@ -2429,7 +2429,7 @@
                                         <constraint firstAttribute="trailingMargin" secondItem="Hvp-HQ-Jbr" secondAttribute="trailing" constant="52" id="82J-Qd-xES"/>
                                         <constraint firstItem="6IC-rL-j7u" firstAttribute="leading" secondItem="dwY-Iw-brx" secondAttribute="leadingMargin" constant="77" id="FPn-Dk-zM2"/>
                                         <constraint firstAttribute="trailingMargin" secondItem="7zQ-ra-FtM" secondAttribute="trailing" id="HmW-sr-yRe"/>
-                                        <constraint firstItem="KfG-MK-G5Z" firstAttribute="leading" secondItem="dwY-Iw-brx" secondAttribute="leading" constant="293" id="JZT-Cc-f5R"/>
+                                        <constraint firstItem="KfG-MK-G5Z" firstAttribute="leading" secondItem="dwY-Iw-brx" secondAttribute="leading" constant="277" id="JZT-Cc-f5R"/>
                                         <constraint firstAttribute="bottom" secondItem="KfG-MK-G5Z" secondAttribute="bottom" constant="11" id="NVZ-6W-oVo"/>
                                         <constraint firstAttribute="bottomMargin" secondItem="7zQ-ra-FtM" secondAttribute="bottom" constant="-8" id="OKe-Q0-rDI"/>
                                         <constraint firstItem="7zQ-ra-FtM" firstAttribute="leading" secondItem="dwY-Iw-brx" secondAttribute="leadingMargin" constant="66" id="Wi3-n3-9FW"/>
@@ -2510,10 +2510,10 @@
                                             <color key="textColor" red="0.33333333329999998" green="0.33333333329999998" blue="0.33333333329999998" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                             <nil key="highlightedColor"/>
                                         </label>
-                                        <label opaque="NO" userInteractionEnabled="NO" tag="80" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="ARCHIVED" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="K8h-lj-odT">
-                                            <rect key="frame" x="293" y="51" width="60" height="14"/>
+                                        <label opaque="NO" userInteractionEnabled="NO" tag="80" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="ARCHIVED" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="K8h-lj-odT">
+                                            <rect key="frame" x="277" y="51" width="69" height="16"/>
                                             <color key="backgroundColor" white="0.66666666669999997" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                            <fontDescription key="fontDescription" type="boldSystem" pointSize="11"/>
+                                            <fontDescription key="fontDescription" type="boldSystem" pointSize="13"/>
                                             <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                             <nil key="highlightedColor"/>
                                         </label>
@@ -2528,7 +2528,7 @@
                                         <constraint firstAttribute="bottomMargin" secondItem="bSa-fn-ltI" secondAttribute="bottom" constant="-8" id="DkN-ar-BiL"/>
                                         <constraint firstAttribute="topMargin" secondItem="Yc6-28-hrd" secondAttribute="top" constant="3" id="GxF-Lv-Q8K"/>
                                         <constraint firstAttribute="trailingMargin" secondItem="Yc6-28-hrd" secondAttribute="trailing" constant="-19" id="RSr-cO-DsT"/>
-                                        <constraint firstItem="K8h-lj-odT" firstAttribute="leading" secondItem="Opf-Zp-Q9J" secondAttribute="leading" constant="293" id="UH0-cB-kuO"/>
+                                        <constraint firstItem="K8h-lj-odT" firstAttribute="leading" secondItem="Opf-Zp-Q9J" secondAttribute="leading" constant="277" id="UH0-cB-kuO"/>
                                         <constraint firstItem="VNy-Ne-6D0" firstAttribute="leading" secondItem="Opf-Zp-Q9J" secondAttribute="leadingMargin" constant="4" id="X6h-EJ-DYa"/>
                                         <constraint firstAttribute="bottomMargin" secondItem="TYn-yT-smI" secondAttribute="bottom" constant="-2" id="b8s-8i-Ijd"/>
                                         <constraint firstItem="pfE-vG-1I6" firstAttribute="leading" secondItem="Opf-Zp-Q9J" secondAttribute="leadingMargin" constant="77" id="czN-cG-Wlf"/>
@@ -2540,7 +2540,7 @@
                                         <constraint firstItem="DWN-iU-0d3" firstAttribute="leading" secondItem="Opf-Zp-Q9J" secondAttribute="leadingMargin" constant="77" id="s1d-LS-5wX"/>
                                         <constraint firstAttribute="trailingMargin" secondItem="bSa-fn-ltI" secondAttribute="trailing" id="sh1-TM-fx1"/>
                                         <constraint firstItem="DWN-iU-0d3" firstAttribute="top" secondItem="Opf-Zp-Q9J" secondAttribute="topMargin" constant="20" id="sxo-gl-ZZN"/>
-                                        <constraint firstAttribute="bottom" secondItem="K8h-lj-odT" secondAttribute="bottom" constant="11" id="vP4-ld-veX"/>
+                                        <constraint firstAttribute="bottom" secondItem="K8h-lj-odT" secondAttribute="bottom" constant="3" id="vP4-ld-veX"/>
                                     </constraints>
                                 </tableViewCellContentView>
                             </tableViewCell>

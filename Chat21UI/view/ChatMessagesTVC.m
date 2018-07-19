@@ -578,9 +578,9 @@ static NSString *MATCH_TYPE_CHAT_LINK = @"CHATLINK";
                             ChatImageMessageRightCell *updateCell = (id)[self.tableView cellForRowAtIndexPath:indexPath];
                             if (updateCell) {
                                 if (image) {
-                                    [self.tableView beginUpdates];
+//                                    [self.tableView beginUpdates];
                                     updateCell.messageImageView.image = image;
-                                    [self.tableView endUpdates];
+//                                    [self.tableView endUpdates];
                                 }
                                 else {
                                     [self downloadImage:message onIndexPath:indexPath];

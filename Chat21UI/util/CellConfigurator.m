@@ -16,6 +16,7 @@
 #import "ChatGroup.h"
 #import "ChatUtil.h"
 #import <QuartzCore/QuartzCore.h>
+#import "ChatLocal.h"
 
 @implementation CellConfigurator
 
@@ -267,6 +268,7 @@
             label.hidden = YES;
         }
     }
+    label.text = [ChatLocal translate:@"ArchivedBadgeLabel"];
 }
 
 +(void)setImageForCell:(UITableViewCell *)cell imageURL:(NSString *)imageURL imageCache:(ChatImageCache *)imageCache {

@@ -108,11 +108,12 @@
 "copy" = "Copy";
 "info" = "Info";
 "digit message" = "Digit a message";
-"ArchiveConversationAction" = "Archive";
-"UnarchiveConversationAction" = "Unarchive";
+"ArchiveConversationAction" = "Close"; // Archive
+"UnarchiveConversationAction" = "Reopen"; // Unarchive
 "ReadConversationAction" = "Read";
 "UnreadConversationAction" = "Unread";
-"ArchivedConversationsTitle" = "Archived";
+"ArchivedConversationsTitle" = "Closed"; // Archived
+"ArchivedBadgeLabel" = "CLOSED"; // ARCHIVED
 
 "Network Error Title" = "Network error";
 "Network Error Message" = "A network error occurred.";
