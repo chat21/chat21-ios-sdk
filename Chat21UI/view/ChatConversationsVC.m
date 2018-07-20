@@ -59,10 +59,12 @@
     [self customizeTitleView];
     [self setupTitle:@"Chat"];
     [self setUIStatusDisconnected];
-    if (!self.isModal) {
-        // hide cancel button
-        self.navigationItem.leftBarButtonItem = nil;
-    } else {
+//    self.isModal = true;
+    if (!self.isModal && !self.navigationController.presentingViewController) {
+        // preserve centered title if no left barbutton is shown
+        UIBarButtonItem *emptyButton = [[UIBarButtonItem alloc] initWithTitle:@"                    " style:UIBarButtonItemStylePlain target:nil action:nil];
+        self.navigationItem.leftBarButtonItem = emptyButton;
+    } else if (self.isModal) {
         // show and translate cancel button
         self.cancelButton.title = [ChatLocal translate:@"cancel"];
     }

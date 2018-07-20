@@ -181,7 +181,7 @@
     // patch for misplaced subtype field.
     if (message.attributes && message.attributes[MSG_FIELD_SUBTYPE]) {
         message.subtype = message.attributes[MSG_FIELD_SUBTYPE];
-        if ([message.subtype isEqualToString:MSG_TYPE_INFO]) {
+        if ([message.subtype isEqualToString:MSG_TYPE_INFO] || [message.subtype hasPrefix:@"info/"]) {
             message.mtype = MSG_TYPE_INFO;
         }
     }
