@@ -1,6 +1,6 @@
 # Chat21 SDK for iOS
 
-Chat21 is the chat project foundation of [Tiledesk.com](http://www.tiledesk.com).
+Chat21 is the core of the opensource livechat platform [Tiledesk.com](http://www.tiledesk.com).
 
 To install and configure the SDK follow this tutorial:
 
