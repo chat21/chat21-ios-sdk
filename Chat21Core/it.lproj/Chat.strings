@@ -109,12 +109,18 @@
 "copy" = "Copia";
 "info" = "Info";
 "digit message" = "Digita un messaggio";
-"ArchiveConversationAction" = "Chiudi"; // Archivia
-"UnarchiveConversationAction" = "Ripristina"; // Ripristina
 "ReadConversationAction" = "Letto";
 "UnreadConversationAction" = "Non letto";
-"ArchivedConversationsTitle" = "Chiuse"; // Archiviate
-"ArchivedBadgeLabel" = "CHIUSA"; // ARCHIVIATA
+
+"ArchiveConversationAction" = "Chiudi";
+"UnarchiveConversationAction" = "Riapri";
+"ArchivedConversationsTitle" = "Chiuse";
+"ArchivedBadgeLabel" = " CHIUSA ";
+
+//"ArchiveConversationAction" = "Archivia";
+//"UnarchiveConversationAction" = "Ripristina";
+//"ArchivedConversationsTitle" = "Archiviate";
+//"ArchivedBadgeLabel" = " ARCHIVIATA ";
 
 "Network Error Title" = "Errore di rete";
 "Network Error Message" = "Si è verificato un errore di rete.";

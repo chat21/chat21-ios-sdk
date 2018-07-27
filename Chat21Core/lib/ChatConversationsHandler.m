@@ -51,20 +51,7 @@
 
 -(void)restoreConversationsFromDB {
     self.conversations = [[[ChatDB getSharedInstance] getAllConversationsForUser:self.me archived:NO limit:0] mutableCopy];
-//    for (ChatConversation *c in self.conversations) {
-//        if (c.conversationId) {
-//            FIRDatabaseReference *conversation_ref = [self.conversationsRef child:c.conversationId];
-//            c.ref = conversation_ref;
-//        }
-//    }
-    
     self.archivedConversations = [[[ChatDB getSharedInstance] getAllConversationsForUser:self.me archived:YES limit:150] mutableCopy];
-//    for (ChatConversation *c in self.archivedConversations) {
-//        if (c.conversationId) {
-//            FIRDatabaseReference *conversation_ref = [self.archivedConversationsRef child:c.conversationId];
-//            c.ref = conversation_ref;
-//        }
-//    }
 }
 
 //-(NSMutableArray *)restoreArchivedConversationsFromDB {
@@ -232,23 +219,15 @@
         NSLog(@"%@", error.description);
     }];
 
-//    self.archived_conversations_ref_handle_removed =
-//    [self.archivedConversationsRef observeEventType:FIRDataEventTypeChildRemoved withBlock:^(FIRDataSnapshot *snapshot) {
-//        NSLog(@"************************* CONVERSATION REMOVED ****************************");
-//        NSLog(@"REMOVED CONVERSATION snapshot............... %@", snapshot);
-//        ChatConversation *conversation = [ChatConversation conversationFromSnapshotFactory:snapshot me:self.loggeduser];
-//        if ([self.currentOpenConversationId isEqualToString:conversation.conversationId] && conversation.is_new == YES) {
-//            // changes (forces) the "is_new" flag to FALSE;
-//            conversation.is_new = NO;
-//            FIRDatabaseReference *conversation_ref = [self.archivedConversationsRef child:conversation.conversationId];
-//            NSLog(@"UPDATING IS_NEW=NO FOR CONVERSATION %@", conversation_ref);
-//            [chat updateConversationIsNew:conversation_ref is_new:conversation.is_new];
-//        }
-//        [self removeArchivedConversationInMemory:conversation];
-//        [self removeArchivedConversationOnDB:conversation];
-//    } withCancelBlock:^(NSError *error) {
-//        NSLog(@"%@", error.description);
-//    }];
+    self.archived_conversations_ref_handle_removed =
+    [self.archivedConversationsRef observeEventType:FIRDataEventTypeChildRemoved withBlock:^(FIRDataSnapshot *snapshot) {
+        NSLog(@"REMOVED ARCHIVED CONVERSATION snapshot............... %@", snapshot);
+        ChatConversation *conversation = [ChatConversation conversationFromSnapshotFactory:snapshot me:self.loggeduser];
+        [self unarchiveConversation:conversation];
+        [self notifyEvent:ChatEventArchivedConversationRemoved conversation:conversation];
+    } withCancelBlock:^(NSError *error) {
+        NSLog(@"%@", error.description);
+    }];
 }
 
 -(BOOL)isValidConversationSnapshot:(FIRDataSnapshot *)snapshot {
@@ -388,6 +367,18 @@
 }
 
 -(void)removeConversationOnDB:(ChatConversation *)conversation {
+    conversation.user = self.me;
+    [[ChatDB getSharedInstance] removeConversation:conversation.conversationId];
+}
+
+-(void)unarchiveConversation:(ChatConversation *)conversation {
+    [self removeArchivedConversationInMemory:conversation];
+//    conversation.user = self.me; // UNUSEFUL, THE USER IS SET BY ChatConversatioN.conversationFromSnapshotFactory
+    conversation.archived = NO;
+    [[ChatDB getSharedInstance] insertOrUpdateConversation:conversation];
+}
+
+-(void)removeArchivedConversationOnDB:(ChatConversation *)conversation {
     conversation.user = self.me;
     [[ChatDB getSharedInstance] removeConversation:conversation.conversationId];
 }

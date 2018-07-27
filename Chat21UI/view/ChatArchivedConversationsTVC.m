@@ -90,7 +90,10 @@
         return;
     }
     self.added_handle = [handler observeEvent:ChatEventArchivedConversationAdded withCallback:^(ChatConversation *conversation) {
-        [self conversationReceived:conversation];
+        [self.tableView reloadData];
+    }];
+    self.added_handle = [handler observeEvent:ChatEventArchivedConversationRemoved withCallback:^(ChatConversation *conversation) {
+        [self.tableView reloadData];
     }];
 //    self.changed_handle = [handler observeEvent:ChatEventConversationChanged withCallback:^(ChatConversation *conversation) {
 //        [self conversationReceived:conversation];
@@ -109,14 +112,6 @@
     self.changed_handle = 0;
     self.read_status_changed_handle = 0;
     self.deleted_handle = 0;
-}
-
--(void)conversationReceived:(ChatConversation *)conversation {
-    [self.tableView reloadData];
-}
-
--(void)conversationDeleted:(ChatConversation *)conversation {
-    [self.tableView reloadData];
 }
 
 //#protocol SHPConversationsViewDelegate

@@ -107,12 +107,19 @@
 "Remove" = "Remove";
 "copy" = "Copy";
 "info" = "Info";
-"ArchiveConversationAction" = "Close"; // Archive
-"UnarchiveConversationAction" = "Reopen"; // Unarchive
+"digit message" = "Digit a message";
 "ReadConversationAction" = "Read";
 "UnreadConversationAction" = "Unread";
-"ArchivedConversationsTitle" = "Closed"; // Archived
-"ArchivedBadgeLabel" = "CLOSED"; // ARCHIVED
+
+"ArchiveConversationAction" = "Close";
+"UnarchiveConversationAction" = "Reopen";
+"ArchivedConversationsTitle" = "Closed";
+"ArchivedBadgeLabel" = " CLOSED ";
+
+//"ArchiveConversationAction" = "Archive";
+//"UnarchiveConversationAction" = "Unarchive";
+//"ArchivedConversationsTitle" = "Archived";
+//"ArchivedBadgeLabel" = " ARCHIVED ";
 
 "Network Error Title" = "Network error";
 "Network Error Message" = "A network error occurred.";

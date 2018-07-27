@@ -97,6 +97,7 @@
 //    conversation.groupName = groupName;
     conversation.status = (int)[status integerValue];
     conversation.attributes = attributes;
+    conversation.user = me.userId;
     return conversation;
 }
 
