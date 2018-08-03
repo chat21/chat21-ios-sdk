@@ -166,7 +166,10 @@
      
 -(void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
-    
+    if (self.selectedConversationIndexPath != nil) {
+        [self.tableView deselectRowAtIndexPath:self.selectedConversationIndexPath animated:YES];
+        self.selectedConversationIndexPath = nil;
+    }
     ChatManager *chat = [ChatManager getInstance];
     [chat.connectionStatusHandler isStatusConnectedWithCompletionBlock:^(BOOL connected, NSError *error) {
         if (connected) {
@@ -537,12 +540,13 @@
 }
 
 - (void)tableView:(UITableView *)_tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
+//    [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
     if (indexPath.section == SECTION_GROUP_MENU_INDEX) { // toolbar
         return;
     }
     NSArray *conversations = self.conversationsHandler.conversations;
     ChatConversation *selectedConversation = (ChatConversation *)[conversations objectAtIndex:indexPath.row];
+    self.selectedConversationIndexPath = indexPath;
     self.selectedConversationId = selectedConversation.conversationId;
     if (selectedConversation.isDirect) {
         self.selectedRecipientId = selectedConversation.conversWith;

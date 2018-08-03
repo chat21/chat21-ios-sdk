@@ -29,6 +29,7 @@ static const int SECTION_CONVERSATIONS_INDEX = 1;
 - (IBAction)groupsAction:(id)sender;
 
 @property (strong, nonatomic) NSString *selectedConversationId;
+@property (strong, nonatomic) NSIndexPath *selectedConversationIndexPath;
 @property (strong, nonatomic) NSString *selectedRecipientId;
 @property (strong, nonatomic) NSString *selectedRecipientFullname;
 @property (strong, nonatomic) NSString *selectedRecipientTextToSend;

@@ -556,10 +556,7 @@ static NSString *MATCH_TYPE_CHAT_LINK = @"CHATLINK";
     if (messages && messages.count > 0) {
         message = (ChatMessage *)[messages objectAtIndex:indexPath.row];
         [self analyzeMessageText:message];
-        
-//        NSLog(@"type: %@ text: %@", message.mtype, message.text);
         if ([message.mtype isEqualToString:MSG_TYPE_INFO]) {
-//            NSLog(@"MSG_TYPE_INFO");
             ChatInfoMessageCell *cell = [tableView dequeueReusableCellWithIdentifier:cellMessageInfo forIndexPath:indexPath];
             [cell configure:message indexPath:indexPath rowComponents:self.rowComponents];
             return cell;
@@ -578,9 +575,7 @@ static NSString *MATCH_TYPE_CHAT_LINK = @"CHATLINK";
                             ChatImageMessageRightCell *updateCell = (id)[self.tableView cellForRowAtIndexPath:indexPath];
                             if (updateCell) {
                                 if (image) {
-//                                    [self.tableView beginUpdates];
                                     updateCell.messageImageView.image = image;
-//                                    [self.tableView endUpdates];
                                 }
                                 else {
                                     [self downloadImage:message onIndexPath:indexPath];
@@ -593,7 +588,6 @@ static NSString *MATCH_TYPE_CHAT_LINK = @"CHATLINK";
             }
             else {
                 ChatTextMessageRightCell *cell = [tableView dequeueReusableCellWithIdentifier:cellMessageRight forIndexPath:indexPath];
-//                NSLog(@"cell class: %@", NSStringFromClass([cell class]));
                 [cell configure:message messages:messages indexPath:indexPath viewController:self rowComponents:self.rowComponents];
                 return cell;
             }

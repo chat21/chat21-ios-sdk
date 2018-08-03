@@ -10,6 +10,7 @@
 #import "ChatMessage.h"
 #import "ChatUtil.h"
 #import "ChatLocal.h"
+#import "ChatStyles.h"
 
 @implementation ChatTextMessageRightCell
 
@@ -25,6 +26,7 @@
 }
 
 -(void)configure:(ChatMessage *)message messages:(NSArray *)messages indexPath:(NSIndexPath *)indexPath viewController:(UIViewController *)viewController rowComponents:(NSMutableDictionary *)rowComponents {
+    ChatStyles *styles = [ChatStyles sharedInstance];
     NSString *dateChat;
     NSDate *dateToday = [NSDate date];
     int numberDaysPrevChat = 0;
@@ -32,6 +34,7 @@
     ChatMessage *previousMessage;
     ChatMessage *nextMessage;
     UIView *backBox = self.messageBackgroundView;
+    backBox.backgroundColor = styles.ballonRightBackgroundColor;
     backBox.layer.masksToBounds = YES;
     backBox.layer.cornerRadius = 8.0;
     
