@@ -16,8 +16,11 @@ static ChatStyles *sharedInstance = nil;
 {
     if (self = [super init])
     {
+        self.ballonLeftTextColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:1.0];
         self.ballonLeftBackgroundColor = [UIColor colorWithRed:0.945 green:0.945 blue:0.945 alpha:1.0];
-        self.ballonRightBackgroundColor = [UIColor colorWithRed:0.407 green:0.768 blue:0.972 alpha:1.0];
+        self.ballonRightBackgroundColor = [UIColor colorWithRed:0.207 green:0.525 blue:0.968 alpha:1.0];
+        self.ballonRightTextColor = [UIColor colorWithRed:1 green:1 blue:1 alpha:1.0];
+        self.ballonFont = [UIFont fontWithName:@"Arial" size:20];
     }
     return self;
 }

@@ -12,7 +12,10 @@
 @interface ChatStyles : NSObject
 
 @property(strong, nonatomic) UIColor *ballonLeftBackgroundColor;
+@property(strong, nonatomic) UIColor *ballonLeftTextColor;
 @property(strong, nonatomic) UIColor *ballonRightBackgroundColor;
+@property(strong, nonatomic) UIColor *ballonRightTextColor;
+@property(strong, nonatomic) UIFont *ballonFont;
 
 +(ChatStyles *)sharedInstance;
 

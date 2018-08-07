@@ -40,13 +40,15 @@
     
     self.selectionStyle = UITableViewCellSelectionStyleNone;
     
-    UILabel *labelMessage = self.messageLabel;//(UILabel *)[cell viewWithTag:10];
+    UILabel *labelMessage = self.messageLabel;
     
     UIGestureRecognizer *longTapGestureRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:viewController action:@selector(longTapOnCell:)];
     UIGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:viewController action:@selector(tapOnCell:)];
     [labelMessage addGestureRecognizer:longTapGestureRecognizer];
     [labelMessage addGestureRecognizer:tapGestureRecognizer];
     labelMessage.userInteractionEnabled = YES;
+    [labelMessage setFont:styles.ballonFont];
+    [labelMessage setTextColor:styles.ballonRightTextColor];
     
     [self attributedString:labelMessage text:message indexPath:indexPath rowComponents:rowComponents];
     

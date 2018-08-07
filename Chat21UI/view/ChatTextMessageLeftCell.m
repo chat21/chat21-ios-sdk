@@ -47,6 +47,8 @@
     [labelMessage addGestureRecognizer:longTapGestureRecognizer];
     [labelMessage addGestureRecognizer:tapGestureRecognizer];
     labelMessage.userInteractionEnabled = YES;
+    [labelMessage setFont:styles.ballonFont];
+    [labelMessage setTextColor:styles.ballonLeftTextColor];
     
     [self attributedString:labelMessage text:message indexPath:indexPath rowComponents:rowComponents];
     
