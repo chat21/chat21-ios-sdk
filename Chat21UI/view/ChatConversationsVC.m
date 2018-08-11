@@ -163,7 +163,7 @@
         [self removeSubscribers];
     }
 }
-     
+
 -(void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
     if (self.selectedConversationIndexPath != nil) {

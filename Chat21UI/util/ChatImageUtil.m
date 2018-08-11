@@ -177,26 +177,6 @@
     return scaledSize;
 }
 
-
-//ATTENZIONE SE è RETINA DISPLAY DEVO RADDOPPIARE I PX
-//float imgW = [[UIScreen mainScreen] bounds].size.width * (int)[UIScreen mainScreen].scale;
-//float imgH = [[UIScreen mainScreen] bounds].size.height * (int)[UIScreen mainScreen].scale;
-//newSize = CGSizeMake(imgW, imgH);
-
-
-//+(CGSize)imageSizeForProduct:(SHPProduct *)p constrainedInto:(CGSize)size {
-//    //NSLog(@"PRODUCT IMAGE HEIGHT %f, %f",p.imageWidth, p.imageHeight);
-//    CGSize originalImageSize = CGSizeMake(p.imageWidth, p.imageHeight);
-//
-//    //ATTENZIONE SIZE E' ESPRESSO IN PUNTI E A ME SERVONO PIXEL
-//    CGSize nwSize = CGSizeMake(size.width/2, size.height/2);
-//
-//    CGSize resized = [SHPImageUtil  fitSizeWidth:originalImageSize intoSize:nwSize]; //fitSize
-//     //NSLog(@"RESIZE IMAGE HEIGHT %f, %f",resized.width, resized.height);
-//
-//    return resized;
-//}
-
 +(UIImage *)scaleImage:(UIImage*)image toSize:(CGSize)size {
     CGSize newSizeWithAspectRatio = [ChatImageUtil fitSize:image.size intoSize:size];
     

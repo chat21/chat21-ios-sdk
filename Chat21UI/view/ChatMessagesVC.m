@@ -999,7 +999,7 @@ static float messageTime = 0.5;
 //    }
     NSLog(@"image: %@", self.scaledImage);
     self.scaledImage = [ChatImageUtil adjustEXIF:self.scaledImage];
-    self.scaledImage = [ChatImageUtil scaleImage:self.scaledImage toSize:CGSizeMake(600, 600)];
+    self.scaledImage = [ChatImageUtil scaleImage:self.scaledImage toSize:CGSizeMake(1200, 1200)];
     [self performSegueWithIdentifier:@"imagePreview" sender:nil];
 }
 
