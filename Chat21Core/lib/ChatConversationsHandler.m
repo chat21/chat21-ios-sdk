@@ -114,6 +114,7 @@
             conversation.status = CONV_STATUS_LAST_MESSAGE;
         }
         conversation.archived = NO;
+//        [self updateConversationInMemory:conversation]; // because all "changed" remote conversations result as "added" on first call
         [self insertConversationInMemory:conversation];
         [self insertOrUpdateConversationOnDB:conversation];
         [self notifyEvent:ChatEventConversationAdded conversation:conversation];
@@ -210,7 +211,6 @@
             // IN FUTURE SERVER-SIDE HANDLING OF MESSAGE SENDING, WILL BE THE SERVER-SIDE SCRIPT RESPONSIBLE OF SETTING THE CONV STATUS AND THIS VERIFICATION CAN BE REMOVED.
             conversation.status = CONV_STATUS_LAST_MESSAGE;
         }
-        // TODO set conversation.archived = YES
         conversation.archived = YES;
         [self insertArchivedConversationInMemory:conversation];
         [self insertOrUpdateConversationOnDB:conversation];
@@ -294,21 +294,17 @@
 // MEMORY DB
 
 -(void)insertConversationInMemory:(ChatConversation *)conversation fromConversations:(NSMutableArray<ChatConversation *> *)conversations {
-    BOOL found = NO;
-    for (ChatConversation* conv in conversations) {
+//    for (ChatConversation* conv in conversations) {
+    for (int i = 0; i < conversations.count; i++) {
+        ChatConversation *conv = conversations[i];
         if([conv.conversationId isEqualToString: conversation.conversationId]) {
-            NSLog(@"conv found, skipping insert");
-            found = YES;
-            break;
+            NSLog(@"conv found, updating");
+            [conversations removeObjectAtIndex:i]; // remove conversation...
+            [conversations insertObject:conversation atIndex:0]; // ...then put it on top
+            return;
         }
     }
-    
-    if (found) {
-        return;
-    }
-    else {
-        [conversations insertObject:conversation atIndex:0];
-    }
+    [conversations insertObject:conversation atIndex:0];
 }
 
 -(void)updateConversationInMemory:(ChatConversation *)conversation fromConversations:(NSMutableArray<ChatConversation *> *)conversations {

@@ -107,7 +107,7 @@ static ChatManager *sharedInstance = nil;
         handler = [[ChatConversationHandler alloc] initWithRecipient:recipient.userId recipientFullName:recipient.fullname];
         [self addConversationHandler:handler];
         [handler restoreMessagesFromDB];
-        NSLog(@"Restored messages count: %lu", (unsigned long)handler.messages.count);
+        NSLog(@"Restored messages (recipient: %@) count: %lu", recipient.userId, (unsigned long)handler.messages.count);
     }
     return handler;
 }
@@ -118,7 +118,8 @@ static ChatManager *sharedInstance = nil;
         handler = [[ChatConversationHandler alloc] initWithGroupId:group.groupId groupName:group.name];
         [self addConversationHandler:handler];
         [handler restoreMessagesFromDB];
-        [handler connect];
+        NSLog(@"Restored messages (group: %@) count: %lu", group.groupId, (unsigned long)handler.messages.count);
+//        [handler connect];
     }
     return handler;
 }

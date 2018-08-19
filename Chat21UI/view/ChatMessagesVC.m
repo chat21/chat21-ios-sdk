@@ -470,7 +470,6 @@
     if (self.recipient) {
         handler = [chatm getConversationHandlerForRecipient:self.recipient];
     } else {
-        NSLog(@"*** CONVERSATION HANDLER IN GROUP MOD!!!!!!!");
         handler = [chatm getConversationHandlerForGroup:self.group];
         [self monitorGroupUpdates];
     }
