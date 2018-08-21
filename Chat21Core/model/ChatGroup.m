@@ -15,6 +15,14 @@
 
 @implementation ChatGroup
 
+-(id)initWithGroupId:(NSString *)groupId name:(NSString *)name {
+    if (self = [super init])  {
+        self.groupId = groupId;
+        self.name = name;
+    }
+    return self;
+}
+
 -(NSString *)iconUrl {
     return [ChatUtil groupImageUrlById:self.groupId];
 }

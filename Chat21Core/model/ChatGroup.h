@@ -48,5 +48,6 @@ static NSString* const GROUP_ICON_ID = @"iconID";
 +(NSMutableDictionary *)membersString2Dictionary:(NSString *)membersString;
 -(NSString *)ownerFullname;
 -(void)completeGroupMembersMetadataWithCompletionBlock:(void(^)()) callback;
+-(id)initWithGroupId:(NSString *)groupId name:(NSString *)name;
 
 @end

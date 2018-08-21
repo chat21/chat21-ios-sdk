@@ -57,9 +57,10 @@
 -(void)getUserInfoRemote:(NSString *)userid withCompletion:(void(^)(ChatUser *user))callback;
 
 -(void)addConversationHandler:(ChatConversationHandler *)handler;
--(ChatConversationsHandler *)getConversationsHandler;
+-(ChatConversationsHandler *)getAndStartConversationsHandler;
 -(ChatConversationHandler *)getConversationHandlerForRecipient:(ChatUser *)recipient;
 -(ChatConversationHandler *)getConversationHandlerForGroup:(ChatGroup *)group;
+-(void)startConversationHandler:(ChatConversation *)conv;
 
 -(ChatConversationsHandler *)createConversationsHandler;
 -(ChatPresenceHandler *)createPresenceHandler;

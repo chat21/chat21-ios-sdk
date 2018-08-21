@@ -75,7 +75,7 @@
     if (self.conversations_ref_handle_added) {
         return;
     }
-    ChatManager *chat = [ChatManager getInstance];
+    ChatManager *chatm = [ChatManager getInstance];
     NSString *conversations_path = [ChatUtil conversationsPathForUserId:self.loggeduser.userId];
     FIRDatabaseReference *rootRef = [[FIRDatabase database] reference];
     self.conversationsRef = [rootRef child: conversations_path];
@@ -92,8 +92,10 @@
     } else {
         lasttime = 0;
     }
-    
-    self.conversations_ref_handle_added = [[[self.conversationsRef queryOrderedByChild:@"timestamp"] queryStartingAtValue:@(lasttime)] observeEventType:FIRDataEventTypeChildAdded withBlock:^(FIRDataSnapshot *snapshot) {
+    //  queryLimitedToLast:20]
+    self.conversations_ref_handle_added = [[[self.conversationsRef queryOrderedByChild:@"timestamp"]
+                                             queryStartingAtValue:@(lasttime)]
+                                             observeEventType:FIRDataEventTypeChildAdded withBlock:^(FIRDataSnapshot *snapshot) {
         NSLog(@"NEW CONVERSATION SNAPSHOT: %@", snapshot);
         if (![self isValidConversationSnapshot:snapshot]) {
             NSLog(@"Invalid conversation snapshot, discarding.");
@@ -105,7 +107,7 @@
             conversation.is_new = NO;
             FIRDatabaseReference *conversation_ref = [self.conversationsRef child:conversation.conversationId];
             NSLog(@"UPDATING IS_NEW=NO FOR CONVERSATION %@", conversation_ref);
-            [chat updateConversationIsNew:conversation_ref is_new:conversation.is_new];
+            [chatm updateConversationIsNew:conversation_ref is_new:conversation.is_new];
         }
         if (conversation.status == CONV_STATUS_FAILED) {
             // a remote conversation can't be in failed status. force to last_message status
@@ -114,10 +116,10 @@
             conversation.status = CONV_STATUS_LAST_MESSAGE;
         }
         conversation.archived = NO;
-//        [self updateConversationInMemory:conversation]; // because all "changed" remote conversations result as "added" on first call
         [self insertConversationInMemory:conversation];
         [self insertOrUpdateConversationOnDB:conversation];
         [self notifyEvent:ChatEventConversationAdded conversation:conversation];
+//        [self startConversationMessagesHandler:conversation];
     } withCancelBlock:^(NSError *error) {
         NSLog(@"%@", error.description);
     }];
@@ -131,7 +133,7 @@
             conversation.is_new = NO;
             FIRDatabaseReference *conversation_ref = [self.conversationsRef child:conversation.conversationId];
             NSLog(@"UPDATING IS_NEW=NO FOR CONVERSATION %@", conversation_ref);
-            [chat updateConversationIsNew:conversation_ref is_new:conversation.is_new];
+            [chatm updateConversationIsNew:conversation_ref is_new:conversation.is_new];
         }
         conversation.archived = NO;
         
@@ -142,6 +144,7 @@
         
         [self updateConversationInMemory:conversation];
         [self insertOrUpdateConversationOnDB:conversation];
+//        [self startConversationMessagesHandler:conversation];
         conversation.indexInMemory = found_index; // Next step: create an event object with properties .conversation, .indexInMemory. For the moment the conversation will hold his position in memory array.
         if ([conversation.date isEqualToDate:found_conversation.date]) {
             [self notifyEvent:ChatEventConversationReadStatusChanged conversation:conversation];
@@ -164,6 +167,13 @@
     } withCancelBlock:^(NSError *error) {
         NSLog(@"%@", error.description);
     }];
+}
+
+-(void)startConversationMessagesHandler:(ChatConversation *)conversation {
+    ChatManager *chatm = [ChatManager getInstance];
+    if (conversation.is_new) {
+        [chatm startConversationHandler:conversation];
+    }
 }
 
 -(NSDictionary *)findConversationInMemoryById:(NSString *)conversationId {
@@ -294,7 +304,6 @@
 // MEMORY DB
 
 -(void)insertConversationInMemory:(ChatConversation *)conversation fromConversations:(NSMutableArray<ChatConversation *> *)conversations {
-//    for (ChatConversation* conv in conversations) {
     for (int i = 0; i < conversations.count; i++) {
         ChatConversation *conv = conversations[i];
         if([conv.conversationId isEqualToString: conversation.conversationId]) {
@@ -346,20 +355,13 @@
     return [self removeConversationInMemory:conversation];
 }
 
-//-(int)removeConversationFromMemory:(ChatConversation *)conversation {
-//    for (int i = 0; i < self.conversations.count; i++) {
-//        ChatConversation *conv = self.conversations[i];
-//        if ([conv.conversationId isEqualToString: conversation.conversationId]) {
-//            [self.conversations removeObjectAtIndex:i];
-//            return i;
-//        }
-//    }
-//    return -1;
-//}
-
 -(void)insertOrUpdateConversationOnDB:(ChatConversation *)conversation {
-    conversation.user = self.me;
-    [[ChatDB getSharedInstance] insertOrUpdateConversation:conversation];
+    __weak NSString *_me = self.me;
+    conversation.user = _me;
+    __weak ChatConversation *_conv = conversation;
+    [[ChatDB getSharedInstance] insertOrUpdateConversation:_conv];
+    conversation = nil;
+    _conv = nil;
 }
 
 -(void)removeConversationOnDB:(ChatConversation *)conversation {

@@ -41,31 +41,35 @@ static ChatManager *sharedInstance = nil;
 +(void)configure {
     sharedInstance = [[super alloc] init];
     NSDictionary *dictionary = [NSDictionary dictionaryWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"Chat-Info" ofType:@"plist"]];
+    // default values
+    sharedInstance.tenant = @"chat";
+    sharedInstance.groupsMode = YES;
+    sharedInstance.tabBarIndex = 0;
     if (dictionary) {
         if ([dictionary objectForKey:@"app-id"]) {
             sharedInstance.tenant = [dictionary objectForKey:@"app-id"];
         }
-        else {
-            sharedInstance.tenant = @"chat";
-        }
+//        else {
+//            sharedInstance.tenant = @"chat";
+//        }
         if ([dictionary objectForKey:@"groups-mode"]) {
             sharedInstance.groupsMode = [[dictionary objectForKey:@"groups-mode"] boolValue];
         }
-        else {
-            sharedInstance.groupsMode = YES;
-        }
+//        else {
+//            sharedInstance.groupsMode = YES;
+//        }
         if ([dictionary objectForKey:@"conversations-tabbar-index"]) {
             sharedInstance.tabBarIndex = [[dictionary objectForKey:@"conversations-tabbar-index"] integerValue];
         }
-        else {
-            sharedInstance.tabBarIndex = 0;
-        }
+//        else {
+//            sharedInstance.tabBarIndex = 0;
+//        }
     }
-    else {
-        sharedInstance.tenant = @"chat";
-        sharedInstance.groupsMode = YES;
-        sharedInstance.tabBarIndex = 0;
-    }
+//    else {
+//        sharedInstance.tenant = @"chat";
+//        sharedInstance.groupsMode = YES;
+//        sharedInstance.tabBarIndex = 0;
+//    }
     sharedInstance.loggedUser = nil;
 }
 
@@ -91,13 +95,38 @@ static ChatManager *sharedInstance = nil;
     [self.handlers removeObjectForKey:conversationId];
 }
 
--(ChatConversationsHandler *)getConversationsHandler {
+-(ChatConversationsHandler *)getAndStartConversationsHandler {
     if (!self.conversationsHandler) {
         self.conversationsHandler = [self createConversationsHandler];
         [self.conversationsHandler restoreConversationsFromDB];
         [self.conversationsHandler connect];
+        // activate connections for every conversation with "new" messages
+//        for (ChatConversation *conv in self.conversationsHandler.conversations) {
+//            if (conv.is_new) {
+//                [self startConversationHandler:conv];
+//            }
+//        }
     }
     return self.conversationsHandler;
+}
+
+-(void)startConversationHandler:(ChatConversation *)conv {
+    if (conv.isDirect) {
+        NSString *recipientId = conv.conversWith;
+        NSString *recipientFullname = conv.conversWith_fullname;
+        ChatUser *recipient = [[ChatUser alloc] init:recipientId fullname:recipientFullname];
+        ChatConversationHandler *handler;
+        handler = [self getConversationHandlerForRecipient:recipient];
+        [handler connect];
+    }
+    else {
+        NSString *groupId = conv.recipient;
+        NSString *groupName = conv.recipientFullname;
+        ChatGroup *group = [[ChatGroup alloc] initWithGroupId:groupId name:groupName];
+        ChatConversationHandler *handler;
+        handler = [self getConversationHandlerForGroup:group];
+        [handler connect];
+    }
 }
 
 -(ChatConversationHandler *)getConversationHandlerForRecipient:(ChatUser *)recipient {

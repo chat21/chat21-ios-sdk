@@ -149,8 +149,10 @@
     NSLog(@"INSERTING OR UPDATING GROUP WITH NAME: %@", group.name);
     group.user = self.me;
     [self insertInMemory:group];
-    [[ChatGroupsDB getSharedInstance] insertOrUpdateGroupSyncronized:group completion:^{
-        [self notifySubscribers:group];
+    __block ChatGroup *_group = group;
+    [[ChatGroupsDB getSharedInstance] insertOrUpdateGroupSyncronized:_group completion:^{
+        [self notifySubscribers:_group];
+        _group = nil;
         callback();
     }];
 }

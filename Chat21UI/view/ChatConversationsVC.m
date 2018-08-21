@@ -257,7 +257,7 @@
 
 -(void)initConversationsHandler {
     ChatManager *chatm = [ChatManager getInstance];
-    ChatConversationsHandler *handler = [chatm getConversationsHandler];
+    ChatConversationsHandler *handler = [chatm getAndStartConversationsHandler];
     [self subscribe:handler];
     self.conversationsHandler = handler;
 }

@@ -157,7 +157,6 @@ static ChatGroupsDB *sharedInstance = nil;
     double createdOn = (double)[group.createdOn timeIntervalSince1970]; // NSTimeInterval is a (double)
     NSString *members = [ChatGroup membersDictionary2String:group.members];
     if (sqlite3_open(dbpath, &database) == SQLITE_OK) {
-        
         NSLog(@">>>> Inserting group %@", group.name);
         NSString *insertSQL = [NSString stringWithFormat:@"insert into groups (groupId, user, groupName, owner, members, createdOn) values (?, ?, ?, ?, ?, ?)"];
         
@@ -174,16 +173,19 @@ static ChatGroupsDB *sharedInstance = nil;
         sqlite3_bind_double(statement, 6, createdOn);
         
         if (sqlite3_step(statement) == SQLITE_DONE) {
-            sqlite3_reset(statement);
+            sqlite3_finalize(statement);
+            sqlite3_close(database);
             return YES;
         }
         else {
             NSLog(@"Error on insertGroup.");
             NSLog(@"Database returned error %d: %s", sqlite3_errcode(database), sqlite3_errmsg(database));
-            sqlite3_reset(statement);
+            sqlite3_finalize(statement);
+            sqlite3_close(database);
             return NO;
         }
     }
+    sqlite3_close(database);
     return NO;
 }
 
@@ -204,17 +206,19 @@ static ChatGroupsDB *sharedInstance = nil;
         sqlite3_bind_text(statement, 4, [group.groupId UTF8String], -1, SQLITE_TRANSIENT);
         
         if (sqlite3_step(statement) == SQLITE_DONE) {
-            sqlite3_reset(statement);
-            //            NSLog(@"Group successfully updated.");
+            sqlite3_finalize(statement);
+            sqlite3_close(database);
             return YES;
         }
         else {
             NSLog(@"Error while updating group.");
             NSLog(@"Database returned error %d: %s", sqlite3_errcode(database), sqlite3_errmsg(database));
-            sqlite3_reset(statement);
+            sqlite3_finalize(statement);
+            sqlite3_close(database);
             return NO;
         }
     }
+    sqlite3_close(database);
     return NO;
 }
 
@@ -232,12 +236,16 @@ static NSString *SELECT_FROM_GROUPS_STATEMENT = @"SELECT groupId, user, groupNam
                     ChatGroup *group = [self groupFromStatement:statement];
                     [groups addObject:group];
                 }
-                sqlite3_reset(statement);
+                sqlite3_finalize(statement);
+                sqlite3_close(database);
             } else {
                 NSLog(@"**** PROBLEMS WHILE QUERYING GROUPS...");
                 NSLog(@"Database returned error %d: %s", sqlite3_errcode(database), sqlite3_errmsg(database));
+                sqlite3_finalize(statement);
+                sqlite3_close(database);
             }
         }
+        sqlite3_close(database);
         callback(groups);
     });
 }
@@ -256,12 +264,16 @@ static NSString *SELECT_FROM_GROUPS_STATEMENT = @"SELECT groupId, user, groupNam
                 //                NSLog(@"Adding group from DB id:%@ name:%@", group.groupId, group.name);
                 [groups addObject:group];
             }
-            sqlite3_reset(statement);
+            sqlite3_finalize(statement);
+            sqlite3_close(database);
         } else {
             NSLog(@"**** PROBLEMS WHILE QUERYING GROUPS...");
             NSLog(@"Database returned error %d: %s", sqlite3_errcode(database), sqlite3_errmsg(database));
+            sqlite3_finalize(statement);
+            sqlite3_close(database);
         }
     }
+    sqlite3_close(database);
     return groups;
 }
 
@@ -273,7 +285,6 @@ static NSString *SELECT_FROM_GROUPS_STATEMENT = @"SELECT groupId, user, groupNam
 }
 
 -(ChatGroup *)getGroupById:(NSString *)groupId {
-//    dispatch_async(serialDatabaseQueue, ^{
     ChatGroup *group = nil;
     const char *dbpath = [databasePath UTF8String];
     if (sqlite3_open(dbpath, &database) == SQLITE_OK)
@@ -285,14 +296,17 @@ static NSString *SELECT_FROM_GROUPS_STATEMENT = @"SELECT groupId, user, groupNam
             while (sqlite3_step(statement) == SQLITE_ROW) {
                 group = [self groupFromStatement:statement];
             }
-            sqlite3_reset(statement);
+            sqlite3_finalize(statement);
+            sqlite3_close(database);
         } else {
             NSLog(@"**** PROBLEMS WHILE QUERYING GROUPS...");
             NSLog(@"Database returned error %d: %s", sqlite3_errcode(database), sqlite3_errmsg(database));
+            sqlite3_finalize(statement);
+            sqlite3_close(database);
         }
     }
+    sqlite3_close(database);
     return group;
-//    });
 }
 
 -(void)removeGroupSyncronized:(NSString *)groupId completion:(void(^)(BOOL error)) callback {
@@ -305,15 +319,18 @@ static NSString *SELECT_FROM_GROUPS_STATEMENT = @"SELECT groupId, user, groupNam
             const char *stmt = [sql UTF8String];
             sqlite3_prepare_v2(database, stmt,-1, &statement, NULL);
             if (sqlite3_step(statement) == SQLITE_DONE) {
-                sqlite3_reset(statement);
+                sqlite3_finalize(statement);
+                sqlite3_close(database);
                 callback(NO);
             }
             else {
                 NSLog(@"Database returned error %d: %s", sqlite3_errcode(database), sqlite3_errmsg(database));
-                sqlite3_reset(statement);
+                sqlite3_finalize(statement);
+                sqlite3_close(database);
                 callback(YES);
             }
         }
+        sqlite3_close(database);
         callback(YES);
     });
 }
