@@ -68,9 +68,9 @@
 
 -(NSString *)imagePathFromMediaFolder {
     NSString *mediaFolderPath = [ChatConversationHandler mediaFolderPathOfRecipient:self.recipient];
-//    NSLog(@"mediaFolderPath: %@",mediaFolderPath);
+    NSLog(@"mediaFolderPath: %@",mediaFolderPath);
     NSString *imagePath = [mediaFolderPath stringByAppendingPathComponent:self.imageFilename];
-//    NSLog(@"imagePath: %@",imagePath);
+    NSLog(@"imagePath: %@",imagePath);
     return imagePath;
 }
 

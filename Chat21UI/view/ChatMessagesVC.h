@@ -57,7 +57,6 @@
 @property (nonatomic, retain) NSMutableDictionary *imageDownloadsInProgress;
 
 // imagepicker
-@property (strong, nonatomic) UIActionSheet *photoMenuSheet;
 @property (nonatomic, strong) UIImagePickerController *imagePickerController;
 @property (nonatomic, strong) UIImagePickerController *photoLibraryController;
 @property (nonatomic, strong) UIImage *scaledImage;

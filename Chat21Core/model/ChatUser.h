@@ -26,6 +26,10 @@ static NSString* const FIREBASE_USER_EMAIL = @"email";
 @property(nonatomic, assign) NSInteger createdon;
 @property(nonatomic, strong) NSDate *createdonAsDate;
 
+@property(nonatomic, strong) NSString *profileImagePath;
+@property(nonatomic, strong) NSString *profileThumbImagePath;
+@property(nonatomic, strong) NSString *profileImageURL;
+@property(nonatomic, strong) NSString *profileThumbImageURL;
 
 -(NSDictionary *)asDictionary;
 -(id)init:(NSString *)userid fullname:(NSString *)fullname;

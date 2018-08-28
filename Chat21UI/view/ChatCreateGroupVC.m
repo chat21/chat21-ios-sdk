@@ -187,7 +187,7 @@
     if (self.imagePickerController == nil) {
         [self initializeCamera];
     }
-    [self presentViewController:self.imagePickerController animated:YES completion:^{NSLog(@"FINITO!");}];
+    [self presentViewController:self.imagePickerController animated:YES completion:^{}];
 }
 
 - (void)chooseExisting {

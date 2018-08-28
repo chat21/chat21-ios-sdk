@@ -291,19 +291,19 @@ static NSString *SELECT_FROM_GROUPS_STATEMENT = @"SELECT groupId, user, groupNam
     {
         NSString *querySQL = [NSString stringWithFormat:
                               @"%@ where groupId = \"%@\"",SELECT_FROM_GROUPS_STATEMENT, groupId];
+        if (self.logQuery) {
+            NSLog(@"query: %@", querySQL);
+        }
         const char *query_stmt = [querySQL UTF8String];
         if (sqlite3_prepare_v2(database, query_stmt, -1, &statement, NULL) == SQLITE_OK) {
             while (sqlite3_step(statement) == SQLITE_ROW) {
                 group = [self groupFromStatement:statement];
             }
-            sqlite3_finalize(statement);
-            sqlite3_close(database);
         } else {
             NSLog(@"**** PROBLEMS WHILE QUERYING GROUPS...");
             NSLog(@"Database returned error %d: %s", sqlite3_errcode(database), sqlite3_errmsg(database));
-            sqlite3_finalize(statement);
-            sqlite3_close(database);
         }
+        sqlite3_finalize(statement);
     }
     sqlite3_close(database);
     return group;

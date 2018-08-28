@@ -131,4 +131,3 @@ static ChatImageCache *sharedInstance = nil;
 }
 
 @end
-

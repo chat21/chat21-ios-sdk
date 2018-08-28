@@ -43,33 +43,31 @@ static ChatManager *sharedInstance = nil;
     NSDictionary *dictionary = [NSDictionary dictionaryWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"Chat-Info" ofType:@"plist"]];
     // default values
     sharedInstance.tenant = @"chat";
+    sharedInstance.baseURL = @"https://us-central1-chat-v2-dev.cloudfunctions.net";
+    sharedInstance.archiveConversationURI = @"/api/%@/conversations/%@";
+    sharedInstance.archiveAndCloseSupportConversationURI = @"/supportapi/%@/groups/%@";
     sharedInstance.groupsMode = YES;
     sharedInstance.tabBarIndex = 0;
     if (dictionary) {
-        if ([dictionary objectForKey:@"app-id"]) {
-            sharedInstance.tenant = [dictionary objectForKey:@"app-id"];
+        if ([dictionary objectForKey:@"tenant"]) {
+            sharedInstance.tenant = [dictionary objectForKey:@"tenant"];
         }
-//        else {
-//            sharedInstance.tenant = @"chat";
-//        }
         if ([dictionary objectForKey:@"groups-mode"]) {
             sharedInstance.groupsMode = [[dictionary objectForKey:@"groups-mode"] boolValue];
         }
-//        else {
-//            sharedInstance.groupsMode = YES;
-//        }
         if ([dictionary objectForKey:@"conversations-tabbar-index"]) {
             sharedInstance.tabBarIndex = [[dictionary objectForKey:@"conversations-tabbar-index"] integerValue];
         }
-//        else {
-//            sharedInstance.tabBarIndex = 0;
-//        }
+        if ([dictionary objectForKey:@"base-url"]) {
+            sharedInstance.baseURL = [dictionary objectForKey:@"base-url"];
+        }
+        if ([dictionary objectForKey:@"archive-conversation-uri"]) {
+            sharedInstance.archiveConversationURI = [dictionary objectForKey:@"archive-conversation-uri"];
+        }
+        if ([dictionary objectForKey:@"archive-and-support-conversation-uri"]) {
+            sharedInstance.archiveAndCloseSupportConversationURI = [dictionary objectForKey:@"archive-and-support-conversation-uri"];
+        }
     }
-//    else {
-//        sharedInstance.tenant = @"chat";
-//        sharedInstance.groupsMode = YES;
-//        sharedInstance.tabBarIndex = 0;
-//    }
     sharedInstance.loggedUser = nil;
 }
 
@@ -772,42 +770,32 @@ static ChatManager *sharedInstance = nil;
     }
 }
 
-//-(void)getContact:(NSString *)userid withCompletion(void (^)(ChatUser* user))callback {
-//    FIRDatabaseReference *rootRef = [[FIRDatabase database] reference];
-//    NSString *contact_path = [ChatUtil contactPathOfUser:self.loggedUser.userId];
-//    NSLog(@"Contact path of (%@): %@", self.loggedUser.userId, contact_path);
-//    FIRDatabaseReference *contactRef = [rootRef child:contact_path];
-//    [contactRef observeSingleEventOfType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
-//        NSLog(@"NEW CONTACT SNAPSHOT: %@", snapshot);
-//        if (!snapshot || ![snapshot exists]) {
-//            NSLog(@"Errore contact snapshot: !snapshot || !snapshot.exists");
-//            callback(nil);
-//        }
-//        else {
-//            ChatUser *user = [ChatManager :snapshot];
-//            ChatGroupsHandler *gh = [ChatManager getInstance].groupsHandler;
-//            [gh insertOrUpdateGroup:group completion:^{
-//                callback(group, NO);
-//            }];
-//        }
-//    } withCancelBlock:^(NSError *error) {
-//        NSLog(@"%@", error.description);
-//    }];
-//}
-
-//-(void)createGroupFromPushNotificationWithName:(NSString *)groupName groupId:(NSString *)groupId {
-//    ChatGroup *group = [[ChatGroup alloc] init];
-//    group.name = groupName;
-//    group.groupId = groupId;
-//    NSMutableArray *membersIDs = [[NSMutableArray alloc] init];
-//    NSString *me = self.loggedUser.userId;
-//    [membersIDs addObject:me];
-//    group.members = [ChatGroup membersArray2Dictionary:membersIDs];
-//    group.owner = nil;
-//    group.user = me; // groupDB is multi-user.
-//    group.createdOn = [[NSDate alloc] init];
-//    [ChatGroupsHandler createGroupFromPushNotification:group];
-//}
+-(FIRStorageReference *)uploadProfileImage:(UIImage *)image userId:(NSString *)userId completion:(void(^)(NSString *downloadURL, NSError *error))callback progressCallback:(void(^)(double fraction))progressCallback {
+    NSData *data = UIImageJPEGRepresentation(image, 0.9);
+    // Get a reference to the storage service using the default Firebase App
+    FIRStorage *storage = [FIRStorage storage];
+    // Create a root reference
+    FIRStorageReference *storageRef = [storage reference];
+    NSString *file_path = self.loggedUser.profileImagePath;
+    NSLog(@"profile image remote file path: %@", file_path);
+    // Create a reference to the file you want to upload
+    FIRStorageReference *storeRef = [storageRef child:file_path];
+    // Create file metadata including the content type
+    FIRStorageMetadata *metadata = [[FIRStorageMetadata alloc] init];
+    metadata.contentType = @"image/jpg";
+    // Upload the file to the path
+    [storeRef putData:data metadata:metadata completion:^(FIRStorageMetadata *metadata, NSError *error) {
+        if (error != nil) {
+            NSLog(@"an error occurred!");
+            callback(nil, error);
+        } else {
+            NSString *url = self.loggedUser.profileImageURL;
+            NSLog(@"Download url: %@", url);
+            callback(url, nil);
+        }
+    }];
+    return storeRef;
+}
 
 @end
 

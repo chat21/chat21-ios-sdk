@@ -509,7 +509,7 @@
 }
 
 - (IBAction)addContentAction:(id)sender {
-        UIAlertController * view =   [UIAlertController
+        UIAlertController * alert =   [UIAlertController
                                      alertControllerWithTitle:nil
                                      message:NSLocalizedString(@"Attach", nil)
                                      preferredStyle:UIAlertControllerStyleActionSheet];
@@ -544,16 +544,16 @@
                                  {
                                      NSLog(@"cancel");
                                  }];
-    [view addAction:photo];
-    [view addAction:photo_from_library];
-    [view addAction:dropbox];
-    [view addAction:cancel];
-    UIPopoverPresentationController *popPresenter = [view
+    [alert addAction:photo];
+    [alert addAction:photo_from_library];
+    [alert addAction:dropbox];
+    [alert addAction:cancel];
+    UIPopoverPresentationController *popPresenter = [alert
                                                      popoverPresentationController];
-    UIButton *button = (UIButton *) sender;
-    popPresenter.sourceView = button;
-    popPresenter.sourceRect = button.bounds;
-    [self presentViewController:view animated:YES completion:nil];
+    UIView *view = (UIView *) sender;
+    popPresenter.sourceView = view;
+    popPresenter.sourceRect = view.bounds;
+    [self presentViewController:alert animated:YES completion:nil];
 }
 
 -(void)openDropbox {
@@ -948,7 +948,7 @@ static float messageTime = 0.5;
     if (self.imagePickerController == nil) {
         [self initializeCamera];
     }
-    [self presentViewController:self.imagePickerController animated:YES completion:^{NSLog(@"FINITO!");}];
+    [self presentViewController:self.imagePickerController animated:YES completion:^{}];
 }
 
 - (void)chooseExisting {
@@ -964,8 +964,7 @@ static float messageTime = 0.5;
     self.imagePickerController = [[UIImagePickerController alloc] init];
     self.imagePickerController.delegate = self;
     self.imagePickerController.sourceType = UIImagePickerControllerSourceTypeCamera;
-    // enable to crop
-//    self.imagePickerController.allowsEditing = YES;
+    self.imagePickerController.allowsEditing = NO;
 }
 
 -(void)initializePhotoLibrary {
@@ -973,7 +972,7 @@ static float messageTime = 0.5;
     self.photoLibraryController = [[UIImagePickerController alloc] init];
     self.photoLibraryController.delegate = self;
     self.photoLibraryController.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;// SavedPhotosAlbum;
-//    self.photoLibraryController.allowsEditing = YES;
+    self.photoLibraryController.allowsEditing = NO;
 }
 
 -(void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info {

@@ -15,14 +15,23 @@
 +(NSString *)archiveConversationService:(NSString *)conversationId {
     // https://us-central1-chat-v2-dev.cloudfunctions.net/api/tilechat/conversations/support-group-LGdXjl_T98q_Kz3ycdJ
     NSString *tenant = [ChatManager getInstance].tenant;
-    NSString *url = [[NSString alloc] initWithFormat:@"https://us-central1-chat-v2-dev.cloudfunctions.net/api/%@/conversations/%@", tenant, conversationId];
+    NSString *host = [ChatManager getInstance].baseURL;
+    NSString *archiveConversationURI = [ChatManager getInstance].archiveConversationURI;
+    NSString *archiveConversationURIpopulated = [NSString stringWithFormat:archiveConversationURI, tenant, conversationId];
+//    NSString *url = [[NSString alloc] initWithFormat:@"%@/api/%@/conversations/%@", host, tenant, conversationId];
+    NSString *url = [[NSString alloc] initWithFormat:@"%@%@", host, archiveConversationURIpopulated];
+    NSLog(@"archiveConversationService URL: %@", url);
     return url;
 }
 
 +(NSString *)archiveAndCloseSupportConversationService:(NSString *)conversationId {
     // https://us-central1-chat-v2-dev.cloudfunctions.net/supportapi/tilechat/groups/support-group-LG9WBQE2mkIKVIhZmHW
     NSString *tenant = [ChatManager getInstance].tenant;
-    NSString *url = [[NSString alloc] initWithFormat:@"https://us-central1-chat-v2-dev.cloudfunctions.net/supportapi/%@/groups/%@", tenant, conversationId];
+    NSString *host = [ChatManager getInstance].baseURL;
+    NSString *archiveAndCloseSupportConversationURI = [ChatManager getInstance].archiveAndCloseSupportConversationURI;
+    NSString *archiveAndCloseSupportConversationURIpopulated = [NSString stringWithFormat:archiveAndCloseSupportConversationURI, tenant, conversationId];
+    NSString *url = [[NSString alloc] initWithFormat:@"%@%@", host, archiveAndCloseSupportConversationURIpopulated];
+    NSLog(@"archiveAndCloseSupportConversationService URL: %@", url);
     return url;
 }
 

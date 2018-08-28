@@ -652,50 +652,6 @@ static NSString *MATCH_TYPE_CHAT_LINK = @"CHATLINK";
             }
         }
     }];
-    
-//    NSURLSessionConfiguration *_config = [NSURLSessionConfiguration defaultSessionConfiguration];
-//    NSURLSession *_session = [NSURLSession sessionWithConfiguration:_config];
-//
-//    NSURL *url = [NSURL URLWithString:message.imageURL];
-//    NSLog(@"Image url: %@", message.imageURL);
-//    if (!url) {
-//        NSLog(@"ERROR - Can't download image, URL is null");
-//        return;
-//    }
-//    NSString *path = [message imagePathFromMediaFolder];
-//    NSLog(@"image path to save: %@", path);
-//    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:60.0];
-//
-//    NSURLSessionDataTask *task = [_session dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
-//        NSLog(@"image downloaded.");
-//        if (error) {
-//            NSLog(@"%@", error);
-//            return;
-//        }
-//
-//        if (data) {
-//            UIImage *image = [UIImage imageWithData:data];
-//            if (image) {
-//                NSData* imageData = [NSData dataWithData:UIImagePNGRepresentation(image)];
-//                NSError *writeError = nil;
-//                NSLog(@"image path: %@", path);
-//                [message createMediaFolderPathIfNotExists];
-//                if(![imageData writeToFile:path options:NSDataWritingAtomic error:&writeError]) {
-//                    NSLog(@"%@: Error saving image: %@", [self class], [writeError localizedDescription]);
-//                }
-//                dispatch_async(dispatch_get_main_queue(), ^{
-//                    [self.imageCache addImage:image withKey:message.messageId];
-//                    if ([self isIndexPathVisible:indexPath]) {
-//                        ChatImageMessageRightCell *updateCell = (id)[self.tableView cellForRowAtIndexPath:indexPath];
-//                        if (updateCell) {
-//                            updateCell.messageImageView.image = image;
-//                        }
-//                    }
-//                });
-//            }
-//        }
-//    }];
-//    [task resume];
 }
 
 -(BOOL)isIndexPathVisible:(NSIndexPath *)indexPath {

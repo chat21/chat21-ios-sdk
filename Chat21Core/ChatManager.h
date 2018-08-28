@@ -36,7 +36,12 @@
 
 @interface ChatManager : NSObject
 
+// plist properties
 @property (nonatomic, strong) NSString *tenant;
+@property (nonatomic, strong) NSString *baseURL;
+@property (nonatomic, strong) NSString *archiveConversationURI;
+@property (nonatomic, strong) NSString *archiveAndCloseSupportConversationURI;
+
 @property (nonatomic, strong) ChatUser *loggedUser;
 @property (nonatomic, strong) NSMutableDictionary<NSString*, ChatConversationHandler*> *handlers;
 @property (nonatomic, strong) ChatConversationsHandler *conversationsHandler;
@@ -99,7 +104,7 @@
 -(void)removeInstanceId;
 -(void)loadGroup:(NSString *)group_id completion:(void (^)(ChatGroup* group, BOOL error))callback;
 
-//-(void)isStatusConnectedWithCompletionBlock:(void (^)(BOOL connected, NSError* error))callback;
+-(FIRStorageReference *)uploadProfileImage:(UIImage *)image userId:(NSString *)userId completion:(void(^)(NSString *downloadURL, NSError *error))callback progressCallback:(void(^)(double fraction))progressCallback;
 
 @end
 
