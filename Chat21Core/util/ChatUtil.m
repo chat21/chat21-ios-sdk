@@ -16,39 +16,6 @@
 
 @implementation ChatUtil
 
-//+(NSString *)conversationIdWithSender:(NSString *)sender receiver:(NSString *)receiver {// tenant:(NSString *)tenant {
-//    NSLog(@"conversationIdWithSender> sender is: %@ receiver is: %@", sender, receiver);
-//    NSString *sanitized_sender = [ChatUtil sanitizedNode:sender];
-//    NSString *sanitized_receiver = [ChatUtil sanitizedNode:receiver];
-//    NSMutableArray *users = [[NSMutableArray alloc] init];
-//    [users addObject:sanitized_sender];
-//    [users addObject:sanitized_receiver];
-//    NSLog(@"users 0 %@", [users objectAtIndex:0]);
-//    NSLog(@"users 1 %@", [users objectAtIndex:1]);
-//    NSArray *sortedUsers = [users sortedArrayUsingSelector:
-//                            @selector(localizedCaseInsensitiveCompare:)];
-//    //    // verify users order
-//    //    for (NSString *username in sortedUsers) {
-//    //        NSLog(@"username: %@", username);
-//    //    }
-//    NSString *conversation_id = [@"" stringByAppendingFormat:@"%@-%@", sortedUsers[0], sortedUsers[1]]; // [tenant stringByAppendingFormat:@"-%@-%@", sortedUsers[0], sortedUsers[1]];
-//    return  conversation_id;
-//}
-
-// DEPRECATED
-//+(NSString *)conversationIdForGroup:(NSString *)groupId {
-//    // conversationID = "{groupID}_GROUP"
-//    NSString *conversation_id = groupId;//[groupId stringByAppendingFormat:@"_GROUP"];
-//    return  conversation_id;
-//}
-
-// #DEPRECATED
-//+(NSString *)usernameOnTenant:(NSString *)tenant username:(NSString *)username {
-//    NSString *sanitized_username = [ChatUtil sanitizedNode:username];
-//    NSString *sanitized_tenant = [ChatUtil sanitizedNode:tenant];
-//    return [[NSString alloc] initWithFormat:@"%@-%@", sanitized_tenant, sanitized_username];
-//}
-
 +(FIRDatabaseReference *)conversationRefForUser:(NSString *)userId conversationId:(NSString *)conversationId {
     NSString *relative_path = [self conversationPathForUser:userId conversationId:conversationId];
     FIRDatabaseReference *repoRef = [[FIRDatabase database] reference];
@@ -465,5 +432,36 @@
     
     return [difference day];
 }
+
+// **** PROFILE IMAGE URL ****
+
++(NSString *)imagePathOfProfile:(NSString *)profileId imageName:(NSString *)imageName {
+    return [[NSString alloc] initWithFormat:@"profiles/%@/%@", profileId, imageName];
+}
+
++(NSString *)imageURLOfProfile:(NSString *)profileId {
+    // http://base-url/profile/USER-ID/photo.jpg
+    return [ChatUtil imageURLOfProfile: profileId imageName:@"photo.jpg"];
+}
+
++(NSString *)thumbImageURLOfProfile:(NSString *)profileId {
+    // http://base-url/profile/USER-ID/thumb_photo.jpg
+    return [ChatUtil imageURLOfProfile: profileId imageName:@"thumb_photo.jpg"];
+}
+
++(NSString *)imageURLOfProfile:(NSString *)profileId imageName:(NSString *)imageName {
+    NSString *image_path = [ChatUtil imagePathOfProfile:profileId imageName:imageName]; //[[NSString alloc] initWithFormat:@"profiles/%@/%@", profileId, imageName];
+    NSDictionary *google_info_dict = [NSDictionary dictionaryWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"GoogleService-Info" ofType:@"plist"]];
+    NSDictionary *chat_info_dict = [NSDictionary dictionaryWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"Chat-Info" ofType:@"plist"]];
+    NSString *file_path_url_escaped = [image_path stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
+    NSString *bucket = [google_info_dict objectForKey:@"STORAGE_BUCKET"];
+    NSString *profile_image_base_url = [chat_info_dict objectForKey:@"profile-image-base-url"];
+    NSString *base_url = [[NSString alloc] initWithFormat:profile_image_base_url, bucket ];
+    NSString *image_url = [[NSString alloc] initWithFormat:@"%@/%@?alt=media", base_url, file_path_url_escaped];
+    NSLog(@"profile image url: %@", image_url);
+    return image_url;
+}
+
+// **** PROFILE IMAGE URL - END ****
 
 @end

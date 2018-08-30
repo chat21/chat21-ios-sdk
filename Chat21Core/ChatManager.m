@@ -1,6 +1,6 @@
 //
 //  ChatManager.m
-//  Soleto
+//  Chat21
 //
 //  Created by Andrea Sponziello on 20/12/14.
 //
@@ -24,6 +24,8 @@
 #import "ChatConnectionStatusHandler.h"
 #import "ChatMessage.h"
 #import "ChatLocal.h"
+#import "ChatService.h"
+#import "ChatDiskImageCache.h"
 
 @import Firebase;
 
@@ -34,6 +36,7 @@ static ChatManager *sharedInstance = nil;
 -(id)init {
     if (self = [super init]) {
         self.handlers = [[NSMutableDictionary alloc] init];
+        self.imageCache = [[ChatDiskImageCache alloc] init];
     }
     return self;
 }
@@ -46,6 +49,7 @@ static ChatManager *sharedInstance = nil;
     sharedInstance.baseURL = @"https://us-central1-chat-v2-dev.cloudfunctions.net";
     sharedInstance.archiveConversationURI = @"/api/%@/conversations/%@";
     sharedInstance.archiveAndCloseSupportConversationURI = @"/supportapi/%@/groups/%@";
+    sharedInstance.deleteProfilePhotoURI = @"";
     sharedInstance.groupsMode = YES;
     sharedInstance.tabBarIndex = 0;
     if (dictionary) {
@@ -66,6 +70,9 @@ static ChatManager *sharedInstance = nil;
         }
         if ([dictionary objectForKey:@"archive-and-support-conversation-uri"]) {
             sharedInstance.archiveAndCloseSupportConversationURI = [dictionary objectForKey:@"archive-and-support-conversation-uri"];
+        }
+        if ([dictionary objectForKey:@"delete-profile-photo-uri"]) {
+            sharedInstance.deleteProfilePhotoURI = [dictionary objectForKey:@"delete-profile-photo-uri"];
         }
     }
     sharedInstance.loggedUser = nil;
@@ -254,122 +261,6 @@ static ChatManager *sharedInstance = nil;
          }];
     }
 }
-
-//-(void)testFirebase {
-//
-//    // TEST SCRITTURA FIREBASE + PERMESSI
-//    FIRDatabaseReference *_ref1 = [[FIRDatabase database] reference];
-//    [[_ref1 child:@"apps/mobichat/users/andrea_leo/messages/C"] setValue:@{@"testo": @"successo scrittura"} withCompletionBlock:^(NSError * _Nullable error, FIRDatabaseReference * _Nonnull ref) {
-//        if (error) {
-//            NSLog(@"Error saving testo: %@", error);
-//        }
-//        else {
-//            NSLog(@"testo SAVED!");
-//        }
-//    }];
-//
-//    //    [[FIRAuth auth] createUserWithEmail:@"andrea.sponziello@frontiere21.it"
-//    //                               password:@"123456"
-//    //                             completion:^(FIRUser *_Nullable user, NSError *_Nullable error) {
-//    //                                 NSLog(@"Utente creato: andrea.sponziello@gmail.com/pallino");
-//    //                             }];
-//    //
-//    //    [[FIRAuth auth] signInWithEmail:@"andrea.sponziello@frontiere21.it"
-//    //                           password:@"123456"
-//    //                         completion:^(FIRUser *user, NSError *error) {
-//    //                             NSLog(@"Autenticato: %@ - %@/emailverified: %d", error, user.email, user.emailVerified);
-//    //                             if (!user.emailVerified) {
-//    //                                 NSLog(@"Email non verificata. Invio email verifica...");
-//    //                                 [user sendEmailVerificationWithCompletion:^(NSError * _Nullable error) {
-//    //                                     NSLog(@"Email verifica inviata.");
-//    //                                 }];
-//    //                             }
-//    //                             // TEST CONNECTION
-//    //                             FIRDatabaseReference *_ref = [[FIRDatabase database] reference];
-//    //                             //                             FIRUser *currentUser = [FIRAuth auth].currentUser;
-//    //                             [[_ref child:@"yesmister3"] setValue:@"andrea" withCompletionBlock:^(NSError * _Nullable error, FIRDatabaseReference * _Nonnull ref) {
-//    //
-//    //                                 NSLog(@"completato! %@", ref);
-//    //
-//    //                             }];
-//    //
-//    //                             [[_ref child:@"test"] setValue:@{@"username": @"Lampatu"}];
-//    //                             [[_ref child:@"test2"] setValue:@{@"valore": @"Andrea"}];
-//    //                             [[_ref child:@"NADAL"] setValue:@{@"Vince": @"Wimbledon"}];
-//    //
-//    //                             [[_ref child:@"test"] observeSingleEventOfType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot * _Nonnull snapshot) {
-//    //                                 NSLog(@"snapshot: %@", snapshot);
-//    //                             } withCancelBlock:^(NSError * _Nonnull error) {
-//    //                                 NSLog(@"error: %@", error.localizedDescription);
-//    //                             }];
-//    //
-//    //                             [[_ref child:@"test10"] observeSingleEventOfType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot * _Nonnull snapshot) {
-//    //                                 NSLog(@"snapshot: %@", snapshot);
-//    //                             } withCancelBlock:^(NSError * _Nonnull error) {
-//    //                                 NSLog(@"error: %@", error.localizedDescription);
-//    //                             }];
-//    //
-//    //                             [[_ref child:@"yesmister"] observeSingleEventOfType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot * _Nonnull snapshot) {
-//    //                                 NSLog(@"snapshot: %@", snapshot);
-//    //                             } withCancelBlock:^(NSError * _Nonnull error) {
-//    //                                 NSLog(@"error: %@", error.localizedDescription);
-//    //                             }];
-//    //
-//    //                         }];
-//    //
-//    //    [[FIRAuth auth]
-//    //     addAuthStateDidChangeListener:^(FIRAuth *_Nonnull auth, FIRUser *_Nullable user) {
-//    //         NSLog(@"Firebase autenticatooooo! auth: %@ user: %@", auth, user);
-//    //     }];
-//}
-
-//-(void)setupConnectionStatus {
-//    NSLog(@"Connection status.");
-//    NSString *url = @"/.info/connected";
-//    FIRDatabaseReference *rootRef = [[FIRDatabase database] reference];
-//    FIRDatabaseReference *connectedRef = [rootRef child:url];
-//
-//    // event
-//    if (!self.connectedRefHandle) {
-//        self.connectedRefHandle = [connectedRef observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
-//            NSLog(@"snapshot %@ - %d", snapshot, [snapshot.value boolValue]);
-//            if([snapshot.value boolValue]) {
-//                NSLog(@".connected.");
-////                if (self.conversationsVC) {
-////                    [self.conversationsVC setUIStatusConnected];
-////                }
-//            } else {
-//                NSLog(@".not connected.");
-////                if (self.conversationsVC) {
-////                    [self.conversationsVC setUIStatusDisconnected];
-////                }
-//            }
-//        }];
-//    }
-//}
-
-//-(void)isStatusConnectedWithCompletionBlock:(void (^)(BOOL connected, NSError* error))callback {
-//    NSString *url = @"/.info/connected";
-//    FIRDatabaseReference *rootRef = [[FIRDatabase database] reference];
-//    FIRDatabaseReference *connectedRef = [rootRef child:url];
-//
-//    // once
-//    [connectedRef observeSingleEventOfType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot * _Nonnull snapshot) {
-//        // Get user value
-//        NSLog(@"SNAPSHOT ONCE %@ - %d", snapshot, [snapshot.value boolValue]);
-//        if([snapshot.value boolValue]) {
-//            NSLog(@"..connected once..");
-//            callback(YES, nil);
-//        }
-//        else {
-//            NSLog(@"..not connected once..");
-//            callback(NO, nil);
-//        }
-//    } withCancelBlock:^(NSError * _Nonnull error) {
-//        NSLog(@"%@", error.localizedDescription);
-//        callback(NO, error);
-//    }];
-//}
 
 // IL METODO DISPOSE NON ESEGUE IL LOGOUT PERCHè PUO' ESSERE RICHIAMATO ANCHE PER DISPORRE UNA CHAT
 // CON UTENTE CONNESSO, COME NEL CASO DI CAMBIO UTENTE.
@@ -754,16 +645,6 @@ static ChatManager *sharedInstance = nil;
                 NSLog(@"instanceId (FCMToken) %@ saved", FCMToken);
             }
         }];
-        
-        // single instance, DEPRECATED
-//        [[[[[FIRDatabase database] reference] child:user_path] child:@"instanceId"] setValue:FCMToken withCompletionBlock:^(NSError * _Nullable error, FIRDatabaseReference * _Nonnull ref) {
-//            if (error) {
-//                NSLog(@"Error saving instanceId (FCMToken) on user_path %@: %@", error, user_path);
-//            }
-//            else {
-//                NSLog(@"instanceId (FCMToken) %@ saved", FCMToken);
-//            }
-//        }];
     }
     else {
         NSLog(@"No user is signed in for push notifications.");
@@ -795,6 +676,21 @@ static ChatManager *sharedInstance = nil;
         }
     }];
     return storeRef;
+}
+
+-(void)deleteProfileImageOfUser:(NSString *)userId completion:(void(^)(NSError *error))callback {
+    [ChatService deleteProfilePhoto:userId completion:^(NSError *error) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (error) {
+                NSLog(@"Delete profile photo of %@ successfully completed with error: %@",userId,  error);
+                callback(error);
+            }
+            else {
+                NSLog(@"Profile photo of %@ successfully deleted.", userId);
+                callback(nil);
+            }
+        });
+    }];
 }
 
 @end

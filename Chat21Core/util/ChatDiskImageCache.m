@@ -37,6 +37,11 @@ static ChatDiskImageCache *sharedInstance = nil;
     [ChatDiskImageCache saveImageAsJPEG:image withName:key inFolder:self.cacheFolder];
 }
 
+-(void)deleteImageFromCacheWithKey:(NSString *)key {
+    [self.imageCache removeObjectForKey:key];
+    [ChatDiskImageCache deleteFileWithName:key inFolder:self.cacheFolder];
+}
+
 -(UIImage *)getCachedImage:(NSString *)key {
     //    ChatImageWrapper *wrapper = nil;
     // hit memory first
@@ -51,16 +56,16 @@ static ChatDiskImageCache *sharedInstance = nil;
 +(UIImage *)loadImage:(NSString *)fileName inFolder:(NSString *)folderName {
     NSString *folder_path = [self absoluteFolderPath:folderName]; // cache folder path
     
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    NSArray *directoryList = [fileManager contentsOfDirectoryAtPath:folder_path error:nil];
-    for (id file in directoryList) {
-        NSLog(@"Image: %@", file);
-    }
-    NSLog(@"End list.");
+//    NSFileManager *fileManager = [NSFileManager defaultManager];
+//    NSArray *directoryList = [fileManager contentsOfDirectoryAtPath:folder_path error:nil];
+//    for (id file in directoryList) {
+//        NSLog(@"Image: %@", file);
+//    }
+//    NSLog(@"End list.");
     
+    NSFileManager *fileManager = [NSFileManager defaultManager];
     NSString *image_path = [folder_path stringByAppendingPathComponent:fileName];
     NSLog(@"image path to load: %@", image_path);
-    
     BOOL fileExist = [fileManager fileExistsAtPath:image_path];
     UIImage *image;
     if (fileExist) {
@@ -84,13 +89,39 @@ static ChatDiskImageCache *sharedInstance = nil;
     NSLog(@"Image path: %@", image_path);
     NSError *error;
     [UIImageJPEGRepresentation(image, 0.9) writeToFile:image_path options:NSDataWritingAtomic error:&error];
-    NSLog(@"Error saving image to cache path? (%@) - %@",image_path, error);
+    if (error) {
+        NSLog(@"Error saving image to cache path? (%@) - %@",image_path, error);
+    }
     // test
     if ([filemgr fileExistsAtPath: image_path ] == NO) {
         NSLog(@"Error. Image not saved.");
     }
     else {
         NSLog(@"Image saved to cache path.");
+    }
+//    NSArray *directoryList = [filemgr contentsOfDirectoryAtPath:folder_path error:nil];
+//    for (id file in directoryList) {
+//        NSLog(@"Image: %@", file);
+//    }
+//    NSLog(@"End list.");
+}
+
++(void)deleteFileWithName:(NSString*)fileName inFolder:(NSString *)folderName {
+    NSString *folder_path = [self absoluteFolderPath:folderName]; // cache folder path
+    NSString *image_path = [folder_path stringByAppendingPathComponent:fileName];
+    NSFileManager *filemgr = [NSFileManager defaultManager];
+    NSLog(@"Image path: %@", image_path);
+    NSError *error;
+    [filemgr removeItemAtPath:image_path error:&error];
+    if (error) {
+        NSLog(@"Error removing image to cache path? (%@) - %@",image_path, error);
+    }
+    // test
+    if ([filemgr fileExistsAtPath: image_path ] == NO) {
+        NSLog(@"Image deleted.");
+    }
+    else {
+        NSLog(@"Error deleting image.");
     }
     NSArray *directoryList = [filemgr contentsOfDirectoryAtPath:folder_path error:nil];
     for (id file in directoryList) {
@@ -204,18 +235,10 @@ static ChatDiskImageCache *sharedInstance = nil;
             UIImage *image = [UIImage imageWithData:data];
             if (image) {
                 [self addImageToCache:image withKey:cache_key];
-//                NSData* imageData = [NSData dataWithData:UIImageJPEGRepresentation(image, 0.8)];
-//                NSString *path = [message imagePathFromMediaFolder];
-//                NSLog(@"Saving image to: %@", path);
-//                NSError *writeError = nil;
-//                [message createMediaFolderPathIfNotExists];
-//                if(![imageData writeToFile:path options:NSDataWritingAtomic error:&writeError]) {
-//                    NSLog(@"%@: Error saving image: %@", [self class], [writeError localizedDescription]);
-//                }
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    callback(imageURL, image);
-                });
             }
+            dispatch_async(dispatch_get_main_queue(), ^{
+                callback(imageURL, image);
+            });
         }
     }];
     [self.tasks setObject:task forKey:imageURL];

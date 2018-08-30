@@ -33,6 +33,7 @@
 @class ChatSpeaker;
 @class ChatConversationHandler;
 @class ChatConnectionStatusHandler;
+@class ChatDiskImageCache;
 
 @interface ChatManager : NSObject
 
@@ -41,6 +42,7 @@
 @property (nonatomic, strong) NSString *baseURL;
 @property (nonatomic, strong) NSString *archiveConversationURI;
 @property (nonatomic, strong) NSString *archiveAndCloseSupportConversationURI;
+@property (nonatomic, strong) NSString *deleteProfilePhotoURI;
 
 @property (nonatomic, strong) ChatUser *loggedUser;
 @property (nonatomic, strong) NSMutableDictionary<NSString*, ChatConversationHandler*> *handlers;
@@ -49,6 +51,7 @@
 @property (nonatomic, strong) ChatConnectionStatusHandler *connectionStatusHandler;
 @property (nonatomic, strong) ChatGroupsHandler *groupsHandler;
 @property (nonatomic, strong) ChatContactsSynchronizer *contactsSynchronizer;
+@property (nonatomic, strong) ChatDiskImageCache *imageCache;
 //@property (nonatomic, strong) ChatConversationsVC * conversationsVC;
 @property (strong, nonatomic) FIRAuthStateDidChangeListenerHandle authStateDidChangeListenerHandle;
 //@property (assign, nonatomic) FIRDatabaseHandle connectedRefHandle;
@@ -105,6 +108,7 @@
 -(void)loadGroup:(NSString *)group_id completion:(void (^)(ChatGroup* group, BOOL error))callback;
 
 -(FIRStorageReference *)uploadProfileImage:(UIImage *)image userId:(NSString *)userId completion:(void(^)(NSString *downloadURL, NSError *error))callback progressCallback:(void(^)(double fraction))progressCallback;
+-(void)deleteProfileImageOfUser:(NSString *)userId completion:(void(^)(NSError *error))callback;
 
 @end
 

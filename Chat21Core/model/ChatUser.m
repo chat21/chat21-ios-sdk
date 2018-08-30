@@ -6,6 +6,7 @@
 //
 
 #import "ChatUser.h"
+#import "ChatUtil.h"
 
 @implementation ChatUser
 
@@ -92,38 +93,16 @@
     return YES;
 }
 
--(NSString *)profileImagePathOf:(NSString *)photoName {
-    NSString *image_path = [[NSString alloc] initWithFormat:@"profiles/%@/%@", self.userId, photoName];
-    return image_path;
-}
-
 -(NSString *)profileImagePath {
-    return [self profileImagePathOf:@"photo.jpg"];
-}
-
--(NSString *)profileThumbImagePath {
-    return [self profileImagePathOf:@"thumb_photo.jpg"];
+    return [ChatUtil imagePathOfProfile:self.userId imageName:@"photo.jpg"];
 }
 
 -(NSString *)profileImageURL {
-    NSString *image_path = [self profileImagePath];
-    return [self profileImageURLOfPath: image_path];
+    return [ChatUtil imageURLOfProfile:self.userId];
 }
 
 -(NSString *)profileThumbImageURL {
-    NSString *image_path = [self profileThumbImagePath];
-    return [self profileImageURLOfPath: image_path];
+    return [ChatUtil thumbImageURLOfProfile:self.userId];
 }
 
--(NSString *)profileImageURLOfPath:(NSString *)image_path {
-    NSDictionary *google_info_dict = [NSDictionary dictionaryWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"GoogleService-Info" ofType:@"plist"]];
-    NSDictionary *chat_info_dict = [NSDictionary dictionaryWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"Chat-Info" ofType:@"plist"]];
-    NSString *file_path_url_escaped = [image_path stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
-    NSString *bucket = [google_info_dict objectForKey:@"STORAGE_BUCKET"];
-    NSString *profile_image_base_url = [chat_info_dict objectForKey:@"profile-image-base-url"];
-    NSString *base_url = [[NSString alloc] initWithFormat:profile_image_base_url, bucket ];
-    NSString *image_url = [[NSString alloc] initWithFormat:@"%@/%@?alt=media", base_url, file_path_url_escaped];
-    NSLog(@"profile image url: %@", image_url);
-    return image_url;
-}
 @end

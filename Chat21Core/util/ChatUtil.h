@@ -52,5 +52,9 @@
 // *** Images ***
 +(UIImage *)circleImage:(UIImage *)image;
 
++(NSString *)imagePathOfProfile:(NSString *)profileId imageName:(NSString *)imageName;
++(NSString *)imageURLOfProfile:(NSString *)profileId;
++(NSString *)thumbImageURLOfProfile:(NSString *)profileId;
++(NSString *)imageURLOfProfile:(NSString *)profileId imageName:(NSString *)imageName;
 
 @end

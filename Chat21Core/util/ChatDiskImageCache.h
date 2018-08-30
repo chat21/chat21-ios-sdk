@@ -20,6 +20,7 @@
 
 -(UIImage *)getCachedImage:(NSString *)key;
 -(void)addImageToCache:(UIImage *)image withKey:(NSString *)key;
+-(void)deleteImageFromCacheWithKey:(NSString *)key;
 
 +(void)saveImageAsJPEG:(UIImage *)image withName:(NSString*)name inFolder:(NSString *)folderName;
 +(UIImage *)loadImage:(NSString *)name inFolder:(NSString *)folderName;

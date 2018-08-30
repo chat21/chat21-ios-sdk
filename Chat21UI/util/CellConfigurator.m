@@ -165,6 +165,7 @@
 }
 
 +(UITableViewCell *)configureDirectConversationCell:(ChatConversation *)conversation tableView:(UITableView *)tableView indexPath:(NSIndexPath *)indexPath imageCache:(ChatImageCache *)imageCache {
+    NSLog(@"Rendering conversation cell for user: %@", conversation.user);
     //    NSLog(@"-------------- DIRECT %@ SENDR %@" , conversation.last_message_text, conversation.sender);
     NSString *me = [ChatManager getInstance].loggedUser.userId;
     static NSString *conversationCellName = @"conversationDMCell";
