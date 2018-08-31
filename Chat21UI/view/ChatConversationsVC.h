@@ -20,6 +20,8 @@
 @class SHPUserDC;
 @class ChatContactsSynchronizer;
 @class ChatGroup;
+@class CellConfigurator;
+@class ChatDiskImageCache;
 
 static const int SECTION_GROUP_MENU_INDEX = 0;
 static const int SECTION_CONVERSATIONS_INDEX = 1;
@@ -40,10 +42,11 @@ static const int SECTION_CONVERSATIONS_INDEX = 1;
 @property (strong, nonatomic) ChatUser *me;
 //@property (strong, nonatomic) NSIndexPath *removingConversationAtIndexPath;
 @property (strong, nonatomic) UIBarButtonItem *backButton;
-@property (strong, nonatomic) ChatImageCache *imageCache;
+@property (strong, nonatomic) ChatDiskImageCache *imageCache;
 @property (assign, nonatomic) int unread_count;
 @property (strong, nonatomic) NSDictionary *settings;
 @property (assign, nonatomic) BOOL isModal;
+@property (strong, nonatomic) CellConfigurator *cellConfigurator;
 @property (nonatomic, copy) void (^dismissModalCallback)();
 
 // connection status

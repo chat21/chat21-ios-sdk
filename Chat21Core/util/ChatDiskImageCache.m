@@ -65,7 +65,7 @@ static ChatDiskImageCache *sharedInstance = nil;
     
     NSFileManager *fileManager = [NSFileManager defaultManager];
     NSString *image_path = [folder_path stringByAppendingPathComponent:fileName];
-    NSLog(@"image path to load: %@", image_path);
+//    NSLog(@"image path to load: %@", image_path);
     BOOL fileExist = [fileManager fileExistsAtPath:image_path];
     UIImage *image;
     if (fileExist) {
@@ -123,18 +123,18 @@ static ChatDiskImageCache *sharedInstance = nil;
     else {
         NSLog(@"Error deleting image.");
     }
-    NSArray *directoryList = [filemgr contentsOfDirectoryAtPath:folder_path error:nil];
-    for (id file in directoryList) {
-        NSLog(@"Image: %@", file);
-    }
-    NSLog(@"End list.");
+//    NSArray *directoryList = [filemgr contentsOfDirectoryAtPath:folder_path error:nil];
+//    for (id file in directoryList) {
+//        NSLog(@"Image: %@", file);
+//    }
+//    NSLog(@"End list.");
 }
 
 +(NSString *)absoluteFolderPath:(NSString *)folderName {
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
     NSString *documentsDirectory = [paths objectAtIndex:0];
     NSString *path = [documentsDirectory stringByAppendingPathComponent:folderName];
-    NSLog(@"path: %@", path);
+//    NSLog(@"path: %@", path);
     return path;
 }
 
@@ -201,13 +201,13 @@ static ChatDiskImageCache *sharedInstance = nil;
     
 //}
 
-- (void)getImage:(NSString *)imageURL completionHandler:(void(^)(NSString *imageURL, UIImage *image))callback {
+- (NSURLSessionDataTask *)getImage:(NSString *)imageURL completionHandler:(void(^)(NSString *imageURL, UIImage *image))callback {
     NSURL *url = [NSURL URLWithString:imageURL];
     NSString *cache_key = [self urlAsKey:url];
     UIImage *image = [self getCachedImage:cache_key];
     if (image) {
         callback(imageURL, image);
-        return;
+        return nil;
     }
     NSURLSessionDataTask *currentTask = [self.tasks objectForKey:imageURL];
     if (currentTask) {
@@ -220,7 +220,8 @@ static ChatDiskImageCache *sharedInstance = nil;
     NSLog(@"Downloading image. URL: %@", imageURL);
     if (!url) {
         NSLog(@"ERROR - Can't download image, URL is null");
-        return;
+        callback(imageURL, nil);
+        return nil;
     }
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:60.0];
     NSURLSessionDataTask *task = [_session dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
@@ -243,12 +244,13 @@ static ChatDiskImageCache *sharedInstance = nil;
     }];
     [self.tasks setObject:task forKey:imageURL];
     [task resume];
+    return task;
 }
 
 -(NSString *)urlAsKey:(NSURL *)url {
     NSArray<NSString *> *components = [url pathComponents];
     NSString *key = [[components componentsJoinedByString:@"_"] stringByReplacingOccurrencesOfString:@"/" withString:@"_"];
-    NSLog(@"urlAsKey: %@ as key: %@", url, key);
+//    NSLog(@"urlAsKey: %@ as key: %@", url, key);
     return key;
 }
 

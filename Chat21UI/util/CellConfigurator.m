@@ -17,29 +17,40 @@
 #import "ChatUtil.h"
 #import <QuartzCore/QuartzCore.h>
 #import "ChatLocal.h"
+#import "ChatDiskImageCache.h"
 
 @implementation CellConfigurator
 
-+(UITableViewCell *)configureConversationCell:(ChatConversation *)conversation tableView:(UITableView *)tableView indexPath:(NSIndexPath *)indexPath imageCache:(ChatImageCache *)imageCache {
+-(id)initWithTableView:(UITableView *)tableView imageCache:(ChatDiskImageCache *)imageCache {
+    if (self = [super init]) {
+//        self.imageUrlAtIndexPath = [[NSMutableDictionary alloc] init];
+        self.tableView = tableView;
+        self.imageCache = imageCache;
+    }
+    return self;
+}
+
+-(UITableViewCell *)configureConversationCell:(ChatConversation *)conversation indexPath:(NSIndexPath *)indexPath {
     UITableViewCell *cell;
     if (!conversation.isDirect) {
-        cell = [CellConfigurator configureGroupConversationCell:conversation tableView:tableView indexPath:indexPath imageCache:imageCache];
+        cell = [self configureGroupConversationCell:conversation indexPath:indexPath];
     } else {
-        cell = [CellConfigurator configureDirectConversationCell:conversation tableView:tableView indexPath:indexPath imageCache:imageCache];
+        cell = [self configureDirectConversationCell:conversation indexPath:indexPath];
     }
     return cell;
 }
 
-+(UITableViewCell *)configureGroupConversationCell:(ChatConversation *)conversation tableView:(UITableView *)tableView indexPath:(NSIndexPath *)indexPath imageCache:(ChatImageCache *)imageCache {
+-(UITableViewCell *)configureGroupConversationCell:(ChatConversation *)conversation indexPath:(NSIndexPath *)indexPath {
     
     //    NSLog(@"Configuring group cell.");
-    
-    ChatGroup *group = [[ChatManager getInstance] groupById:conversation.recipient];
+    NSString *groupId = conversation.recipient;
+    ChatGroup *group = [[ChatManager getInstance] groupById:groupId];
     
     NSString *me = [ChatManager getInstance].loggedUser.userId;
     static NSString *conversationCellName = @"conversationGroupCell";
     
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:conversationCellName forIndexPath:indexPath];
+    UITableViewCell *cell = [self.tableView dequeueReusableCellWithIdentifier:conversationCellName forIndexPath:indexPath];
+    
     UILabel *subject_label = (UILabel *)[cell viewWithTag:2];
     UILabel *message_label = (UILabel *)[cell viewWithTag:3];
     UILabel *group_message_label = (UILabel *)[cell viewWithTag:22];
@@ -72,49 +83,9 @@
         NSString *sender_display_text = [CellConfigurator displayUserOfGroupConversation:conversation];
         sender_label.text = sender_display_text;
     }
-    
     [CellConfigurator archiveLabel:cell archived:conversation.archived];
-//    UILabel *archived_label = (UILabel *)[cell viewWithTag:80];
-//    if (archived_label) {
-//        if (conversation.archived) {
-//            archived_label.hidden = NO;
-//            [CellConfigurator styleArchiveLabel:archived_label];
-//        }
-//        else {
-//            archived_label.hidden = YES;
-//        }
-//    }
-    
-    
-    // CONVERSATION IMAGE
-    //    UIImageView *image_view = (UIImageView *)[cell viewWithTag:1];
-    //    image_view.image = [UIImage imageNamed:@"group-conversation-avatar"];
-    
-    // CONVERSATION IMAGE
-    [CellConfigurator setImageForCell:cell imageURL:group.iconUrl imageCache:imageCache];
-//    UIImageView *image_view = (UIImageView *)[cell viewWithTag:1];
-//    NSString *imageURL = group.iconUrl;
-//    ChatImageWrapper *cached_image_wrap = (ChatImageWrapper *)[vc.imageCache getImage:imageURL];
-//    UIImage *image = cached_image_wrap.image;
-//    if(!cached_image_wrap) { // image == nil if image saving gone wrong!
-//        //        [vc startIconDownload:imageURL forIndexPath:indexPath];
-//        // if a download is deferred or in progress, return a placeholder image
-//        UIImage *circled = [ChatUtil circleImage:[UIImage imageNamed:@"group-conversation-avatar"]];
-//        image_view.image = circled;
-//    } else {
-//        image_view.image = [ChatUtil circleImage:image];
-//        // update too old images
-//        double now = [[NSDate alloc] init].timeIntervalSince1970;
-//        double reload_timer_secs = 3600; // one hour
-//        if (now - cached_image_wrap.createdTime.timeIntervalSince1970 > reload_timer_secs) {
-//            //            [vc startIconDownload:imageURL forIndexPath:indexPath];
-//        } else {
-//            //
-//        }
-//    }
-    
+    [self setImageForIndexPath:indexPath cell:cell imageURL:[ChatUtil thumbImageURLOfProfile:group.groupId] typeDirect:NO];
     date_label.text = [conversation dateFormattedForListView];
-    
     if (conversation.is_new) {
         // BOLD STYLE
         subject_label.font = [UIFont boldSystemFontOfSize:subject_label.font.pointSize];
@@ -164,12 +135,12 @@
     }
 }
 
-+(UITableViewCell *)configureDirectConversationCell:(ChatConversation *)conversation tableView:(UITableView *)tableView indexPath:(NSIndexPath *)indexPath imageCache:(ChatImageCache *)imageCache {
-    NSLog(@"Rendering conversation cell for user: %@", conversation.user);
+-(UITableViewCell *)configureDirectConversationCell:(ChatConversation *)conversation indexPath:(NSIndexPath *)indexPath {
+    NSLog(@"Rendering conversation cell for user: %@", conversation.conversWith);
     //    NSLog(@"-------------- DIRECT %@ SENDR %@" , conversation.last_message_text, conversation.sender);
     NSString *me = [ChatManager getInstance].loggedUser.userId;
     static NSString *conversationCellName = @"conversationDMCell";
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:conversationCellName forIndexPath:indexPath];
+    UITableViewCell *cell = [self.tableView dequeueReusableCellWithIdentifier:conversationCellName forIndexPath:indexPath];
     UILabel *subject_label = (UILabel *)[cell viewWithTag:2];
     UILabel *message_label = (UILabel *)[cell viewWithTag:3];
     //    UILabel *sender_label = (UILabel *)[cell viewWithTag:20];
@@ -181,36 +152,9 @@
     message_label.hidden = NO;
     //    sender_label.hidden = YES;
     message_label.text = [conversation textForLastMessage:me];
-    
-    // CONVERSATION IMAGE
-    [CellConfigurator setImageForCell:cell imageURL:@"" imageCache:imageCache];
-//    UIImageView *image_view = (UIImageView *)[cell viewWithTag:1];
-//    NSString *imageURL = @""; //[SHPUser photoUrlByUsername:conversation.conversWith];
-//    ChatImageWrapper *cached_image_wrap = (ChatImageWrapper *)[vc.imageCache getImage:imageURL];
-//    UIImage *user_image = cached_image_wrap.image;
-//    if(!cached_image_wrap) { // user_image == nil if image saving gone wrong!
-//        //        [vc startIconDownload:imageURL forIndexPath:indexPath];
-//        // if a download is deferred or in progress, return a placeholder image
-//        UIImage *circled = [ChatUtil circleImage:[UIImage imageNamed:@"avatar"]];
-//        image_view.image = circled;
-//    }
-//    else {
-//        //NSLog(@"USER IMAGE CACHED. %@", conversation.conversWith);
-//        image_view.image = [ChatUtil circleImage:user_image];
-//        // update too old images
-//        double now = [[NSDate alloc] init].timeIntervalSince1970;
-//        double reload_timer_secs = 3600; // one hour
-//        if (now - cached_image_wrap.createdTime.timeIntervalSince1970 > reload_timer_secs) {
-//            //NSLog(@"EXPIRED image for user %@. Created: %@ - Now: %@. Reloading...", conversation.conversWith, cached_image_wrap.createdTime, [[NSDate alloc] init]);
-//            //            [vc startIconDownload:imageURL forIndexPath:indexPath];
-//        } else {
-//            //NSLog(@"VALID image for user %@. Created %@ - Now %@", conversation.conversWith, cached_image_wrap.createdTime, [[NSDate alloc] init]);
-//        }
-//    }
-    
+    [self setImageForIndexPath:indexPath cell:cell imageURL:[ChatUtil thumbImageURLOfProfile:conversation.conversWith] typeDirect:YES];
     date_label.text = [conversation dateFormattedForListView];
     //    NSLog(@"date lebel text %@", date_label.text);
-    
     if (conversation.status == CONV_STATUS_LAST_MESSAGE) {
         if (conversation.is_new) {
             // BOLD STYLE
@@ -272,28 +216,61 @@
     label.text = [ChatLocal translate:@"ArchivedBadgeLabel"];
 }
 
-+(void)setImageForCell:(UITableViewCell *)cell imageURL:(NSString *)imageURL imageCache:(ChatImageCache *)imageCache {
-    // CONVERSATION IMAGE
+-(void)setImageForIndexPath:(NSIndexPath *)indexPath cell:(UITableViewCell *)cell imageURL:(NSString *)imageURL typeDirect:(BOOL)typeDirect {
+    NSLog(@"image cell url: %@", imageURL);
+    if ([imageURL isEqualToString:@"https://firebasestorage.googleapis.com/v0/b/chat-v2-dev.appspot.com/o/profiles%2Fsupport-group-LJo2Jm9ePvEAt4dd9EL%2Fthumb_photo.jpg?alt=media"]) {
+        NSLog(@"EQUAL TO: %@", imageURL);
+        NSLog(@"EQUAL TO: %@", @"https://firebasestorage.googleapis.com/v0/b/chat-v2-dev.appspot.com/o/profiles%%2Fsupport-group-LJo2Jm9ePvEAt4dd9EL%%2Fthumb_photo.jpg?alt=media");
+    }
+    [self resetCellPhotoForCell:cell typeDirect:typeDirect imageURL:imageURL];
+    [self.imageCache getImage:imageURL completionHandler:^(NSString *imageURL, UIImage *image) {
+        NSLog(@"Loaded image at url: %@, image: %@", imageURL, image);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if ([self isIndexPathVisible:indexPath]) {
+                UITableViewCell *cell = (id)[self.tableView cellForRowAtIndexPath:indexPath];
+                UIImageView *image_view = (UIImageView *)[cell viewWithTag:1];
+                if (!cell) {
+                    return;
+                }
+                if (image) {
+                    image_view.image = [ChatUtil circleImage:image];
+                }
+                else {
+                    if (typeDirect) {
+                        image_view.image = [ChatUtil circleImage:[UIImage imageNamed:@"avatar"]];
+                    }
+                    else {
+                        image_view.image = [UIImage imageNamed:@"group-conversation-avatar"];
+                    }
+                }
+            }
+        });
+    }];
+}
+
+-(void)resetCellPhotoForCell:(UITableViewCell *)cell typeDirect:(BOOL)typeDirect imageURL:(NSString *)imageURL {
+    if ([imageURL isEqualToString:@"https://firebasestorage.googleapis.com/v0/b/chat-v2-dev.appspot.com/o/profiles%2Fsupport-group-LJo2Jm9ePvEAt4dd9EL%2Fthumb_photo.jpg?alt=media"]) {
+        NSLog(@"XXXX EQUAL TO: %@", imageURL);
+        NSLog(@"XXXX EQUAL TO: %@", @"https://firebasestorage.googleapis.com/v0/b/chat-v2-dev.appspot.com/o/profiles%%2Fsupport-group-LJo2Jm9ePvEAt4dd9EL%%2Fthumb_photo.jpg?alt=media");
+    }
     UIImageView *image_view = (UIImageView *)[cell viewWithTag:1];
-//    NSString *imageURL = group.iconUrl;
-    ChatImageWrapper *cached_image_wrap = (ChatImageWrapper *)[imageCache getImage:imageURL];
-    UIImage *image = cached_image_wrap.image;
-    if(!cached_image_wrap) { // image == nil if image saving gone wrong!
-        //        [vc startIconDownload:imageURL forIndexPath:indexPath];
-        // if a download is deferred or in progress, return a placeholder image
-        UIImage *circled = [ChatUtil circleImage:[UIImage imageNamed:@"group-conversation-avatar"]];
-        image_view.image = circled;
-    } else {
-        image_view.image = [ChatUtil circleImage:image];
-        // update too old images
-        double now = [[NSDate alloc] init].timeIntervalSince1970;
-        double reload_timer_secs = 3600; // one hour
-        if (now - cached_image_wrap.createdTime.timeIntervalSince1970 > reload_timer_secs) {
-            //            [vc startIconDownload:imageURL forIndexPath:indexPath];
-        } else {
-            //
-        }
+    if (typeDirect) {
+        image_view.image = [ChatUtil circleImage:[UIImage imageNamed:@"avatar"]];
+    }
+    else {
+        image_view.image = [UIImage imageNamed:@"group-conversation-avatar"];
     }
 }
+
+-(BOOL)isIndexPathVisible:(NSIndexPath *)indexPath {
+    NSArray *indexes = [self.tableView indexPathsForVisibleRows];
+    for (NSIndexPath *index in indexes) {
+        if (indexPath.row == index.row && indexPath.section == index.section) {
+            return YES;
+        }
+    }
+    return NO;
+}
+
 @end
 

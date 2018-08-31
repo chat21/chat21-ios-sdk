@@ -15,6 +15,7 @@
 #import "ChatMessagesVC.h"
 #import "ChatConversationsVC.h"
 #import "ChatGroup.h"
+#import "ChatDiskImageCache.h"
 
 @interface ChatArchivedConversationsTVC ()
 
@@ -33,7 +34,8 @@
     
     NSLog(@"Conversations viewDidLoad start");
     
-    [self initImageCache];
+    self.imageCache = [[ChatDiskImageCache alloc] init];
+    self.cellConfigurator = [[CellConfigurator alloc] initWithTableView:self.tableView imageCache:self.imageCache];
     
     self.tableView.allowsMultipleSelectionDuringEditing = NO;
     
@@ -176,7 +178,7 @@
     if (conversations && conversations.count > 0) {
         ChatConversation *conversation = (ChatConversation *)[conversations objectAtIndex:indexPath.row];
         //            NSLog(@"Conversation.sender %@", conversation.sender);
-        cell = [CellConfigurator configureConversationCell:conversation tableView:tableView indexPath:indexPath imageCache:self.imageCache];
+        cell = [self.cellConfigurator configureConversationCell:conversation indexPath:indexPath];
     } else {
         cell = [tableView dequeueReusableCellWithIdentifier:messageCellName forIndexPath:indexPath];
         UILabel *message1 = (UILabel *)[cell viewWithTag:50];

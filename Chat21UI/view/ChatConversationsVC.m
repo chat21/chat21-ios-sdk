@@ -31,6 +31,7 @@
 #import "ChatMessage.h"
 #import "ChatLocal.h"
 #import "ChatService.h"
+#import "ChatDiskImageCache.h"
 
 @interface ChatConversationsVC ()
 - (IBAction)writeToAction:(id)sender;
@@ -50,12 +51,12 @@
     
     self.settings = [NSDictionary dictionaryWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"settings" ofType:@"plist"]];
     
-    [self initImageCache];
+    self.imageCache = [[ChatDiskImageCache alloc] init];
     
     self.tableView.allowsMultipleSelectionDuringEditing = NO;
     
     self.groupsMode =  [ChatManager getInstance].groupsMode;
-
+    
     [self customizeTitleView];
     [self setupTitle:@"Chat"];
     [self setUIStatusDisconnected];
@@ -81,6 +82,7 @@
 //    let searchButton = UIBarButtonItem(image: searchImage,  style: .Plain, target: self, action: "didTapSearchButton:")
     
 //    self.navigationItem.rightBarButtonItems = [editButton, searchButton]
+    self.cellConfigurator = [[CellConfigurator alloc] initWithTableView:self.tableView imageCache:self.imageCache];
 }
 
 -(void)archived_action:(id)sender {
@@ -128,7 +130,7 @@
     [self setupTitle:title];
 }
 
--(void)initImageCache {
+//-(void)initImageCache {
 //    // cache setup
 //    self.imageCache = (ChatImageCache *) [self.applicationContext getVariable:@"chatUserIcons"];
 //    if (!self.imageCache) {
@@ -139,7 +141,7 @@
 //        // [self.imageCache empty];
 //        [self.applicationContext setVariable:@"chatUserIcons" withValue:self.imageCache];
 //    }
-}
+//}
 
 //-(void)backButtonSetup {
 //    if (!self.backButton) {
@@ -527,8 +529,7 @@
     else if (indexPath.section == SECTION_CONVERSATIONS_INDEX) {
         if (conversations && conversations.count > 0) {
             ChatConversation *conversation = (ChatConversation *)[conversations objectAtIndex:indexPath.row];
-//            NSLog(@"Conversation.sender %@", conversation.sender);
-            cell = [CellConfigurator configureConversationCell:conversation tableView:tableView indexPath:indexPath imageCache:self.imageCache];
+            cell = [self.cellConfigurator configureConversationCell:conversation indexPath:indexPath];
         } else {
             cell = [tableView dequeueReusableCellWithIdentifier:messageCellName forIndexPath:indexPath];
             UILabel *message1 = (UILabel *)[cell viewWithTag:50];

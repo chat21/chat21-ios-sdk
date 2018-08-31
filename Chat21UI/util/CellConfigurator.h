@@ -12,13 +12,20 @@
 @class ChatConversation;
 @class ChatImageCache;
 @class ChatConversationsVC;
+@class ChatDiskImageCache;
 
 @interface CellConfigurator : NSObject
 
-+(UITableViewCell *)configureConversationCell:(ChatConversation *)conversation tableView:(UITableView *)tableView indexPath:(NSIndexPath *)indexPath imageCache:(ChatImageCache *)imageCache;
+//@property(strong, nonatomic) NSMutableDictionary *imageUrlAtIndexPath;
+@property(strong, nonatomic) UITableView *tableView;
+@property(strong, nonatomic) ChatDiskImageCache *imageCache;
+
+-(UITableViewCell *)configureConversationCell:(ChatConversation *)conversation indexPath:(NSIndexPath *)indexPath;
+
 +(void)changeReadStatus:(ChatConversation *)conversation forCell:(UITableViewCell *)cell;
-+(void)setImageForCell:(UITableViewCell *)cell imageURL:(NSString *)imageURL imageCache:(ChatImageCache *)imageCache;
+//+(void)setImageForCell:(UITableViewCell *)cell imageURL:(NSString *)imageURL imageCache:(ChatDiskImageCache *)imageCache;
 +(void)archiveLabel:(UITableViewCell *)cell archived:(BOOL)archived;
 
-@end
+-(id)initWithTableView:(UITableView *)tableView imageCache:(ChatDiskImageCache *)imageCache;
 
+@end

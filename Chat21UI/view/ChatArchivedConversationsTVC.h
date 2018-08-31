@@ -8,7 +8,8 @@
 
 #import <UIKit/UIKit.h>
 @class ChatConversationsHandler;
-@class ChatImageCache;
+@class CellConfigurator;
+@class ChatDiskImageCache;
 
 static const int SECTION_ARCHIVED_CONVERSATIONS_INDEX = 0;
 
@@ -20,8 +21,9 @@ static const int SECTION_ARCHIVED_CONVERSATIONS_INDEX = 0;
 @property (strong, nonatomic) NSString *selectedGroupId;
 @property (strong, nonatomic) NSString *selectedGroupName;
 @property (assign, nonatomic) BOOL isModal;
-@property (strong, nonatomic) ChatImageCache *imageCache;
+@property (strong, nonatomic) ChatDiskImageCache *imageCache;
 @property (strong, nonatomic) ChatConversationsHandler *conversationsHandler;
+@property (strong, nonatomic) CellConfigurator *cellConfigurator;
 
 // subscribers
 @property (assign, nonatomic) NSUInteger added_handle;

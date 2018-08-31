@@ -16,7 +16,7 @@
 @property (nonatomic, assign) NSInteger maxSize;
 @property(strong, nonatomic) NSMutableDictionary *tasks;
 
-- (void)getImage:(NSString *)imageURL completionHandler:(void(^)(NSString *imageURL, UIImage *image))callback;
+-(NSURLSessionDataTask *)getImage:(NSString *)imageURL completionHandler:(void(^)(NSString *imageURL, UIImage *image))callback;
 
 -(UIImage *)getCachedImage:(NSString *)key;
 -(void)addImageToCache:(UIImage *)image withKey:(NSString *)key;
