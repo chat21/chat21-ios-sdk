@@ -107,7 +107,7 @@
 -(void)removeInstanceId;
 -(void)loadGroup:(NSString *)group_id completion:(void (^)(ChatGroup* group, BOOL error))callback;
 
--(FIRStorageReference *)uploadProfileImage:(UIImage *)image userId:(NSString *)userId completion:(void(^)(NSString *downloadURL, NSError *error))callback progressCallback:(void(^)(double fraction))progressCallback;
+-(FIRStorageReference *)uploadProfileImage:(UIImage *)image profileId:(NSString *)profileId completion:(void(^)(NSString *downloadURL, NSError *error))callback progressCallback:(void(^)(double fraction))progressCallback;
 -(void)deleteProfileImageOfUser:(NSString *)userId completion:(void(^)(NSError *error))callback;
 
 @end

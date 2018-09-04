@@ -52,9 +52,16 @@
 // *** Images ***
 +(UIImage *)circleImage:(UIImage *)image;
 
-+(NSString *)imagePathOfProfile:(NSString *)profileId imageName:(NSString *)imageName;
-+(NSString *)imageURLOfProfile:(NSString *)profileId;
-+(NSString *)thumbImageURLOfProfile:(NSString *)profileId;
-+(NSString *)imageURLOfProfile:(NSString *)profileId imageName:(NSString *)imageName;
++(NSString *)filePathOfProfile:(NSString *)profileId fileName:(NSString *)fileName;
++(NSString *)profileImagePathOf:(NSString *)profileId;
++(NSString *)profileThumbImagePathOf:(NSString *)profileId;
+
+//+(NSString *)fileURLOfProfile:(NSString *)profileId fileName:(NSString *)fileName;
+//+(NSString *)profileImageURLOf:(NSString *)profileId;
+//+(NSString *)profileThumbImageURLOf:(NSString *)profileId;
+
++(NSString *)profileImageURLOf:(NSString *)profileId;
++(NSString *)profileThumbImageURLOf:(NSString *)profileId;
++(NSString *)fileURLOfProfile:(NSString *)profileId fileName:(NSString *)fileName;
 
 @end

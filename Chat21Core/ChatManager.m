@@ -651,13 +651,13 @@ static ChatManager *sharedInstance = nil;
     }
 }
 
--(FIRStorageReference *)uploadProfileImage:(UIImage *)image userId:(NSString *)userId completion:(void(^)(NSString *downloadURL, NSError *error))callback progressCallback:(void(^)(double fraction))progressCallback {
+-(FIRStorageReference *)uploadProfileImage:(UIImage *)image profileId:(NSString *)profileId completion:(void(^)(NSString *downloadURL, NSError *error))callback progressCallback:(void(^)(double fraction))progressCallback {
     NSData *data = UIImageJPEGRepresentation(image, 0.9);
     // Get a reference to the storage service using the default Firebase App
     FIRStorage *storage = [FIRStorage storage];
     // Create a root reference
     FIRStorageReference *storageRef = [storage reference];
-    NSString *file_path = self.loggedUser.profileImagePath;
+    NSString *file_path = [ChatUtil profileImagePathOf:profileId]; //self.loggedUser.profileImagePath;
     NSLog(@"profile image remote file path: %@", file_path);
     // Create a reference to the file you want to upload
     FIRStorageReference *storeRef = [storageRef child:file_path];
@@ -670,7 +670,7 @@ static ChatManager *sharedInstance = nil;
             NSLog(@"an error occurred!");
             callback(nil, error);
         } else {
-            NSString *url = self.loggedUser.profileImageURL;
+            NSString *url = [ChatUtil profileImageURLOf:profileId];
             NSLog(@"Download url: %@", url);
             callback(url, nil);
         }

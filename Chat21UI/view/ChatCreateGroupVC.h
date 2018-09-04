@@ -22,12 +22,13 @@
 @property (nonatomic, copy) void (^completionCallback)(ChatGroup *group, BOOL canceled);
 
 // imagepicker
-@property (strong, nonatomic) UIActionSheet *photoMenuSheet;
+//@property (strong, nonatomic) UIActionSheet *photoMenuSheet;
 @property (nonatomic, strong) UIImagePickerController *imagePickerController;
 @property (nonatomic, strong) UIImagePickerController *photoLibraryController;
 @property (nonatomic, strong) UIImage *scaledImage;
 //@property (nonatomic, strong) ChatImageUploadSmart21DC *uploader;
 @property (strong, nonatomic) UIImage *bigImage;
+@property (assign, nonatomic) UIImage *currentProfilePhoto;
 
 - (IBAction)nextAction:(id)sender;
 - (IBAction)cancelAction:(id)sender;

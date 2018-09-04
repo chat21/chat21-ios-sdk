@@ -8,6 +8,7 @@
 
 #import "ChatDiskImageCache.h"
 #import <Foundation/Foundation.h>
+#import "ChatImageUtil.h"
 
 static ChatDiskImageCache *sharedInstance = nil;
 
@@ -43,12 +44,32 @@ static ChatDiskImageCache *sharedInstance = nil;
 }
 
 -(UIImage *)getCachedImage:(NSString *)key {
-    //    ChatImageWrapper *wrapper = nil;
+    return [self getCachedImage:key sized:0 circle:NO];
+}
+
+-(UIImage *)getCachedImage:(NSString *)key sized:(long)size circle:(BOOL)circle {
+    NSString *sized_key = key;
+    if (size != 0) {
+        sized_key = [NSString stringWithFormat:@"%@_sized_%ld", key, size];
+    }
     // hit memory first
-    UIImage *image = (UIImage *)[self.imageCache objectForKey:key];
+    UIImage *image = (UIImage *)[self.imageCache objectForKey:sized_key];
     if (!image) {
-        image = [ChatDiskImageCache loadImage:key inFolder:self.cacheFolder];
-        // if now - file_image.createdOn > 1 day image = nil
+        image = [ChatDiskImageCache loadImage:sized_key inFolder:self.cacheFolder];
+        if (!image && size != 0) {
+            // a resized image was requested, not the original one, then...
+            // get the original one
+            image = [ChatDiskImageCache loadImage:key inFolder:self.cacheFolder];
+            if (image) {
+                // we have the original.
+                // resize...
+                UIImage *resized_image = [ChatImageUtil scaleImage:image toSize:CGSizeMake(size, size)];
+                if (circle) {
+                    resized_image = [ChatImageUtil circleImage:resized_image];
+                }
+                [self addImageToCache:resized_image withKey:sized_key];
+            }
+        }
     }
     return image;
 }
@@ -134,74 +155,16 @@ static ChatDiskImageCache *sharedInstance = nil;
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
     NSString *documentsDirectory = [paths objectAtIndex:0];
     NSString *path = [documentsDirectory stringByAppendingPathComponent:folderName];
-//    NSLog(@"path: %@", path);
     return path;
 }
 
-//-(void)removeOldestImage {
-//    // ATTENZIONE! perchè questo metodo abbia senso bisognerebbe
-//    // rendere persistente anche il dizionario!
-//
-//    if ([self.imageCache count] == self.maxSize) {
-//        //        NSLog(@"Removing oldest element");
-//        // remove oldest element
-//
-//        NSMutableArray *wrappers = [[NSMutableArray alloc] init];
-//        for (NSString* key in self.imageCache) {
-//            ChatImageWrapper *wrapper = [self.imageCache objectForKey:key];
-//            [wrappers addObject:wrapper];
-//            //            NSLog(@"found: %@", wrapper);
-//        }
-//        // sort by lastDate
-//
-//        // Ascending order
-//        NSSortDescriptor *descriptor = [[NSSortDescriptor alloc] initWithKey:@"lastReadTime" ascending:YES];
-//        [wrappers sortUsingDescriptors:[NSArray arrayWithObject:descriptor]];
-//        // first element is the oldest one
-//        ChatImageWrapper *wrapperToRemove = [wrappers objectAtIndex:0];
-//        wrapperToRemove.image = nil;
-//        [self.imageCache removeObjectForKey:wrapperToRemove.key];
-//        [self deleteImage:wrapperToRemove.key];
-//    }
-//}
-
-//-(void)empty {
-//    // DON'T USE THIS: "for (NSString *key in imageCache)". This returns
-//    // an enumerator tha cannot be modified during iteration!
-//    // EXCEPTION was: "mutated while being enumerated"
-//    NSArray *keys = [self.imageCache allKeys];
-//    for (NSString* key in keys) {
-//        ChatImageWrapper *wrapperToRemove = [self.imageCache objectForKey:key];
-//        wrapperToRemove.image = nil; // really useful? The wrapper has a strong reference to the image...
-//        [self.imageCache removeObjectForKey:key]; // removeAllObjects (as next) or this? :(
-//    }
-//    [self.imageCache removeAllObjects];
-//}
-
-//-(void)deleteImage:(NSString*)imageKey {
-//    [self.imageCache removeObjectForKey:imageKey];
-//}
-
-//+(NSString *)filePathInApp:(NSString *)path {
-//    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-//    NSString *documentsDirectory = [paths objectAtIndex:0];
-//    NSString *file = [documentsDirectory stringByAppendingPathComponent:path];
-//    return file;
-//}
-
-//-(void)getImageByURL:(NSString *)url withCompletion:(void(^)(UIImage *image))callback {
-    // getKey = key
-    // image = getImage:key
-    // if image != nil
-    //   callback(image)
-    // else
-    //   get remote:callback(image)
-    //      addImage
-    //      callback(image)
-    
-//}
-
 - (NSURLSessionDataTask *)getImage:(NSString *)imageURL completionHandler:(void(^)(NSString *imageURL, UIImage *image))callback {
+    return [self getImage:imageURL sized:0 circle:NO completionHandler:^(NSString *imageURL, UIImage *image) {
+        callback(imageURL, image);
+    }];
+}
+
+- (NSURLSessionDataTask *)getImage:(NSString *)imageURL sized:(long)size circle:(BOOL)circle completionHandler:(void(^)(NSString *imageURL, UIImage *image))callback {
     NSURL *url = [NSURL URLWithString:imageURL];
     NSString *cache_key = [self urlAsKey:url];
     UIImage *image = [self getCachedImage:cache_key];
@@ -236,6 +199,9 @@ static ChatDiskImageCache *sharedInstance = nil;
             UIImage *image = [UIImage imageWithData:data];
             if (image) {
                 [self addImageToCache:image withKey:cache_key];
+                if (size != 0) {
+                    image = [self getCachedImage:cache_key sized:size circle:circle];
+                }
             }
             dispatch_async(dispatch_get_main_queue(), ^{
                 callback(imageURL, image);

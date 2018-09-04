@@ -88,7 +88,10 @@
 "group info" = "Group info";
 "new group" = "New group";
 "create group info message" = "Setup the group's subject and icon (optional)";
-"group name placeholder" = "Group's name";
+"group name" = "Group's name";
+"Creating group" = "Creating group...";
+"Group creation error" = "Group creation error";
+"Add Photo" = "Add Photo";
 "next" = "Next";
 "cancel" = "Cancel";
 "create" = "Create";
@@ -97,7 +100,7 @@
 "add members" = "Add members";
 "group created by" = "Group created by %@";
 "group created on" = "Created on %@";
-"GroupNamePlaceholder" = "Set the group name";
+"Group name placeholder" = "Set the group name";
 "GroupNameTitle" = "Group name";
 "all contacts" = "All contacts";
 "change fullname" = "Change Full name";

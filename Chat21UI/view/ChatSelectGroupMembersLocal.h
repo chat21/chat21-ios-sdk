@@ -12,6 +12,7 @@
 @class ChatImageCache;
 @class ChatGroup;
 @class ChatUser;
+@class ChatDiskImageCache;
 
 @interface ChatSelectGroupMembersLocal : UIViewController <UISearchBarDelegate, UITableViewDelegate, UITableViewDataSource>
 
@@ -21,8 +22,6 @@
 @property (strong, nonatomic) NSMutableArray<ChatUser *> *members;
 @property (strong, nonatomic) NSString *groupName;
 @property (nonatomic, copy) void (^completionCallback)(ChatGroup *group, BOOL canceled);
-
-@property (nonatomic, retain) NSMutableDictionary *imageDownloadsInProgress;
 
 @property (strong, nonatomic) id <ChatModalCallerDelegate> modalCallerDelegate;
 
@@ -36,6 +35,9 @@
 @property (strong, nonatomic) NSTimer *searchTimer;
 @property (strong, nonatomic) NSString *lastUsersTextSearch;
 
-@property (strong, nonatomic) ChatImageCache *imageCache;
+@property (strong, nonatomic) UIImage *profileImage;
+
+@property (strong, nonatomic) ChatDiskImageCache *imageCache;
+@property (nonatomic, retain) NSMutableDictionary *imageDownloadsInProgress;
 
 @end

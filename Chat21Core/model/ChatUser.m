@@ -94,15 +94,15 @@
 }
 
 -(NSString *)profileImagePath {
-    return [ChatUtil imagePathOfProfile:self.userId imageName:@"photo.jpg"];
+    return [ChatUtil profileImagePathOf:self.userId];
 }
 
 -(NSString *)profileImageURL {
-    return [ChatUtil imageURLOfProfile:self.userId];
+    return [ChatUtil profileImageURLOf:self.userId];
 }
 
 -(NSString *)profileThumbImageURL {
-    return [ChatUtil thumbImageURLOfProfile:self.userId];
+    return [ChatUtil profileThumbImageURLOf:self.userId];
 }
 
 @end

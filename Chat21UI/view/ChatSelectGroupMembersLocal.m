@@ -18,6 +18,8 @@
 #import "ChatGroup.h"
 #import "ChatProgressView.h"
 #import "ChatLocal.h"
+#import "ChatManager.h"
+#import "ChatDiskImageCache.h"
 
 @interface ChatSelectGroupMembersLocal () {
     ChatProgressView *HUD;
@@ -50,20 +52,7 @@
     [self.searchBar becomeFirstResponder];
     
     [self enableCreateButton];
-    [self initImageCache];
-}
-
--(void)initImageCache {
-//    // cache setup
-//    self.imageCache = (ChatImageCache *) [self.applicationContext getVariable:@"chatUserIcons"];
-//    if (!self.imageCache) {
-//        self.imageCache = [[ChatImageCache alloc] init];
-//        self.imageCache.cacheName = @"chatUserIcons";
-//        // test
-//        // [self.imageCache listAllImagesFromDisk];
-//        // [self.imageCache empty];
-//        [self.applicationContext setVariable:@"chatUserIcons" withValue:self.imageCache];
-//    }
+    self.imageCache = [ChatManager getInstance].imageCache;
 }
 
 //-(void)viewDidAppear:(BOOL)animated {
@@ -466,17 +455,25 @@
         group.createdOn = [[NSDate alloc] init];
         ChatManager *chat = [ChatManager getInstance];
         NSLog(@"Creating group: %@", group.name);
-        [self showWaiting:@"Creo gruppo..."];
+        [self showWaiting:[ChatLocal translate:@"Creating group"]];
         [chat createGroup:group withCompletionBlock:^(ChatGroup *group, NSError *error) {
             dispatch_async(dispatch_get_main_queue(), ^{
-                [self hideWaiting];
                 if (error) {
+                    [self hideWaiting];
                     [self alert:[ChatLocal translate:@"Group creation error"]];
                 }
                 else {
-                    [self dismissViewControllerAnimated:YES completion:^{
-                        self.completionCallback(group, NO);
-                    }];
+                    [[ChatManager getInstance] uploadProfileImage:self.profileImage profileId:group.groupId completion:^(NSString *downloadURL, NSError *error) {
+                        NSLog(@"Image uploaded. Download url: %@", downloadURL);
+                        if (error) {
+                            NSLog(@"Error during image upload.");
+                        }
+                        [self hideWaiting];
+                        [self.imageCache addImageToCache:self.profileImage withKey:[self.imageCache urlAsKey:[NSURL URLWithString:downloadURL]]];
+                        [self dismissViewControllerAnimated:YES completion:^{
+                            self.completionCallback(group, NO);
+                        }];
+                    } progressCallback:nil];
                 }
             });
         }];

@@ -89,7 +89,10 @@
 "group info" = "Info gruppo";
 "new group" = "Nuovo gruppo";
 "create group info message" = "Imposta il nome del gruppo e la sua icona (opzionale)";
-"group name placeholder" = "Nome del gruppo";
+"group name" = "Nome del gruppo";
+"Creating group" = "Creo gruppo...";
+"Group creation error" = "Errore creazione gruppo";
+"Add Photo" = "Aggiungi foto";
 "next" = "Avanti";
 "cancel" = "Annulla";
 "create" = "Crea";
@@ -98,7 +101,7 @@
 "add members" = "Aggiungi membri";
 "group created by" = "Gruppo creato da %@";
 "group created on" = "Creato il %@";
-"GroupNamePlaceholder" = "Dai un nome al gruppo";
+"Group name placeholder" = "Dai un nome al gruppo";
 "GroupNameTitle" = "Nome gruppo";
 "all contacts" = "Tutti i contatti";
 "change fullname" = "Nome visualizzato";

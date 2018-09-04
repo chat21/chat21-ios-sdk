@@ -84,7 +84,7 @@
         sender_label.text = sender_display_text;
     }
     [CellConfigurator archiveLabel:cell archived:conversation.archived];
-    [self setImageForIndexPath:indexPath cell:cell imageURL:[ChatUtil thumbImageURLOfProfile:group.groupId] typeDirect:NO];
+    [self setImageForIndexPath:indexPath cell:cell imageURL:[ChatUtil profileThumbImageURLOf:group.groupId] typeDirect:NO];
     date_label.text = [conversation dateFormattedForListView];
     if (conversation.is_new) {
         // BOLD STYLE
@@ -152,7 +152,7 @@
     message_label.hidden = NO;
     //    sender_label.hidden = YES;
     message_label.text = [conversation textForLastMessage:me];
-    [self setImageForIndexPath:indexPath cell:cell imageURL:[ChatUtil thumbImageURLOfProfile:conversation.conversWith] typeDirect:YES];
+    [self setImageForIndexPath:indexPath cell:cell imageURL:[ChatUtil profileThumbImageURLOf:conversation.conversWith] typeDirect:YES];
     date_label.text = [conversation dateFormattedForListView];
     //    NSLog(@"date lebel text %@", date_label.text);
     if (conversation.status == CONV_STATUS_LAST_MESSAGE) {
@@ -217,49 +217,63 @@
 }
 
 -(void)setImageForIndexPath:(NSIndexPath *)indexPath cell:(UITableViewCell *)cell imageURL:(NSString *)imageURL typeDirect:(BOOL)typeDirect {
-    NSLog(@"image cell url: %@", imageURL);
-    if ([imageURL isEqualToString:@"https://firebasestorage.googleapis.com/v0/b/chat-v2-dev.appspot.com/o/profiles%2Fsupport-group-LJo2Jm9ePvEAt4dd9EL%2Fthumb_photo.jpg?alt=media"]) {
-        NSLog(@"EQUAL TO: %@", imageURL);
-        NSLog(@"EQUAL TO: %@", @"https://firebasestorage.googleapis.com/v0/b/chat-v2-dev.appspot.com/o/profiles%%2Fsupport-group-LJo2Jm9ePvEAt4dd9EL%%2Fthumb_photo.jpg?alt=media");
-    }
-    [self resetCellPhotoForCell:cell typeDirect:typeDirect imageURL:imageURL];
-    [self.imageCache getImage:imageURL completionHandler:^(NSString *imageURL, UIImage *image) {
-        NSLog(@"Loaded image at url: %@, image: %@", imageURL, image);
-        dispatch_async(dispatch_get_main_queue(), ^{
-            if ([self isIndexPathVisible:indexPath]) {
-                UITableViewCell *cell = (id)[self.tableView cellForRowAtIndexPath:indexPath];
-                UIImageView *image_view = (UIImageView *)[cell viewWithTag:1];
-                if (!cell) {
-                    return;
-                }
-                if (image) {
-                    image_view.image = [ChatUtil circleImage:image];
-                }
-                else {
-                    if (typeDirect) {
-                        image_view.image = [ChatUtil circleImage:[UIImage imageNamed:@"avatar"]];
+    UIImage *image = [self setupCellPhotoForCell:cell typeDirect:typeDirect imageURL:imageURL];
+    if (image == nil) {
+        [self.imageCache getImage:imageURL sized:120 circle:YES completionHandler:^(NSString *imageURL, UIImage *image) {
+            UIImage *circle_image = image; //[ChatUtil circleImage:image];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                if ([self isIndexPathVisible:indexPath]) {
+                    UITableViewCell *cell = (id)[self.tableView cellForRowAtIndexPath:indexPath];
+                    UIImageView *image_view = (UIImageView *)[cell viewWithTag:1];
+                    if (!cell) {
+                        return;
+                    }
+                    if (image) {
+                        image_view.image = circle_image;
                     }
                     else {
-                        image_view.image = [UIImage imageNamed:@"group-conversation-avatar"];
+                        [self setupDefaultImageFor:image_view typeDirect:typeDirect];
                     }
                 }
-            }
-        });
-    }];
+            });
+        }];
+    }
 }
 
--(void)resetCellPhotoForCell:(UITableViewCell *)cell typeDirect:(BOOL)typeDirect imageURL:(NSString *)imageURL {
-    if ([imageURL isEqualToString:@"https://firebasestorage.googleapis.com/v0/b/chat-v2-dev.appspot.com/o/profiles%2Fsupport-group-LJo2Jm9ePvEAt4dd9EL%2Fthumb_photo.jpg?alt=media"]) {
-        NSLog(@"XXXX EQUAL TO: %@", imageURL);
-        NSLog(@"XXXX EQUAL TO: %@", @"https://firebasestorage.googleapis.com/v0/b/chat-v2-dev.appspot.com/o/profiles%%2Fsupport-group-LJo2Jm9ePvEAt4dd9EL%%2Fthumb_photo.jpg?alt=media");
-    }
-    UIImageView *image_view = (UIImageView *)[cell viewWithTag:1];
+-(void)setupDefaultImageFor:(UIImageView *)imageView typeDirect:(BOOL)typeDirect {
+    UIImage *avatar_circle_image = [ChatUtil circleImage:[UIImage imageNamed:@"avatar"]];
+    UIImage *group_avatar_image = [UIImage imageNamed:@"group-conversation-avatar"];
     if (typeDirect) {
-        image_view.image = [ChatUtil circleImage:[UIImage imageNamed:@"avatar"]];
+        imageView.image = avatar_circle_image;
     }
     else {
-        image_view.image = [UIImage imageNamed:@"group-conversation-avatar"];
+        imageView.image = group_avatar_image;
     }
+}
+
+-(UIImage *)setupCellPhotoForCell:(UITableViewCell *)cell typeDirect:(BOOL)typeDirect imageURL:(NSString *)imageURL {
+    UIImageView *image_view = (UIImageView *)[cell viewWithTag:1];
+    NSURL *url = [NSURL URLWithString:imageURL];
+    NSLog(@"IMAGEURLK %@", imageURL);
+    NSString *cache_key = [self.imageCache urlAsKey:url];
+    UIImage *image = [self.imageCache getCachedImage:cache_key sized:120 circle:YES];
+    
+    if (image) {
+//        UIImage *circle_image = image; //[ChatUtil circleImage:image];
+        image_view.image = image;
+    }
+    else {
+        [self setupDefaultImageFor:image_view typeDirect:typeDirect];
+//        UIImage *avatar_circle_image = [ChatUtil circleImage:[UIImage imageNamed:@"avatar"]];
+//        UIImage *group_avatar_image = [UIImage imageNamed:@"group-conversation-avatar"];
+//        if (typeDirect) {
+//            image_view.image = avatar_circle_image;
+//        }
+//        else {
+//            image_view.image = group_avatar_image;
+//        }
+    }
+    return image;
 }
 
 -(BOOL)isIndexPathVisible:(NSIndexPath *)indexPath {
