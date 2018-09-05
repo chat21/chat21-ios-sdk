@@ -120,7 +120,7 @@
     }];
 }
 
-+(void)deleteProfilePhoto:(NSString *)userId completion:(void (^)(NSError *error))callback {
++(void)deleteProfilePhoto:(NSString *)profileId completion:(void (^)(NSError *error))callback {
     FIRUser *fir_user = [FIRAuth auth].currentUser;
     [fir_user getIDTokenWithCompletion:^(NSString * _Nullable token, NSError * _Nullable error) {
         if (error) {
@@ -129,7 +129,7 @@
             return;
         }
         NSLog(@"Firebase token ok: %@", token);
-        NSString *service_url = [ChatService deleteProfilePhotoService:userId];
+        NSString *service_url = [ChatService deleteProfilePhotoService:profileId];
         NSLog(@"URL: %@", service_url);
         NSURL *url = [NSURL URLWithString:service_url];
         NSURLSession *session = [NSURLSession sharedSession];

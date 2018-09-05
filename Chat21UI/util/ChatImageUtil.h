@@ -28,7 +28,7 @@
 +(UIImage *)circleImage:(UIImage *)image;
 +(void)rotateImageView:(UIImageView *)imageView angle:(float)angle;
 +(void)rotateImageViewWithAnimation:(UIImageView *)imageView duration:(float)duration angle:(float)angle;
-
++(void)saveImageAsJPEG:(UIImage *)image withName:(NSString*)fileName inFolder:(NSString *)folderName;
 +(UIImage *)squareImageFromImage:(UIImage *)image scaledToSize:(CGFloat)newSize;
 +(UIImage *)blur:(UIImage*)theImage radius:(CGFloat)radius;
 + (UIImage *)imageWithColor:(UIColor *)color;

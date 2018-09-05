@@ -252,26 +252,18 @@
 }
 
 -(UIImage *)setupCellPhotoForCell:(UITableViewCell *)cell typeDirect:(BOOL)typeDirect imageURL:(NSString *)imageURL {
+    NSLog(@"IMAGEURL: %@", imageURL);
     UIImageView *image_view = (UIImageView *)[cell viewWithTag:1];
     NSURL *url = [NSURL URLWithString:imageURL];
-    NSLog(@"IMAGEURLK %@", imageURL);
+    NSLog(@"IMAGEURL_URL: %@", url);
     NSString *cache_key = [self.imageCache urlAsKey:url];
+    NSLog(@"cache_key: %@", cache_key);
     UIImage *image = [self.imageCache getCachedImage:cache_key sized:120 circle:YES];
-    
     if (image) {
-//        UIImage *circle_image = image; //[ChatUtil circleImage:image];
         image_view.image = image;
     }
     else {
         [self setupDefaultImageFor:image_view typeDirect:typeDirect];
-//        UIImage *avatar_circle_image = [ChatUtil circleImage:[UIImage imageNamed:@"avatar"]];
-//        UIImage *group_avatar_image = [UIImage imageNamed:@"group-conversation-avatar"];
-//        if (typeDirect) {
-//            image_view.image = avatar_circle_image;
-//        }
-//        else {
-//            image_view.image = group_avatar_image;
-//        }
     }
     return image;
 }

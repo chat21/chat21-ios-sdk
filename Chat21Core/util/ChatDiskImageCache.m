@@ -9,6 +9,7 @@
 #import "ChatDiskImageCache.h"
 #import <Foundation/Foundation.h>
 #import "ChatImageUtil.h"
+#import "ChatUtil.h"
 
 static ChatDiskImageCache *sharedInstance = nil;
 
@@ -35,12 +36,36 @@ static ChatDiskImageCache *sharedInstance = nil;
 
 -(void)addImageToCache:(UIImage *)image withKey:(NSString *)key {
     [self.imageCache setObject:image forKey:key];
-    [ChatDiskImageCache saveImageAsJPEG:image withName:key inFolder:self.cacheFolder];
+    [ChatImageUtil saveImageAsJPEG:image withName:key inFolder:self.cacheFolder];
 }
 
 -(void)deleteImageFromCacheWithKey:(NSString *)key {
     [self.imageCache removeObjectForKey:key];
     [ChatDiskImageCache deleteFileWithName:key inFolder:self.cacheFolder];
+}
+
+-(void)deleteFilesFromCacheStartingWith:(NSString *)partial_key {
+    NSString *folder_path = [ChatUtil absoluteFolderPath:self.cacheFolder]; // cache folder path
+    NSLog(@"deleting files at folder path: %@ starting with: %@", folder_path, partial_key);
+    NSFileManager *filemgr = [NSFileManager defaultManager];
+    NSArray *directoryList = [filemgr contentsOfDirectoryAtPath:folder_path error:nil];
+    for (NSString *filename in directoryList) {
+        if ([filename hasPrefix:partial_key]) {
+            NSLog(@"Inizia con partial_key: %@", filename);
+            NSString *file_path = [folder_path stringByAppendingPathComponent:filename];
+            NSLog(@"file_path to delete: %@", file_path);
+            NSError *error;
+            [filemgr removeItemAtPath:file_path error:&error];
+            if (error) {
+                NSLog(@"Error removing file in cache path? (%@) - %@",file_path, error);
+            }
+        }
+    }
+//        NSArray *directoryList2 = [filemgr contentsOfDirectoryAtPath:folder_path error:nil];
+//        for (id file in directoryList2) {
+//            NSLog(@"Image: %@", file);
+//        }
+//        NSLog(@"End list.");
 }
 
 -(UIImage *)getCachedImage:(NSString *)key {
@@ -75,7 +100,7 @@ static ChatDiskImageCache *sharedInstance = nil;
 }
 
 +(UIImage *)loadImage:(NSString *)fileName inFolder:(NSString *)folderName {
-    NSString *folder_path = [self absoluteFolderPath:folderName]; // cache folder path
+    NSString *folder_path = [ChatUtil absoluteFolderPath:folderName]; // cache folder path
     
 //    NSFileManager *fileManager = [NSFileManager defaultManager];
 //    NSArray *directoryList = [fileManager contentsOfDirectoryAtPath:folder_path error:nil];
@@ -96,39 +121,8 @@ static ChatDiskImageCache *sharedInstance = nil;
     return image;
 }
 
-+(void)saveImageAsJPEG:(UIImage *)image withName:(NSString*)fileName inFolder:(NSString *)folderName {
-    NSString *folder_path = [self absoluteFolderPath:folderName]; // cache folder path
-    NSString *image_path = [folder_path stringByAppendingPathComponent:fileName];
-    NSFileManager *filemgr = [NSFileManager defaultManager];
-    if (![filemgr fileExistsAtPath:folder_path]) {
-        NSError *error;
-        [filemgr createDirectoryAtPath:folder_path withIntermediateDirectories:YES attributes:nil error:&error];
-        if (error) {
-            NSLog(@"error creating cache folder (%@): %@", folder_path, error);
-        }
-    }
-    NSLog(@"Image path: %@", image_path);
-    NSError *error;
-    [UIImageJPEGRepresentation(image, 0.9) writeToFile:image_path options:NSDataWritingAtomic error:&error];
-    if (error) {
-        NSLog(@"Error saving image to cache path? (%@) - %@",image_path, error);
-    }
-    // test
-    if ([filemgr fileExistsAtPath: image_path ] == NO) {
-        NSLog(@"Error. Image not saved.");
-    }
-    else {
-        NSLog(@"Image saved to cache path.");
-    }
-//    NSArray *directoryList = [filemgr contentsOfDirectoryAtPath:folder_path error:nil];
-//    for (id file in directoryList) {
-//        NSLog(@"Image: %@", file);
-//    }
-//    NSLog(@"End list.");
-}
-
 +(void)deleteFileWithName:(NSString*)fileName inFolder:(NSString *)folderName {
-    NSString *folder_path = [self absoluteFolderPath:folderName]; // cache folder path
+    NSString *folder_path = [ChatUtil absoluteFolderPath:folderName]; // cache folder path
     NSString *image_path = [folder_path stringByAppendingPathComponent:fileName];
     NSFileManager *filemgr = [NSFileManager defaultManager];
     NSLog(@"Image path: %@", image_path);
@@ -151,12 +145,12 @@ static ChatDiskImageCache *sharedInstance = nil;
 //    NSLog(@"End list.");
 }
 
-+(NSString *)absoluteFolderPath:(NSString *)folderName {
-    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-    NSString *documentsDirectory = [paths objectAtIndex:0];
-    NSString *path = [documentsDirectory stringByAppendingPathComponent:folderName];
-    return path;
-}
+//+(NSString *)absoluteFolderPath:(NSString *)folderName {
+//    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+//    NSString *documentsDirectory = [paths objectAtIndex:0];
+//    NSString *path = [documentsDirectory stringByAppendingPathComponent:folderName];
+//    return path;
+//}
 
 - (NSURLSessionDataTask *)getImage:(NSString *)imageURL completionHandler:(void(^)(NSString *imageURL, UIImage *image))callback {
     return [self getImage:imageURL sized:0 circle:NO completionHandler:^(NSString *imageURL, UIImage *image) {

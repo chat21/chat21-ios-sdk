@@ -984,10 +984,10 @@
                         <outlet property="adminLabel" destination="Wrl-Af-gQ8" id="V9E-Bi-mvU"/>
                         <outlet property="createdByLabel" destination="h63-fv-1Dx" id="6Vj-tt-SNj"/>
                         <outlet property="createdOnLabel" destination="Voi-3S-gUp" id="X0F-NW-Exu"/>
-                        <outlet property="groupImageView" destination="ZBU-7z-9Dw" id="EZi-mm-IZV"/>
                         <outlet property="groupNameLabel" destination="rby-35-Zwp" id="aGd-L0-TNX"/>
                         <outlet property="idLabel" destination="Zbm-YA-B9q" id="hWS-rO-4Td"/>
                         <outlet property="membersLabel" destination="RtY-fC-nmM" id="X7m-Jh-MQs"/>
+                        <outlet property="profilePhotoImageView" destination="ZBU-7z-9Dw" id="hjT-1D-jwC"/>
                         <segue destination="Pnw-n7-YYL" kind="show" identifier="GroupMembers" id="gG1-4U-GEy"/>
                         <segue destination="HJb-uk-ZoN" kind="presentation" identifier="ChangeGroupName" id="ffv-TC-0Ln"/>
                     </connections>

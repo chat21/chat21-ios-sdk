@@ -49,19 +49,18 @@
 +(BOOL)isYesterday:(NSDate *)date;
 + (NSInteger)daysBetweenDate:(NSDate*)fromDateTime andDate:(NSDate*)toDateTime;
 
++(NSString *)absoluteFolderPath:(NSString *)folderName;
+
 // *** Images ***
 +(UIImage *)circleImage:(UIImage *)image;
 
 +(NSString *)filePathOfProfile:(NSString *)profileId fileName:(NSString *)fileName;
 +(NSString *)profileImagePathOf:(NSString *)profileId;
-+(NSString *)profileThumbImagePathOf:(NSString *)profileId;
-
-//+(NSString *)fileURLOfProfile:(NSString *)profileId fileName:(NSString *)fileName;
-//+(NSString *)profileImageURLOf:(NSString *)profileId;
-//+(NSString *)profileThumbImageURLOf:(NSString *)profileId;
+//+(NSString *)profileThumbImagePathOf:(NSString *)profileId;
 
 +(NSString *)profileImageURLOf:(NSString *)profileId;
 +(NSString *)profileThumbImageURLOf:(NSString *)profileId;
 +(NSString *)fileURLOfProfile:(NSString *)profileId fileName:(NSString *)fileName;
++(NSString *)profileBaseURL:(NSString *)profileId;
 
 @end

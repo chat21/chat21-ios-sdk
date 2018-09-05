@@ -108,7 +108,7 @@
 -(void)loadGroup:(NSString *)group_id completion:(void (^)(ChatGroup* group, BOOL error))callback;
 
 -(FIRStorageReference *)uploadProfileImage:(UIImage *)image profileId:(NSString *)profileId completion:(void(^)(NSString *downloadURL, NSError *error))callback progressCallback:(void(^)(double fraction))progressCallback;
--(void)deleteProfileImageOfUser:(NSString *)userId completion:(void(^)(NSError *error))callback;
+-(void)deleteProfileImage:(NSString *)profileId completion:(void(^)(NSError *error))callback;
 
 @end
 

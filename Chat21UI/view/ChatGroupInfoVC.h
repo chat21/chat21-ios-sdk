@@ -9,14 +9,14 @@
 #import <UIKit/UIKit.h>
 
 @class ChatGroup;
-@class ChatImageCache;
+@class ChatDiskImageCache;
 
 @interface ChatGroupInfoVC : UITableViewController <UIActionSheetDelegate, UINavigationControllerDelegate, UIImagePickerControllerDelegate>
 
 @property(strong, nonatomic) NSString *groupId;
 @property(strong, nonatomic) ChatGroup *group;
 
-@property (weak, nonatomic) IBOutlet UIImageView *groupImageView;
+@property (weak, nonatomic) IBOutlet UIImageView *profilePhotoImageView;
 @property (weak, nonatomic) IBOutlet UILabel *addPhotoLabelOverloaded;
 // imagepicker
 @property (strong, nonatomic) UIActionSheet *photoMenuSheet;
@@ -24,8 +24,10 @@
 @property (nonatomic, strong) UIImagePickerController *photoLibraryController;
 @property (nonatomic, strong) UIImage *scaledImage;
 @property (strong, nonatomic) UIImage *bigImage;
+@property (assign, nonatomic) UIImage *currentProfilePhoto;
+@property (assign, nonatomic) NSString *profileId;
 
-@property (strong, nonatomic) ChatImageCache *imageCache;
+@property (strong, nonatomic) ChatDiskImageCache *imageCache;
 
 @property (weak, nonatomic) IBOutlet UILabel *groupNameLabel;
 @property (weak, nonatomic) IBOutlet UILabel *membersLabel;

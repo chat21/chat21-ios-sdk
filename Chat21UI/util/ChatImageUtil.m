@@ -8,6 +8,7 @@
 
 #import "ChatImageUtil.h"
 #import <QuartzCore/QuartzCore.h>
+#import "ChatUtil.h"
 
 @implementation ChatImageUtil
 
@@ -519,6 +520,36 @@
     //    UIImage *newImage = [UIImage imageWithCGImage:imageRef];
 }
 
++(void)saveImageAsJPEG:(UIImage *)image withName:(NSString*)fileName inFolder:(NSString *)folderName {
+    NSString *folder_path = [ChatUtil absoluteFolderPath:folderName]; // cache folder path
+    NSString *image_path = [folder_path stringByAppendingPathComponent:fileName];
+    NSFileManager *filemgr = [NSFileManager defaultManager];
+    if (![filemgr fileExistsAtPath:folder_path]) {
+        NSError *error;
+        [filemgr createDirectoryAtPath:folder_path withIntermediateDirectories:YES attributes:nil error:&error];
+        if (error) {
+            NSLog(@"error creating cache folder (%@): %@", folder_path, error);
+        }
+    }
+    NSLog(@"Image path: %@", image_path);
+    NSError *error;
+    [UIImageJPEGRepresentation(image, 0.9) writeToFile:image_path options:NSDataWritingAtomic error:&error];
+    if (error) {
+        NSLog(@"Error saving image to cache path? (%@) - %@",image_path, error);
+    }
+    // test
+    if ([filemgr fileExistsAtPath: image_path ] == NO) {
+        NSLog(@"Error. Image not saved.");
+    }
+    else {
+        NSLog(@"Image saved to cache path.");
+    }
+    //    NSArray *directoryList = [filemgr contentsOfDirectoryAtPath:folder_path error:nil];
+    //    for (id file in directoryList) {
+    //        NSLog(@"Image: %@", file);
+    //    }
+    //    NSLog(@"End list.");
+}
 
 +(void)rotateImageView:(UIImageView *)imageView angle:(float)angle{
     imageView.transform = CGAffineTransformMakeRotation(angle*M_PI/180);
