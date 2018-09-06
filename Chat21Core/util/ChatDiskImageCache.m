@@ -72,6 +72,15 @@ static ChatDiskImageCache *sharedInstance = nil;
     return [self getCachedImage:key sized:0 circle:NO];
 }
 
+-(void)removeCachedImage:(NSString *)key sized:(long)size {
+    NSString *sized_key = key;
+    if (size != 0) {
+        sized_key = [NSString stringWithFormat:@"%@_sized_%ld", key, size];
+    }
+    NSLog(@"sized_key %@", sized_key);
+    [self deleteImageFromCacheWithKey:sized_key];
+}
+
 -(UIImage *)getCachedImage:(NSString *)key sized:(long)size circle:(BOOL)circle {
     NSString *sized_key = key;
     if (size != 0) {
@@ -84,15 +93,16 @@ static ChatDiskImageCache *sharedInstance = nil;
         if (!image && size != 0) {
             // a resized image was requested, not the original one, then...
             // get the original one
-            image = [ChatDiskImageCache loadImage:key inFolder:self.cacheFolder];
-            if (image) {
+            UIImage *original_image = [ChatDiskImageCache loadImage:key inFolder:self.cacheFolder];
+            if (original_image) {
                 // we have the original.
                 // resize...
-                UIImage *resized_image = [ChatImageUtil scaleImage:image toSize:CGSizeMake(size, size)];
+                UIImage *resized_image = [ChatImageUtil scaleImage:original_image toSize:CGSizeMake(size, size)];
                 if (circle) {
                     resized_image = [ChatImageUtil circleImage:resized_image];
                 }
                 [self addImageToCache:resized_image withKey:sized_key];
+                image = resized_image;
             }
         }
     }
@@ -161,7 +171,7 @@ static ChatDiskImageCache *sharedInstance = nil;
 - (NSURLSessionDataTask *)getImage:(NSString *)imageURL sized:(long)size circle:(BOOL)circle completionHandler:(void(^)(NSString *imageURL, UIImage *image))callback {
     NSURL *url = [NSURL URLWithString:imageURL];
     NSString *cache_key = [self urlAsKey:url];
-    UIImage *image = [self getCachedImage:cache_key];
+    UIImage *image = [self getCachedImage:cache_key sized:size circle:circle];
     if (image) {
         callback(imageURL, image);
         return nil;
@@ -185,7 +195,7 @@ static ChatDiskImageCache *sharedInstance = nil;
         NSLog(@"Image downloaded: %@", imageURL);
         [self.tasks removeObjectForKey:imageURL];
         if (error) {
-            NSLog(@"%@", error);
+            NSLog(@"ERRORR: %@ > %@", imageURL, error);
             callback(imageURL, nil);
             return;
         }

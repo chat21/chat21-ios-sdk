@@ -661,13 +661,14 @@ static ChatManager *sharedInstance = nil;
     NSLog(@"profile image remote file path: %@", file_path);
     // Create a reference to the file you want to upload
     FIRStorageReference *storeRef = [storageRef child:file_path];
+    NSLog(@"StoreRef: %@", storeRef);
     // Create file metadata including the content type
     FIRStorageMetadata *metadata = [[FIRStorageMetadata alloc] init];
     metadata.contentType = @"image/jpg";
     // Upload the file to the path
     [storeRef putData:data metadata:metadata completion:^(FIRStorageMetadata *metadata, NSError *error) {
         if (error != nil) {
-            NSLog(@"an error occurred!");
+            NSLog(@"an error occurred! %@", error);
             callback(nil, error);
         } else {
             NSString *url = [ChatUtil profileImageURLOf:profileId];

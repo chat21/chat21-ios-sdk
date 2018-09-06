@@ -23,6 +23,7 @@
 -(UIImage *)getCachedImage:(NSString *)key sized:(long)size circle:(BOOL)circle;
 -(void)addImageToCache:(UIImage *)image withKey:(NSString *)key;
 -(void)deleteImageFromCacheWithKey:(NSString *)key;
+-(void)removeCachedImage:(NSString *)key sized:(long)size;
 -(void)deleteFilesFromCacheStartingWith:(NSString *)partial_key;
 
 //+(void)saveImageAsJPEG:(UIImage *)image withName:(NSString*)name inFolder:(NSString *)folderName;

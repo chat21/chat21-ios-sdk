@@ -11,6 +11,7 @@
 @class Firebase;
 @class ChatNotificationView;
 @class ChatUser;
+@class ChatDiskImageCache;
 
 @import Firebase;
 
@@ -62,5 +63,7 @@
 +(NSString *)profileThumbImageURLOf:(NSString *)profileId;
 +(NSString *)fileURLOfProfile:(NSString *)profileId fileName:(NSString *)fileName;
 +(NSString *)profileBaseURL:(NSString *)profileId;
+
++(void)updateProfileInCache:(ChatDiskImageCache *)imageCache profile:(NSString *)profileId image:(UIImage *)image;
 
 @end

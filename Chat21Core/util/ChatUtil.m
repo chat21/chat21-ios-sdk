@@ -13,6 +13,7 @@
 //#import "NotificationAlertView.h"
 #import "ChatConversationsVC.h"
 #import "ChatLocal.h"
+#import "ChatDiskImageCache.h"
 
 @implementation ChatUtil
 
@@ -483,6 +484,8 @@
 }
 
 +(NSString *)profileBaseURL:(NSString *)profileId {
+    // RETURNS:
+    // https://firebasestorage.googleapis.com/v0/b/chat-v2-dev.appspot.com/o/profiles/PROFILE-ID
     NSDictionary *google_info_dict = [NSDictionary dictionaryWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"GoogleService-Info" ofType:@"plist"]];
     NSDictionary *chat_info_dict = [NSDictionary dictionaryWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"Chat-Info" ofType:@"plist"]];
     NSString *bucket = [google_info_dict objectForKey:@"STORAGE_BUCKET"];
@@ -491,6 +494,23 @@
     NSString *profile_base_url = [[NSString alloc] initWithFormat:@"%@/profiles%%2F%@", base_url, profileId];
     NSLog(@"profile_base_url: %@", profile_base_url);
     return profile_base_url;
+}
+
++(void)updateProfileInCache:(ChatDiskImageCache *)imageCache profile:(NSString *)profileId image:(UIImage *)image {
+    NSString *imageURL = [ChatUtil profileImageURLOf:profileId];
+    NSLog(@"imageURL %@", imageURL);
+    NSString *thumbImageURL = [ChatUtil profileThumbImageURLOf:profileId];
+    NSLog(@"thumbImageURL %@", thumbImageURL);
+    
+    NSString *imageKey = [imageCache urlAsKey:[NSURL URLWithString:imageURL]];
+    NSLog(@"imageKey %@", imageKey);
+    [imageCache addImageToCache:image withKey:imageKey];
+    
+    // adds also a local thumb in cache.
+    NSString *thumbImageKey = [imageCache urlAsKey:[NSURL URLWithString:thumbImageURL]];
+    NSLog(@"thumbImageKey %@", thumbImageKey);
+    [imageCache addImageToCache:image withKey:thumbImageKey];
+    [imageCache removeCachedImage:thumbImageKey sized:120];
 }
 
 //+(NSString *)profileImageURLOf:(NSString *)profileId {

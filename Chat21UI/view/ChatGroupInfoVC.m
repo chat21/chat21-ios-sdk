@@ -55,7 +55,7 @@
     [self.addPhotoLabelOverloaded addGestureRecognizer:tapLabelView];
     self.addPhotoLabelOverloaded.userInteractionEnabled = YES;
     self.profilePhotoImageView.userInteractionEnabled = YES;
-    self.profileId = self.groupId;
+    self.profileId = self.group.groupId;
     
     self.imageCache = [ChatManager getInstance].imageCache;
     [self setupProfileImage:self.group.groupId];
@@ -98,13 +98,13 @@
                                    alertControllerWithTitle:nil
                                    message:NSLocalizedString(@"Change Profile Photo", nil)
                                    preferredStyle:UIAlertControllerStyleActionSheet];
-    UIAlertAction* delete = [UIAlertAction
-                             actionWithTitle:NSLocalizedString(@"Remove Current Photo", nil)
-                             style:UIAlertActionStyleDestructive
-                             handler:^(UIAlertAction * action)
-                             {
-                                 [self deleteImage];
-                             }];
+//    UIAlertAction* delete = [UIAlertAction
+//                             actionWithTitle:NSLocalizedString(@"Remove Current Photo", nil)
+//                             style:UIAlertActionStyleDestructive
+//                             handler:^(UIAlertAction * action)
+//                             {
+//                                 [self deleteImage];
+//                             }];
     
     UIAlertAction* show = [UIAlertAction
                            actionWithTitle:NSLocalizedString(@"Show Photo", nil)
@@ -139,7 +139,7 @@
                                  NSLog(@"cancel");
                              }];
     if (self.currentProfilePhoto != nil) {
-        [alert addAction:delete];
+//        [alert addAction:delete];
         [alert addAction:show];
     }
     [alert addAction:photo];
@@ -230,7 +230,6 @@
     }
 }
 
-
 // **************************************************
 // **************** TAKE PHOTO SECTION **************
 // **************************************************
@@ -274,7 +273,7 @@
 }
 
 -(void)afterPickerCompletion:(UIImagePickerController *)picker withInfo:(NSDictionary *)info {
-    UIImage *bigImage = [info objectForKey:@"UIImagePickerControllerOriginalImage"];
+    UIImage *bigImage = [info objectForKey:@"UIImagePickerControllerEditedImage"];
     NSURL *local_image_url = [info objectForKey:@"UIImagePickerControllerImageURL"];
     NSString *image_original_file_name = [local_image_url lastPathComponent];
     NSLog(@"image_original_file_name: %@", image_original_file_name);
@@ -298,36 +297,41 @@
         }
         else {
             [self setupCurrentProfileViewWithImage:image];
-            [self.imageCache addImageToCache:image withKey:[self.imageCache urlAsKey:[NSURL URLWithString:downloadURL]]];
-            // group profile photo
+            [ChatUtil updateProfileInCache:self.imageCache profile:self.profileId image:image];
+//            [self.imageCache addImageToCache:image withKey:[self.imageCache urlAsKey:[NSURL URLWithString:downloadURL]]];
+//            // adds also a local thumb in cache.
+//            NSString *thumbImageURL = [ChatUtil profileThumbImageURLOf:self.profileId];
+//            NSString *thumbImageKey = [self.imageCache urlAsKey:[NSURL URLWithString:thumbImageURL]];
+//            [self.imageCache addImageToCache:image withKey:thumbImageKey];
+//            [self.imageCache removeCachedImage:thumbImageKey sized:120 circle:YES];
         }
     } progressCallback:^(double fraction) {
         // NSLog(@"progress: %f", fraction);
     }];
 }
 
--(void)deleteImage {
-    NSLog(@"deleting profile image");
-    [SVProgressHUD setDefaultMaskType:SVProgressHUDMaskTypeClear];
-    [SVProgressHUD show];
-    [[ChatManager getInstance] deleteProfileImage:self.profileId completion:^(NSError *error) {
-        [SVProgressHUD dismiss];
-        // remove this three lines of code
-        self.currentProfilePhoto = nil;
-        [self resetProfilePhoto];
-        ChatUser *loggedUser = [ChatManager getInstance].loggedUser;
-        [self.imageCache deleteImageFromCacheWithKey:[self.imageCache urlAsKey:[NSURL URLWithString:loggedUser.profileImageURL]]];
-        if (error) {
-            NSLog(@"Error while deleting profile image.");
-        }
-        else {
-            self.currentProfilePhoto = nil;
-            [self resetProfilePhoto];
-            ChatUser *loggedUser = [ChatManager getInstance].loggedUser;
-            [self.imageCache deleteImageFromCacheWithKey:[self.imageCache urlAsKey:[NSURL URLWithString:loggedUser.profileImageURL]]];
-        }
-    }];
-}
+//-(void)deleteImage {
+//    NSLog(@"deleting profile image");
+//    [SVProgressHUD setDefaultMaskType:SVProgressHUDMaskTypeClear];
+//    [SVProgressHUD show];
+//    [[ChatManager getInstance] deleteProfileImage:self.profileId completion:^(NSError *error) {
+//        [SVProgressHUD dismiss];
+//        // remove this three lines of code
+//        self.currentProfilePhoto = nil;
+//        [self resetProfilePhoto];
+//        ChatUser *loggedUser = [ChatManager getInstance].loggedUser;
+//        [self.imageCache deleteImageFromCacheWithKey:[self.imageCache urlAsKey:[NSURL URLWithString:loggedUser.profileImageURL]]];
+//        if (error) {
+//            NSLog(@"Error while deleting profile image.");
+//        }
+//        else {
+//            self.currentProfilePhoto = nil;
+//            [self resetProfilePhoto];
+//            ChatUser *loggedUser = [ChatManager getInstance].loggedUser;
+//            [self.imageCache deleteImageFromCacheWithKey:[self.imageCache urlAsKey:[NSURL URLWithString:loggedUser.profileImageURL]]];
+//        }
+//    }];
+//}
 
 // **************************************************
 // *************** END PHOTO SECTION ****************

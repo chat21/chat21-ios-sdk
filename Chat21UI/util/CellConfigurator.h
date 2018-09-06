@@ -16,7 +16,7 @@
 
 @interface CellConfigurator : NSObject
 
-//@property(strong, nonatomic) NSMutableDictionary *imageUrlAtIndexPath;
+@property(strong, nonatomic) NSArray<ChatConversation *> *conversations;
 @property(strong, nonatomic) UITableView *tableView;
 @property(strong, nonatomic) ChatDiskImageCache *imageCache;
 

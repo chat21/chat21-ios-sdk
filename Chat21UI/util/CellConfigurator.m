@@ -18,12 +18,14 @@
 #import <QuartzCore/QuartzCore.h>
 #import "ChatLocal.h"
 #import "ChatDiskImageCache.h"
+//#import <UIKit/UIKit.h>
 
 @implementation CellConfigurator
 
 -(id)initWithTableView:(UITableView *)tableView imageCache:(ChatDiskImageCache *)imageCache {
     if (self = [super init]) {
 //        self.imageUrlAtIndexPath = [[NSMutableDictionary alloc] init];
+//        self.conversations = conversations;
         self.tableView = tableView;
         self.imageCache = imageCache;
     }
@@ -43,8 +45,8 @@
 -(UITableViewCell *)configureGroupConversationCell:(ChatConversation *)conversation indexPath:(NSIndexPath *)indexPath {
     
     //    NSLog(@"Configuring group cell.");
-    NSString *groupId = conversation.recipient;
-    ChatGroup *group = [[ChatManager getInstance] groupById:groupId];
+//    NSString *groupId = conversation.recipient;
+//    ChatGroup *group = [[ChatManager getInstance] groupById:groupId];
     
     NSString *me = [ChatManager getInstance].loggedUser.userId;
     static NSString *conversationCellName = @"conversationGroupCell";
@@ -84,7 +86,8 @@
         sender_label.text = sender_display_text;
     }
     [CellConfigurator archiveLabel:cell archived:conversation.archived];
-    [self setImageForIndexPath:indexPath cell:cell imageURL:[ChatUtil profileThumbImageURLOf:group.groupId] typeDirect:NO];
+//    [self setImageForIndexPath:indexPath cell:cell imageURL:[ChatUtil profileThumbImageURLOf:group.groupId] typeDirect:NO];
+    [self setImageForIndexPath:indexPath cell:cell imageURL:conversation.imageURL typeDirect:NO];
     date_label.text = [conversation dateFormattedForListView];
     if (conversation.is_new) {
         // BOLD STYLE
@@ -152,7 +155,8 @@
     message_label.hidden = NO;
     //    sender_label.hidden = YES;
     message_label.text = [conversation textForLastMessage:me];
-    [self setImageForIndexPath:indexPath cell:cell imageURL:[ChatUtil profileThumbImageURLOf:conversation.conversWith] typeDirect:YES];
+//    [self setImageForIndexPath:indexPath cell:cell imageURL:[ChatUtil profileThumbImageURLOf:conversation.conversWith] typeDirect:YES];
+    [self setImageForIndexPath:indexPath cell:cell imageURL:conversation.imageURL typeDirect:YES];
     date_label.text = [conversation dateFormattedForListView];
     //    NSLog(@"date lebel text %@", date_label.text);
     if (conversation.status == CONV_STATUS_LAST_MESSAGE) {
@@ -216,20 +220,39 @@
     label.text = [ChatLocal translate:@"ArchivedBadgeLabel"];
 }
 
--(void)setImageForIndexPath:(NSIndexPath *)indexPath cell:(UITableViewCell *)cell imageURL:(NSString *)imageURL typeDirect:(BOOL)typeDirect {
+-(void)setImageForIndexPath:(NSIndexPath *)indexPath2 cell:(UITableViewCell *)cell imageURL:(NSString *)imageURL typeDirect:(BOOL)typeDirect {
+//    [self.imageUrlAtIndexPath removeObjectForKey:imageURL];
+//    [self.imageUrlAtIndexPath ]
+    // get from cache first
     UIImage *image = [self setupCellPhotoForCell:cell typeDirect:typeDirect imageURL:imageURL];
+    // then from remote
     if (image == nil) {
         [self.imageCache getImage:imageURL sized:120 circle:YES completionHandler:^(NSString *imageURL, UIImage *image) {
-            UIImage *circle_image = image; //[ChatUtil circleImage:image];
+            NSLog(@"requested-image-url: %@ > image: %@", imageURL, image);
+            if (!image) {
+                return;
+            }
             dispatch_async(dispatch_get_main_queue(), ^{
-                if ([self isIndexPathVisible:indexPath]) {
-                    UITableViewCell *cell = (id)[self.tableView cellForRowAtIndexPath:indexPath];
+                NSLog(@"REQ-IMAGE-URL: %@ > IMAGE: %@", imageURL, image);
+                // find indexpath of this imageURL (aka conversation).
+                int index_path_row = 0;
+                NSIndexPath *conversationIndexPath = nil;
+                for (ChatConversation *conversation in self.conversations) {
+                    if ([conversation.imageURL isEqualToString:imageURL]) {
+                        conversationIndexPath = [NSIndexPath indexPathForRow:index_path_row inSection:SECTION_CONVERSATIONS_INDEX];
+                        break;
+                    }
+                    index_path_row++;
+                }
+                
+                if (conversationIndexPath && [self isIndexPathVisible:conversationIndexPath]) {
+                    UITableViewCell *cell = (id)[self.tableView cellForRowAtIndexPath:conversationIndexPath];
                     UIImageView *image_view = (UIImageView *)[cell viewWithTag:1];
                     if (!cell) {
                         return;
                     }
                     if (image) {
-                        image_view.image = circle_image;
+                        image_view.image = image;
                     }
                     else {
                         [self setupDefaultImageFor:image_view typeDirect:typeDirect];

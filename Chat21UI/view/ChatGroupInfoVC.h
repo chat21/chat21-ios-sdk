@@ -13,7 +13,7 @@
 
 @interface ChatGroupInfoVC : UITableViewController <UIActionSheetDelegate, UINavigationControllerDelegate, UIImagePickerControllerDelegate>
 
-@property(strong, nonatomic) NSString *groupId;
+//@property(strong, nonatomic) NSString *groupId;
 @property(strong, nonatomic) ChatGroup *group;
 
 @property (weak, nonatomic) IBOutlet UIImageView *profilePhotoImageView;

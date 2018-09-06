@@ -50,6 +50,7 @@ static NSString* const CONV_ATTRIBUTES_KEY = @"attributes";
 @property (nonatomic, strong) NSString *conversWith;
 @property (nonatomic, strong) NSString *conversWith_fullname;
 @property (nonatomic, strong) NSString *channel_type;
+@property (nonatomic, strong) NSString *imageURL;
 @property (nonatomic, assign) int status;
 @property (nonatomic, assign) int indexInMemory;
 @property (nonatomic, strong) NSDictionary *attributes; // firebase

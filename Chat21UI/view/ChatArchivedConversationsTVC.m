@@ -48,6 +48,7 @@
     }
     
     [self initConversationsHandler];
+    self.cellConfigurator.conversations = self.conversationsHandler.archivedConversations;
     [self.tableView reloadData];
 }
 

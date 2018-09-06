@@ -40,7 +40,7 @@
     NSString *tenant = [ChatManager getInstance].tenant;
     NSString *host = [ChatManager getInstance].baseURL;
     NSString *deleteProfilePhotoURI = [ChatManager getInstance].deleteProfilePhotoURI;
-    NSString *deleteProfilePhotoURIpopulated = [NSString stringWithFormat:deleteProfilePhotoURI, tenant, userId];
+    NSString *deleteProfilePhotoURIpopulated = [NSString stringWithFormat:deleteProfilePhotoURI, tenant];
     NSString *url = [[NSString alloc] initWithFormat:@"%@%@", host, deleteProfilePhotoURIpopulated];
     NSLog(@"deleteProfilePhotoService URL: %@", url);
     return url;
@@ -124,13 +124,13 @@
     FIRUser *fir_user = [FIRAuth auth].currentUser;
     [fir_user getIDTokenWithCompletion:^(NSString * _Nullable token, NSError * _Nullable error) {
         if (error) {
-            NSLog(@"Error while getting current Firebase token: %@", error);
+            NSLog(@"(DELETE PROFILE) Error while getting current Firebase token: %@", error);
             callback(error);
             return;
         }
         NSLog(@"Firebase token ok: %@", token);
         NSString *service_url = [ChatService deleteProfilePhotoService:profileId];
-        NSLog(@"URL: %@", service_url);
+        NSLog(@"DELETE PROFILE: URL: %@", service_url);
         NSURL *url = [NSURL URLWithString:service_url];
         NSURLSession *session = [NSURLSession sharedSession];
         
@@ -144,12 +144,12 @@
         
         NSURLSessionTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
             if (error) {
-                NSLog(@"firebase auth ERROR: %@", error);
+                NSLog(@"DELETE PROFILE: firebase auth ERROR: %@", error);
                 callback(error);
             }
             else {
                 NSString *token = [[NSString alloc] initWithData:data encoding:NSASCIIStringEncoding];
-                NSLog(@"token response: %@", token);
+                NSLog(@"DELETE PROFILE OK: token response: %@", token);
                 callback(nil);
             }
         }];

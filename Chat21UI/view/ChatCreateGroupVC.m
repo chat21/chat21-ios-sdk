@@ -216,7 +216,7 @@
 }
 
 -(void)afterPickerCompletion:(UIImagePickerController *)picker withInfo:(NSDictionary *)info {
-    UIImage *bigImage = [info objectForKey:@"UIImagePickerControllerOriginalImage"];
+    UIImage *bigImage = [info objectForKey:@"UIImagePickerControllerEditedImage"];
     NSURL *local_image_url = [info objectForKey:@"UIImagePickerControllerImageURL"];
     NSString *image_original_file_name = [local_image_url lastPathComponent];
     NSLog(@"image_original_file_name: %@", image_original_file_name);

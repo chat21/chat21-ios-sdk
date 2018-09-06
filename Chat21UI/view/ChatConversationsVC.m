@@ -241,6 +241,7 @@
 
 -(void)initChat {
     [self initConversationsHandler];
+    self.cellConfigurator.conversations = self.conversationsHandler.conversations;
     [self setupConnectionStatusHandler];
 }
 
