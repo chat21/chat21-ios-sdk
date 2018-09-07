@@ -496,23 +496,6 @@
     return profile_base_url;
 }
 
-+(void)updateProfileInCache:(ChatDiskImageCache *)imageCache profile:(NSString *)profileId image:(UIImage *)image {
-    NSString *imageURL = [ChatUtil profileImageURLOf:profileId];
-    NSLog(@"imageURL %@", imageURL);
-    NSString *thumbImageURL = [ChatUtil profileThumbImageURLOf:profileId];
-    NSLog(@"thumbImageURL %@", thumbImageURL);
-    
-    NSString *imageKey = [imageCache urlAsKey:[NSURL URLWithString:imageURL]];
-    NSLog(@"imageKey %@", imageKey);
-    [imageCache addImageToCache:image withKey:imageKey];
-    
-    // adds also a local thumb in cache.
-    NSString *thumbImageKey = [imageCache urlAsKey:[NSURL URLWithString:thumbImageURL]];
-    NSLog(@"thumbImageKey %@", thumbImageKey);
-    [imageCache addImageToCache:image withKey:thumbImageKey];
-    [imageCache removeCachedImage:thumbImageKey sized:120];
-}
-
 //+(NSString *)profileImageURLOf:(NSString *)profileId {
 //    return [ChatUtil fileURLOfProfile:profileId fileName:@"photo.jpg"];
 //}

@@ -33,6 +33,7 @@
 }
 
 -(UITableViewCell *)configureConversationCell:(ChatConversation *)conversation indexPath:(NSIndexPath *)indexPath {
+    NSLog(@"conversation %@", conversation.thumbImageURL);
     UITableViewCell *cell;
     if (!conversation.isDirect) {
         cell = [self configureGroupConversationCell:conversation indexPath:indexPath];
@@ -87,7 +88,7 @@
     }
     [CellConfigurator archiveLabel:cell archived:conversation.archived];
 //    [self setImageForIndexPath:indexPath cell:cell imageURL:[ChatUtil profileThumbImageURLOf:group.groupId] typeDirect:NO];
-    [self setImageForIndexPath:indexPath cell:cell imageURL:conversation.imageURL typeDirect:NO];
+    [self setImageForCell:cell imageURL:conversation.thumbImageURL typeDirect:NO];
     date_label.text = [conversation dateFormattedForListView];
     if (conversation.is_new) {
         // BOLD STYLE
@@ -156,7 +157,7 @@
     //    sender_label.hidden = YES;
     message_label.text = [conversation textForLastMessage:me];
 //    [self setImageForIndexPath:indexPath cell:cell imageURL:[ChatUtil profileThumbImageURLOf:conversation.conversWith] typeDirect:YES];
-    [self setImageForIndexPath:indexPath cell:cell imageURL:conversation.imageURL typeDirect:YES];
+    [self setImageForCell:cell imageURL:conversation.thumbImageURL typeDirect:YES];
     date_label.text = [conversation dateFormattedForListView];
     //    NSLog(@"date lebel text %@", date_label.text);
     if (conversation.status == CONV_STATUS_LAST_MESSAGE) {
@@ -220,11 +221,12 @@
     label.text = [ChatLocal translate:@"ArchivedBadgeLabel"];
 }
 
--(void)setImageForIndexPath:(NSIndexPath *)indexPath2 cell:(UITableViewCell *)cell imageURL:(NSString *)imageURL typeDirect:(BOOL)typeDirect {
-//    [self.imageUrlAtIndexPath removeObjectForKey:imageURL];
-//    [self.imageUrlAtIndexPath ]
+-(void)setImageForCell:(UITableViewCell *)cell imageURL:(NSString *)imageURL typeDirect:(BOOL)typeDirect {
     // get from cache first
-    UIImage *image = [self setupCellPhotoForCell:cell typeDirect:typeDirect imageURL:imageURL];
+//    if ([imageURL hasPrefix:@"https://firebasestorage.googleapis.com/v0/b/chat-v2-dev.appspot.com/o/profiles%2F-LLZx04rQiBBll7YXSsj%2Fthumb_photo.jpg?alt=media"]) {
+//        NSLog(@"ok");
+//    }
+    UIImage *image = [self setupPhotoCell:cell typeDirect:typeDirect imageURL:imageURL];
     // then from remote
     if (image == nil) {
         [self.imageCache getImage:imageURL sized:120 circle:YES completionHandler:^(NSString *imageURL, UIImage *image) {
@@ -238,7 +240,7 @@
                 int index_path_row = 0;
                 NSIndexPath *conversationIndexPath = nil;
                 for (ChatConversation *conversation in self.conversations) {
-                    if ([conversation.imageURL isEqualToString:imageURL]) {
+                    if ([conversation.thumbImageURL isEqualToString:imageURL]) {
                         conversationIndexPath = [NSIndexPath indexPathForRow:index_path_row inSection:SECTION_CONVERSATIONS_INDEX];
                         break;
                     }
@@ -274,8 +276,11 @@
     }
 }
 
--(UIImage *)setupCellPhotoForCell:(UITableViewCell *)cell typeDirect:(BOOL)typeDirect imageURL:(NSString *)imageURL {
+-(UIImage *)setupPhotoCell:(UITableViewCell *)cell typeDirect:(BOOL)typeDirect imageURL:(NSString *)imageURL {
     NSLog(@"IMAGEURL: %@", imageURL);
+//    if ([imageURL hasPrefix:@"https://firebasestorage.googleapis.com/v0/b/chat-v2-dev.appspot.com/o/profiles%2F-LLZx04rQiBBll7YXSsj%2Fthumb_photo.jpg?alt=media"]) {
+//        NSLog(@"ok");
+//    }
     UIImageView *image_view = (UIImageView *)[cell viewWithTag:1];
     NSURL *url = [NSURL URLWithString:imageURL];
     NSLog(@"IMAGEURL_URL: %@", url);

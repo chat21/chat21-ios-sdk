@@ -106,7 +106,7 @@
     return ([self.channel_type isEqualToString:MSG_CHANNEL_TYPE_DIRECT] || self.channel_type == nil) ? YES : NO;
 }
 
--(NSString *)imageURL {
+-(NSString *)thumbImageURL {
     if (!self.isDirect) {
         NSString *groupId = self.recipient;
         return [ChatUtil profileThumbImageURLOf:groupId];

@@ -51,7 +51,7 @@
     
     self.settings = [NSDictionary dictionaryWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"settings" ofType:@"plist"]];
     
-    self.imageCache = [[ChatDiskImageCache alloc] init];
+    self.imageCache = [ChatManager getInstance].imageCache;
     
     self.tableView.allowsMultipleSelectionDuringEditing = NO;
     

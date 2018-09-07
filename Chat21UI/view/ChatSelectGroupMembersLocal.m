@@ -462,7 +462,7 @@
                     [self hideWaiting];
                     [self alert:[ChatLocal translate:@"Group creation error"]];
                 }
-                else {
+                else if (self.profileImage) {
                     [[ChatManager getInstance] uploadProfileImage:self.profileImage profileId:group.groupId completion:^(NSString *downloadURL, NSError *error) {
                         NSLog(@"Image uploaded. Download url: %@", downloadURL);
                         if (error) {
@@ -481,6 +481,12 @@
                             self.completionCallback(group, NO);
                         }];
                     } progressCallback:nil];
+                }
+                else {
+                    [self hideWaiting];
+                    [self dismissViewControllerAnimated:YES completion:^{
+                        self.completionCallback(group, NO);
+                    }];
                 }
             });
         }];

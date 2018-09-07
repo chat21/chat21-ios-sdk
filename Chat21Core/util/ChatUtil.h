@@ -64,6 +64,6 @@
 +(NSString *)fileURLOfProfile:(NSString *)profileId fileName:(NSString *)fileName;
 +(NSString *)profileBaseURL:(NSString *)profileId;
 
-+(void)updateProfileInCache:(ChatDiskImageCache *)imageCache profile:(NSString *)profileId image:(UIImage *)image;
+//+(void)updateProfileInCache:(ChatDiskImageCache *)imageCache profile:(NSString *)profileId image:(UIImage *)image;
 
 @end

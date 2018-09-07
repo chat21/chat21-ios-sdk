@@ -86,11 +86,13 @@
     }
     else {
         self.profilePhotoImageView.image = image;
+        self.addPhotoLabelOverloaded.hidden = YES;
     }
 }
 
 -(void)resetProfilePhoto {
     self.profilePhotoImageView.image = [UIImage imageNamed:@"user-profile-man.jpg"];
+    self.addPhotoLabelOverloaded.hidden = NO;
 }
 
 -(void)tapProfilePhoto:(UITapGestureRecognizer *)gestureRecognizer {
@@ -297,13 +299,7 @@
         }
         else {
             [self setupCurrentProfileViewWithImage:image];
-            [ChatUtil updateProfileInCache:self.imageCache profile:self.profileId image:image];
-//            [self.imageCache addImageToCache:image withKey:[self.imageCache urlAsKey:[NSURL URLWithString:downloadURL]]];
-//            // adds also a local thumb in cache.
-//            NSString *thumbImageURL = [ChatUtil profileThumbImageURLOf:self.profileId];
-//            NSString *thumbImageKey = [self.imageCache urlAsKey:[NSURL URLWithString:thumbImageURL]];
-//            [self.imageCache addImageToCache:image withKey:thumbImageKey];
-//            [self.imageCache removeCachedImage:thumbImageKey sized:120 circle:YES];
+            [self.imageCache updateProfile:self.profileId image:image];
         }
     } progressCallback:^(double fraction) {
         // NSLog(@"progress: %f", fraction);

@@ -11,7 +11,7 @@
 
 @interface ChatDiskImageCache : NSObject
 
-@property (nonatomic, strong) NSMutableDictionary *imageCache;
+@property (nonatomic, strong) NSMutableDictionary *memoryObjects;
 @property (nonatomic, strong) NSString *cacheFolder;
 @property (nonatomic, assign) NSInteger maxSize;
 @property(strong, nonatomic) NSMutableDictionary *tasks;
@@ -25,6 +25,7 @@
 -(void)deleteImageFromCacheWithKey:(NSString *)key;
 -(void)removeCachedImage:(NSString *)key sized:(long)size;
 -(void)deleteFilesFromCacheStartingWith:(NSString *)partial_key;
+-(void)deleteFilesFromDiskCacheOfProfile:(NSString *)profileId;
 
 //+(void)saveImageAsJPEG:(UIImage *)image withName:(NSString*)name inFolder:(NSString *)folderName;
 +(UIImage *)loadImage:(NSString *)name inFolder:(NSString *)folderName;
@@ -32,5 +33,6 @@
 -(NSString *)urlAsKey:(NSURL *)url;
 
 +(ChatDiskImageCache *)getSharedInstance;
+-(void)updateProfile:(NSString *)profileId image:(UIImage *)image;
 
 @end

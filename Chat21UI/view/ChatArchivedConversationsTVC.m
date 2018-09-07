@@ -34,7 +34,7 @@
     
     NSLog(@"Conversations viewDidLoad start");
     
-    self.imageCache = [[ChatDiskImageCache alloc] init];
+    self.imageCache = [ChatManager getInstance].imageCache;
     self.cellConfigurator = [[CellConfigurator alloc] initWithTableView:self.tableView imageCache:self.imageCache];
     
     self.tableView.allowsMultipleSelectionDuringEditing = NO;

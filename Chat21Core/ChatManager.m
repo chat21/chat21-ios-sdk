@@ -680,16 +680,17 @@ static ChatManager *sharedInstance = nil;
 }
 
 -(void)deleteProfileImage:(NSString *)profileId completion:(void(^)(NSError *error))callback {
-    NSString *baseURL = [ChatUtil profileBaseURL:profileId];
-    NSLog(@"baseURL to delete: %@", baseURL);
-    NSURL *url = [NSURL URLWithString:baseURL];
-    NSString *cache_key = [self.imageCache urlAsKey:url];
-    NSLog(@"baseURL key: %@", cache_key);
-    [self.imageCache deleteFilesFromCacheStartingWith:cache_key];
+//    NSString *baseURL = [ChatUtil profileBaseURL:profileId];
+//    NSLog(@"baseURL to delete: %@", baseURL);
+//    NSURL *url = [NSURL URLWithString:baseURL];
+//    NSString *cache_key = [self.imageCache urlAsKey:url];
+//    NSLog(@"baseURL key: %@", cache_key);
+//    [self.imageCache deleteFilesFromCacheStartingWith:cache_key];
+    [self.imageCache deleteFilesFromDiskCacheOfProfile:profileId];
     [ChatService deleteProfilePhoto:profileId completion:^(NSError *error) {
         dispatch_async(dispatch_get_main_queue(), ^{
             if (error) {
-                NSLog(@"Delete profile photo of %@ successfully completed with error: %@", profileId,  error);
+                NSLog(@"Deletion of profile photo of %@ ended with error: %@", profileId,  error);
                 callback(error);
             }
             else {
