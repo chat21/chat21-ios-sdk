@@ -279,8 +279,7 @@
     self.read_status_changed_handle = [handler observeEvent:ChatEventConversationReadStatusChanged withCallback:^(ChatConversation *conversation) {
         NSLog(@"Conversation %@ '%@' read status changed to: %d, index: %d", conversation.conversationId, conversation, conversation.is_new, conversation.indexInMemory);
         NSIndexPath* indexPathToReload = [NSIndexPath indexPathForRow:conversation.indexInMemory inSection:SECTION_CONVERSATIONS_INDEX];
-//        UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:indexPathToReload];
-//        [CellConfigurator changeReadStatus:conversation forCell:cell];
+
         [ChatConversationsVC updateReadStatusForConversationCell:conversation atIndexPath:indexPathToReload inTableView:self.tableView];
     }];
     self.deleted_handle = [handler observeEvent:ChatEventConversationDeleted withCallback:^(ChatConversation *conversation) {
@@ -445,8 +444,6 @@
         conversation.is_new = read_stastus;
         // instantly updates the conversation in memory & local db
         [self.conversationsHandler updateLocalConversation:conversation];
-//        UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:indexPath];
-//        [CellConfigurator changeReadStatus:conversation forCell:cell];
         [ChatConversationsVC updateReadStatusForConversationCell:conversation atIndexPath:indexPath inTableView:self.tableView];
         
         FIRDatabaseReference *conversation_ref = [self.conversationsHandler.conversationsRef child:conversation.conversationId];
@@ -458,8 +455,6 @@
 }
 
 +(void)updateReadStatusForConversationCell:(ChatConversation *)conversation atIndexPath:(NSIndexPath *)indexPath inTableView:(UITableView *)tableView {
-//    NSArray* rowsToReload = [NSArray arrayWithObjects:indexPath, nil];
-//    [self.tableView reloadRowsAtIndexPaths:rowsToReload withRowAnimation:UITableViewRowAnimationNone];
     UITableViewCell *cell = [tableView cellForRowAtIndexPath:indexPath];
     [CellConfigurator changeReadStatus:conversation forCell:cell];
 }

@@ -473,7 +473,7 @@
                         // adds also a local thumb in cache. The remote thumb get time to be created
                         // and the rendering of conversations will leave the new group conversation
                         // without a downloaded image.
-                        NSString *thumbImageURL = [ChatUtil profileThumbImageURLOf:group.groupId];
+                        NSString *thumbImageURL = [ChatManager profileThumbImageURLOf:group.groupId];
                         [self.imageCache addImageToCache:self.profileImage withKey:[self.imageCache urlAsKey:[NSURL URLWithString:thumbImageURL]]];
                         [self.imageCache getCachedImage:thumbImageURL sized:120 circle:true];
                         

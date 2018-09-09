@@ -10,6 +10,7 @@
 #import <Foundation/Foundation.h>
 #import "ChatImageUtil.h"
 #import "ChatUtil.h"
+#import "ChatManager.h"
 
 static ChatDiskImageCache *sharedInstance = nil;
 
@@ -40,7 +41,7 @@ static ChatDiskImageCache *sharedInstance = nil;
         return;
     }
     [self.memoryObjects setObject:image forKey:key];
-    [ChatImageUtil saveImageAsJPEG:image withName:key inFolder:self.cacheFolder];
+    [ChatImageUtil saveImageAsPNG:image withName:key inFolder:self.cacheFolder];
 }
 
 -(void)deleteImageFromCacheWithKey:(NSString *)key {
@@ -49,11 +50,9 @@ static ChatDiskImageCache *sharedInstance = nil;
 }
 
 -(void)deleteFilesFromDiskCacheOfProfile:(NSString *)profileId {
-    NSString *baseURL = [ChatUtil profileBaseURL:profileId];
-//    NSLog(@"baseURL to delete: %@", baseURL);
+    NSString *baseURL = [ChatManager profileBaseURL:profileId];
     NSURL *url = [NSURL URLWithString:baseURL];
     NSString *cache_key = [self urlAsKey:url];
-//    NSLog(@"baseURL key: %@", cache_key);
     [self deleteFilesFromCacheStartingWith:cache_key];
 }
 
@@ -119,14 +118,14 @@ static ChatDiskImageCache *sharedInstance = nil;
             }
         }
         else if (image != nil) {
-            [self addImageToCache:image withKey:sized_key];
+            [self.memoryObjects setObject:image forKey:sized_key];
         }
     }
     return image;
 }
 
 +(NSString *)sizedKey:(NSString *)key size:(long) size {
-    return [NSString stringWithFormat:@"%@_sized_%ld", key, size];
+    return [NSString stringWithFormat:@"%@_sized_%ld.png", key, size];
 }
 +(UIImage *)loadImage:(NSString *)fileName inFolder:(NSString *)folderName {
     NSString *folder_path = [ChatUtil absoluteFolderPath:folderName]; // cache folder path
@@ -249,18 +248,18 @@ static ChatDiskImageCache *sharedInstance = nil;
     [self deleteObjectsFromMemoryCacheOfProfile:profileId];
     [self deleteFilesFromDiskCacheOfProfile:profileId];
     
-    NSString *imageURL = [ChatUtil profileImageURLOf:profileId];
+    NSString *imageURL = [ChatManager profileImageURLOf:profileId];
     NSString *imageKey = [self urlAsKey:[NSURL URLWithString:imageURL]];
     [self addImageToCache:image withKey:imageKey];
     
-    // adds also a local thumb in cache.
-    NSString *thumbImageURL = [ChatUtil profileThumbImageURLOf:profileId];
+//    // adds also a local thumb in cache.
+    NSString *thumbImageURL = [ChatManager profileThumbImageURLOf:profileId];
     NSString *thumbImageKey = [self urlAsKey:[NSURL URLWithString:thumbImageURL]];
     [self addImageToCache:image withKey:thumbImageKey];
 }
 
 -(void)deleteObjectsFromMemoryCacheOfProfile:(NSString *)profileId {
-    NSString *baseURL = [ChatUtil profileBaseURL:profileId];
+    NSString *baseURL = [ChatManager profileBaseURL:profileId];
     //    NSLog(@"baseURL to delete: %@", baseURL);
     NSURL *url = [NSURL URLWithString:baseURL];
     NSString *cache_key = [self urlAsKey:url];

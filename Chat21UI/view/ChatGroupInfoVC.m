@@ -69,7 +69,7 @@
     self.profilePhotoImageView.clipsToBounds = YES;
     
     // try to get image from cache
-    NSString *imageURL = [ChatUtil profileImageURLOf:profileId];
+    NSString *imageURL = [ChatManager profileImageURLOf:profileId];
     NSURL *url = [NSURL URLWithString:imageURL];
     NSString *cache_key = [self.imageCache urlAsKey:url];
     UIImage *cachedProfileImage = [self.imageCache getCachedImage:cache_key];

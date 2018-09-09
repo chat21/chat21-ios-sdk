@@ -36,7 +36,7 @@ static NSString* const GROUP_ICON_ID = @"iconID";
 @property (nonatomic, strong) NSArray<ChatUser *> *membersFull;
 //@property (assign, nonatomic) BOOL completeData;
 
--(NSString *)iconUrl;
+//-(NSString *)iconUrl;
 -(FIRDatabaseReference *)reference;
 -(NSString *)memberPath:(NSString *)memberId;
 -(FIRDatabaseReference *)memberReference:(NSString *)memberId;

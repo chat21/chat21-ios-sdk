@@ -8,16 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
-//static NSString* const NOTIFICATION_TYPE_MEMBER_ADDED_TO_GROUP = @"group_member_added";
-//static NSString* const GROUP_OWNER = @"owner";
-//static NSString* const GROUP_CREATEDON = @"createdOn";
-//static NSString* const GROUP_NAME = @"name";
-//static NSString* const GROUP_MEMBERS = @"members";
-//static NSString* const GROUP_ICON_URL = @"iconURL";
-
 @import Firebase;
-
-// static NSString *GROUPS_BASE_URL = @"/groups";
 
 @class ChatConversationHandler;
 @class ChatConversationsHandler;
@@ -109,6 +100,16 @@
 
 -(FIRStorageReference *)uploadProfileImage:(UIImage *)image profileId:(NSString *)profileId completion:(void(^)(NSString *downloadURL, NSError *error))callback progressCallback:(void(^)(double fraction))progressCallback;
 -(void)deleteProfileImage:(NSString *)profileId completion:(void(^)(NSError *error))callback;
+
+// profile image
+// paths
++(NSString *)filePathOfProfile:(NSString *)profileId fileName:(NSString *)fileName;
++(NSString *)profileImagePathOf:(NSString *)profileId;
+// URLs
++(NSString *)profileImageURLOf:(NSString *)profileId;
++(NSString *)profileThumbImageURLOf:(NSString *)profileId;
++(NSString *)fileURLOfProfile:(NSString *)profileId fileName:(NSString *)fileName;
++(NSString *)profileBaseURL:(NSString *)profileId;
 
 @end
 

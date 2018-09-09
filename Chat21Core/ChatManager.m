@@ -653,11 +653,12 @@ static ChatManager *sharedInstance = nil;
 
 -(FIRStorageReference *)uploadProfileImage:(UIImage *)image profileId:(NSString *)profileId completion:(void(^)(NSString *downloadURL, NSError *error))callback progressCallback:(void(^)(double fraction))progressCallback {
     NSData *data = UIImageJPEGRepresentation(image, 0.9);
+//    NSData *data = UIImagePNGRepresentation(image);
     // Get a reference to the storage service using the default Firebase App
     FIRStorage *storage = [FIRStorage storage];
     // Create a root reference
     FIRStorageReference *storageRef = [storage reference];
-    NSString *file_path = [ChatUtil profileImagePathOf:profileId]; //self.loggedUser.profileImagePath;
+    NSString *file_path = [ChatManager profileImagePathOf:profileId]; //self.loggedUser.profileImagePath;
     NSLog(@"profile image remote file path: %@", file_path);
     // Create a reference to the file you want to upload
     FIRStorageReference *storeRef = [storageRef child:file_path];
@@ -671,7 +672,7 @@ static ChatManager *sharedInstance = nil;
             NSLog(@"an error occurred! %@", error);
             callback(nil, error);
         } else {
-            NSString *url = [ChatUtil profileImageURLOf:profileId];
+            NSString *url = [ChatManager profileImageURLOf:profileId];
             NSLog(@"Download url: %@", url);
             callback(url, nil);
         }
@@ -700,6 +701,51 @@ static ChatManager *sharedInstance = nil;
         });
     }];
 }
+
+// **** PROFILE IMAGE URL ****
+
+static NSString *PROFILE_PHOTO_NAME = @"photo.png";
+static NSString *PROFILE_THUMB_PHOTO_NAME = @"thumb_photo.png";
+
++(NSString *)filePathOfProfile:(NSString *)profileId fileName:(NSString *)fileName {
+    return [[NSString alloc] initWithFormat:@"profiles/%@/%@", profileId, fileName];
+}
+
++(NSString *)profileImagePathOf:(NSString *)profileId {
+    return [ChatManager filePathOfProfile:profileId fileName:PROFILE_PHOTO_NAME];
+}
+
++(NSString *)profileImageURLOf:(NSString *)profileId {
+    // http://base-url/profile/USER-ID/photo_name
+    return [ChatManager fileURLOfProfile:profileId fileName:PROFILE_PHOTO_NAME];
+}
+
++(NSString *)profileThumbImageURLOf:(NSString *)profileId {
+    // http://base-url/profile/USER-ID/thumb_photo_name
+    return [ChatManager fileURLOfProfile:profileId fileName:PROFILE_THUMB_PHOTO_NAME];
+}
+
++(NSString *)fileURLOfProfile:(NSString *)profileId fileName:(NSString *)fileName {
+    NSString *profile_base_url = [ChatManager profileBaseURL:profileId];
+    NSString *file_url = [[NSString alloc] initWithFormat:@"%@%%2F%@?alt=media", profile_base_url, fileName];
+    NSLog(@"profile file url: %@", file_url);
+    return file_url;
+}
+
++(NSString *)profileBaseURL:(NSString *)profileId {
+    // RETURNS:
+    // https://firebasestorage.googleapis.com/v0/b/chat-v2-dev.appspot.com/o/profiles/PROFILE-ID
+    NSDictionary *google_info_dict = [NSDictionary dictionaryWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"GoogleService-Info" ofType:@"plist"]];
+    NSDictionary *chat_info_dict = [NSDictionary dictionaryWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"Chat-Info" ofType:@"plist"]];
+    NSString *bucket = [google_info_dict objectForKey:@"STORAGE_BUCKET"];
+    NSString *profile_image_base_url = [chat_info_dict objectForKey:@"profile-image-base-url"];
+    NSString *base_url = [[NSString alloc] initWithFormat:profile_image_base_url, bucket ];
+    NSString *profile_base_url = [[NSString alloc] initWithFormat:@"%@/profiles%%2F%@", base_url, profileId];
+    NSLog(@"profile_base_url: %@", profile_base_url);
+    return profile_base_url;
+}
+
+// **** PROFILE IMAGE URL - END ****
 
 @end
 

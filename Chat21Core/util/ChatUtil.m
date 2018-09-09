@@ -250,18 +250,6 @@
     return nil;
 }
 
-+(NSString *)groupImageUrlById:(NSString *)imageID {
-//    NSString *name = [NSString stringWithFormat:@"%@.png", imageID];
-    NSString *name = [ChatUtil imageIDFilename:imageID];
-    NSString *url = [[NSString alloc] initWithFormat:@"%@/%@", [ChatUtil groupImageDownloadUrl], name];
-    return url;
-}
-
-+(NSString *)imageIDFilename:(NSString *)imageID {
-    NSString *name = [NSString stringWithFormat:@"%@.jpg", imageID];
-    return name;
-}
-
 // ****** END GROUP IMAGES *****
 
 // ** STRINGS **
@@ -440,70 +428,5 @@
     NSString *path = [documentsDirectory stringByAppendingPathComponent:folderName];
     return path;
 }
-
-// **** PROFILE IMAGE URL ****
-
-+(NSString *)filePathOfProfile:(NSString *)profileId fileName:(NSString *)fileName {
-    return [[NSString alloc] initWithFormat:@"profiles/%@/%@", profileId, fileName];
-}
-
-+(NSString *)profileImagePathOf:(NSString *)profileId {
-    return [ChatUtil filePathOfProfile:profileId fileName:@"photo.jpg"];
-}
-
-//+(NSString *)profileThumbImagePathOf:(NSString *)profileId {
-//    return [ChatUtil filePathOfProfile:profileId fileName:@"thumb_photo.jpg"];
-//}
-
-+(NSString *)profileImageURLOf:(NSString *)profileId {
-    // http://base-url/profile/USER-ID/photo.jpg
-    return [ChatUtil fileURLOfProfile:profileId fileName:@"photo.jpg"];
-}
-
-+(NSString *)profileThumbImageURLOf:(NSString *)profileId {
-    // http://base-url/profile/USER-ID/thumb_photo.jpg
-    return [ChatUtil fileURLOfProfile:profileId fileName:@"thumb_photo.jpg"];
-}
-
-+(NSString *)fileURLOfProfile:(NSString *)profileId fileName:(NSString *)fileName {
-    NSString *profile_base_url = [ChatUtil profileBaseURL:profileId];
-    NSString *file_url = [[NSString alloc] initWithFormat:@"%@%%2F%@?alt=media", profile_base_url, fileName];
-    NSLog(@"profile file url: %@", file_url);
-    return file_url;
-//    NSLog(@"%@", [ChatUtil profileBaseURL:profileId]);
-//    NSString *image_path = [ChatUtil profileImagePathOf:profileId]; //[[NSString alloc] initWithFormat:@"profiles/%@/%@", profileId, imageName];
-//    NSDictionary *google_info_dict = [NSDictionary dictionaryWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"GoogleService-Info" ofType:@"plist"]];
-//    NSDictionary *chat_info_dict = [NSDictionary dictionaryWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"Chat-Info" ofType:@"plist"]];
-//    NSString *file_path_url_escaped = [image_path stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
-//    NSString *bucket = [google_info_dict objectForKey:@"STORAGE_BUCKET"];
-//    NSString *profile_image_base_url = [chat_info_dict objectForKey:@"profile-image-base-url"];
-//    NSString *base_url = [[NSString alloc] initWithFormat:profile_image_base_url, bucket ];
-//    NSString *image_url = [[NSString alloc] initWithFormat:@"%@/%@?alt=media", base_url, file_path_url_escaped];
-//    NSLog(@"profile image url: %@", image_url);
-//    return image_url;
-}
-
-+(NSString *)profileBaseURL:(NSString *)profileId {
-    // RETURNS:
-    // https://firebasestorage.googleapis.com/v0/b/chat-v2-dev.appspot.com/o/profiles/PROFILE-ID
-    NSDictionary *google_info_dict = [NSDictionary dictionaryWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"GoogleService-Info" ofType:@"plist"]];
-    NSDictionary *chat_info_dict = [NSDictionary dictionaryWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"Chat-Info" ofType:@"plist"]];
-    NSString *bucket = [google_info_dict objectForKey:@"STORAGE_BUCKET"];
-    NSString *profile_image_base_url = [chat_info_dict objectForKey:@"profile-image-base-url"];
-    NSString *base_url = [[NSString alloc] initWithFormat:profile_image_base_url, bucket ];
-    NSString *profile_base_url = [[NSString alloc] initWithFormat:@"%@/profiles%%2F%@", base_url, profileId];
-    NSLog(@"profile_base_url: %@", profile_base_url);
-    return profile_base_url;
-}
-
-//+(NSString *)profileImageURLOf:(NSString *)profileId {
-//    return [ChatUtil fileURLOfProfile:profileId fileName:@"photo.jpg"];
-//}
-//
-//+(NSString *)profileThumbImageURLOf:(NSString *)profileId {
-//    return [ChatUtil fileURLOfProfile:profileId fileName:@"thumb_photo.jpg"];
-//}
-
-// **** PROFILE IMAGE URL - END ****
 
 @end

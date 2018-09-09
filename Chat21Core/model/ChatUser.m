@@ -7,6 +7,7 @@
 
 #import "ChatUser.h"
 #import "ChatUtil.h"
+#import "ChatManager.h"
 
 @implementation ChatUser
 
@@ -94,15 +95,15 @@
 }
 
 -(NSString *)profileImagePath {
-    return [ChatUtil profileImagePathOf:self.userId];
+    return [ChatManager profileImagePathOf:self.userId];
 }
 
 -(NSString *)profileImageURL {
-    return [ChatUtil profileImageURLOf:self.userId];
+    return [ChatManager profileImageURLOf:self.userId];
 }
 
 -(NSString *)profileThumbImageURL {
-    return [ChatUtil profileThumbImageURLOf:self.userId];
+    return [ChatManager profileThumbImageURLOf:self.userId];
 }
 
 @end

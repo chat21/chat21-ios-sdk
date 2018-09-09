@@ -223,9 +223,9 @@
 
 -(void)setImageForCell:(UITableViewCell *)cell imageURL:(NSString *)imageURL typeDirect:(BOOL)typeDirect {
     // get from cache first
-//    if ([imageURL hasPrefix:@"https://firebasestorage.googleapis.com/v0/b/chat-v2-dev.appspot.com/o/profiles%2F-LLZx04rQiBBll7YXSsj%2Fthumb_photo.jpg?alt=media"]) {
-//        NSLog(@"ok");
-//    }
+    if ([imageURL containsString:@"LLoSHCcEV4gMyd28XCD"]) {
+        NSLog(@"ok");
+    }
     UIImage *image = [self setupPhotoCell:cell typeDirect:typeDirect imageURL:imageURL];
     // then from remote
     if (image == nil) {
@@ -278,9 +278,9 @@
 
 -(UIImage *)setupPhotoCell:(UITableViewCell *)cell typeDirect:(BOOL)typeDirect imageURL:(NSString *)imageURL {
     NSLog(@"IMAGEURL: %@", imageURL);
-//    if ([imageURL hasPrefix:@"https://firebasestorage.googleapis.com/v0/b/chat-v2-dev.appspot.com/o/profiles%2F-LLZx04rQiBBll7YXSsj%2Fthumb_photo.jpg?alt=media"]) {
-//        NSLog(@"ok");
-//    }
+    if ([imageURL hasPrefix:@"https://firebasestorage.googleapis.com/v0/b/chat-v2-dev.appspot.com/o/profiles%2F-LLoBcKs2ch10hvBNYzC%2Fphoto.png?alt=media"]) {
+        NSLog(@"ok");
+    }
     UIImageView *image_view = (UIImageView *)[cell viewWithTag:1];
     NSURL *url = [NSURL URLWithString:imageURL];
     NSLog(@"IMAGEURL_URL: %@", url);

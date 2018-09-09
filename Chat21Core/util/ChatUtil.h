@@ -38,8 +38,8 @@
 +(NSString *)groupImagesRelativePath;
 +(NSString *)groupImageDownloadUrl;
 +(NSString *)groupImageDeleteUrl;
-+(NSString *)groupImageUrlById:(NSString *)imageID;
-+(NSString *)imageIDFilename:(NSString *)imageID;
+//+(NSString *)groupImageUrlById:(NSString *)imageID;
+//+(NSString *)imageIDFilename:(NSString *)imageID;
 +(NSString *)userPath:(NSString *)userId;
 +(NSString *)sanitizedNode:(NSString *)node_name;
 +(NSString *)sanitizedUserId:(NSString *)userId;
@@ -54,15 +54,6 @@
 
 // *** Images ***
 +(UIImage *)circleImage:(UIImage *)image;
-
-+(NSString *)filePathOfProfile:(NSString *)profileId fileName:(NSString *)fileName;
-+(NSString *)profileImagePathOf:(NSString *)profileId;
-//+(NSString *)profileThumbImagePathOf:(NSString *)profileId;
-
-+(NSString *)profileImageURLOf:(NSString *)profileId;
-+(NSString *)profileThumbImageURLOf:(NSString *)profileId;
-+(NSString *)fileURLOfProfile:(NSString *)profileId fileName:(NSString *)fileName;
-+(NSString *)profileBaseURL:(NSString *)profileId;
 
 //+(void)updateProfileInCache:(ChatDiskImageCache *)imageCache profile:(NSString *)profileId image:(UIImage *)image;
 

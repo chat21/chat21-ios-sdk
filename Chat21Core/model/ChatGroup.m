@@ -23,9 +23,9 @@
     return self;
 }
 
--(NSString *)iconUrl {
-    return [ChatUtil groupImageUrlById:self.groupId];
-}
+//-(NSString *)iconUrl {
+//    return [ChatUtil groupImageUrlById:self.groupId];
+//}
 
 -(FIRDatabaseReference *)reference {
     FIRDatabaseReference *rootRef = [[FIRDatabase database] reference];

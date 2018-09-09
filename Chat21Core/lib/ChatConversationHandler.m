@@ -615,7 +615,6 @@
     FIRStorage *storage = [FIRStorage storage];
     // Create a root reference
     FIRStorageReference *storageRef = [storage reference];
-    //    NSData *data = [NSData dataWithContentsOfFile:@"rivers.jpg"];
     NSString * uuid = [[NSUUID UUID] UUIDString];
     NSString *file_path = [[NSString alloc] initWithFormat:@"images/%@.png", uuid];
     NSLog(@"image remote file path: %@", file_path);

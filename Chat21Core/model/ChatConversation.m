@@ -12,6 +12,7 @@
 #import "ChatUtil.h"
 #import "ChatMessage.h"
 #import "ChatLocal.h"
+#import "ChatManager.h"
 @import Firebase;
 
 @implementation ChatConversation
@@ -109,9 +110,9 @@
 -(NSString *)thumbImageURL {
     if (!self.isDirect) {
         NSString *groupId = self.recipient;
-        return [ChatUtil profileThumbImageURLOf:groupId];
+        return [ChatManager profileThumbImageURLOf:groupId];
     } else {
-        return [ChatUtil profileThumbImageURLOf:self.conversWith];
+        return [ChatManager profileThumbImageURLOf:self.conversWith];
     }
 }
 //- (BOOL)isEqual:(id)object {
