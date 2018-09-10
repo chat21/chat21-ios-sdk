@@ -704,8 +704,8 @@ static ChatManager *sharedInstance = nil;
 
 // **** PROFILE IMAGE URL ****
 
-static NSString *PROFILE_PHOTO_NAME = @"photo.png";
-static NSString *PROFILE_THUMB_PHOTO_NAME = @"thumb_photo.png";
+static NSString *PROFILE_PHOTO_NAME = @"photo.jpg";
+static NSString *PROFILE_THUMB_PHOTO_NAME = @"thumb_photo.jpg";
 
 +(NSString *)filePathOfProfile:(NSString *)profileId fileName:(NSString *)fileName {
     return [[NSString alloc] initWithFormat:@"profiles/%@/%@", profileId, fileName];

@@ -22,18 +22,16 @@
 
 @implementation CellConfigurator
 
--(id)initWithTableView:(UITableView *)tableView imageCache:(ChatDiskImageCache *)imageCache {
+-(id)initWithTableView:(UITableView *)tableView imageCache:(ChatDiskImageCache *)imageCache conversations:(NSArray<ChatConversation *> *)conversations {
     if (self = [super init]) {
-//        self.imageUrlAtIndexPath = [[NSMutableDictionary alloc] init];
-//        self.conversations = conversations;
         self.tableView = tableView;
         self.imageCache = imageCache;
+        self.conversations = conversations;
     }
     return self;
 }
 
 -(UITableViewCell *)configureConversationCell:(ChatConversation *)conversation indexPath:(NSIndexPath *)indexPath {
-    NSLog(@"conversation %@", conversation.thumbImageURL);
     UITableViewCell *cell;
     if (!conversation.isDirect) {
         cell = [self configureGroupConversationCell:conversation indexPath:indexPath];
@@ -223,9 +221,9 @@
 
 -(void)setImageForCell:(UITableViewCell *)cell imageURL:(NSString *)imageURL typeDirect:(BOOL)typeDirect {
     // get from cache first
-    if ([imageURL containsString:@"LLoSHCcEV4gMyd28XCD"]) {
-        NSLog(@"ok");
-    }
+//    if ([imageURL containsString:@"LLoSHCcEV4gMyd28XCD"]) {
+//        NSLog(@"ok");
+//    }
     UIImage *image = [self setupPhotoCell:cell typeDirect:typeDirect imageURL:imageURL];
     // then from remote
     if (image == nil) {
@@ -277,10 +275,6 @@
 }
 
 -(UIImage *)setupPhotoCell:(UITableViewCell *)cell typeDirect:(BOOL)typeDirect imageURL:(NSString *)imageURL {
-    NSLog(@"IMAGEURL: %@", imageURL);
-    if ([imageURL hasPrefix:@"https://firebasestorage.googleapis.com/v0/b/chat-v2-dev.appspot.com/o/profiles%2F-LLoBcKs2ch10hvBNYzC%2Fphoto.png?alt=media"]) {
-        NSLog(@"ok");
-    }
     UIImageView *image_view = (UIImageView *)[cell viewWithTag:1];
     NSURL *url = [NSURL URLWithString:imageURL];
     NSLog(@"IMAGEURL_URL: %@", url);

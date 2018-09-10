@@ -35,7 +35,8 @@
     NSLog(@"Conversations viewDidLoad start");
     
     self.imageCache = [ChatManager getInstance].imageCache;
-    self.cellConfigurator = [[CellConfigurator alloc] initWithTableView:self.tableView imageCache:self.imageCache];
+    
+//    self.cellConfigurator = [[CellConfigurator alloc] initWithTableView:self.tableView imageCache:self.imageCache];
     
     self.tableView.allowsMultipleSelectionDuringEditing = NO;
     
@@ -48,7 +49,10 @@
     }
     
     [self initConversationsHandler];
-    self.cellConfigurator.conversations = self.conversationsHandler.archivedConversations;
+//    self.cellConfigurator.conversations = self.conversationsHandler.archivedConversations;
+    
+    self.cellConfigurator = [[CellConfigurator alloc] initWithTableView:self.tableView imageCache:self.imageCache conversations:self.conversationsHandler.archivedConversations];
+    
     [self.tableView reloadData];
 }
 

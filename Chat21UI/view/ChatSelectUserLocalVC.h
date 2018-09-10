@@ -11,6 +11,8 @@
 @class ChatImageCache;
 @class ChatGroup;
 @class ChatUser;
+@class ChatDiskImageCache;
+@class ChatUserCellConfigurator;
 
 @interface ChatSelectUserLocalVC : UIViewController <UISearchBarDelegate, UITableViewDelegate, UITableViewDataSource, ChatSynchDelegate>
 
@@ -27,9 +29,10 @@
 @property (strong, nonatomic) NSTimer *searchTimer;
 @property (strong, nonatomic) NSString *lastUsersTextSearch;
 @property (strong, nonatomic) ChatGroup *group;
-@property (strong, nonatomic) ChatImageCache *imageCache;
+@property (strong, nonatomic) ChatDiskImageCache *imageCache;
 @property (assign, nonatomic) BOOL synchronizing;
 @property (strong, nonatomic) UIActivityIndicatorView *activityIndicator;
+@property (strong, nonatomic) ChatUserCellConfigurator *cellConfigurator;
 
 //-(void)networkError;
 - (IBAction)CancelAction:(id)sender;

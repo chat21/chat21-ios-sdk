@@ -22,7 +22,6 @@
 #import "ChatMessagesVC.h"
 #import "CellConfigurator.h"
 #import "ChatStatusTitle.h"
-#import "ChatSelectUserLocalVC.h"
 #import "ChatSelectGroupMembersLocal.h"
 #import "ChatSelectGroupLocalTVC.h"
 //#import "HelpFacade.h"
@@ -78,11 +77,8 @@
     UIBarButtonItem *write_to_button = [[UIBarButtonItem alloc] initWithImage:write_to_image style:UIBarButtonItemStylePlain target:self action:@selector(write_to_action:)];
     
     self.navigationItem.rightBarButtonItems = @[write_to_button, archived_button];
-//    let editButton   = UIBarButtonItem(image: editImage,  style: .Plain, target: self, action: "didTapEditButton:")
-//    let searchButton = UIBarButtonItem(image: searchImage,  style: .Plain, target: self, action: "didTapSearchButton:")
-    
-//    self.navigationItem.rightBarButtonItems = [editButton, searchButton]
-    self.cellConfigurator = [[CellConfigurator alloc] initWithTableView:self.tableView imageCache:self.imageCache];
+
+//    self.cellConfigurator = [[CellConfigurator alloc] initWithTableView:self.tableView imageCache:self.imageCache];
 }
 
 -(void)archived_action:(id)sender {
@@ -241,7 +237,8 @@
 
 -(void)initChat {
     [self initConversationsHandler];
-    self.cellConfigurator.conversations = self.conversationsHandler.conversations;
+    self.cellConfigurator = [[CellConfigurator alloc] initWithTableView:self.tableView imageCache:self.imageCache conversations:self.conversationsHandler.conversations];
+//    self.cellConfigurator.conversations = self.conversationsHandler.conversations;
     [self setupConnectionStatusHandler];
 }
 
@@ -595,7 +592,6 @@
                 ChatGroup *temporaryGroup = [[ChatGroup alloc] init];
                 temporaryGroup.name = self.selectedGroupName;
                 temporaryGroup.groupId = self.selectedGroupId;
-//                emptyGroup.members = nil; // signals no group metadata
                 NSString *me = [ChatManager getInstance].loggedUser.userId;
                 NSMutableArray *membersIDs = [[NSMutableArray alloc] init];
                 [membersIDs addObject:me]; // always add me
@@ -609,25 +605,6 @@
         vc.attributesToSendAsChatOpens = self.selectedRecipientAttributesToSend;
         [self resetSelectedConversationStatus];
     }
-//    else if ([[segue identifier] isEqualToString:@"SelectUser"]) {
-//        UINavigationController *navigationController = [segue destinationViewController];
-//        ChatSelectUserLocalVC *vc = (ChatSelectUserLocalVC *)[[navigationController viewControllers] objectAtIndex:0];
-//        vc.modalCallerDelegate = self;
-//    }
-//    else if ([[segue identifier] isEqualToString:@"CreateGroup"]) {
-//        NSLog(@"CreateGroup");
-////        NSString *newGroupId = [[ChatManager getInstance] newGroupId];
-////        [self.applicationContext setVariable:@"newGroupId" withValue:newGroupId];
-////        NSLog(@"Creating group with ID: %@", newGroupId);
-//        UINavigationController *navigationController = [segue destinationViewController];
-//        SHPChatCreateGroupVC *vc = (SHPChatCreateGroupVC *)[[navigationController viewControllers] objectAtIndex:0];
-//        vc.modalCallerDelegate = self;
-//    }
-//    else if ([[segue identifier] isEqualToString:@"ChooseGroup"]) {
-//        UINavigationController *navigationController = [segue destinationViewController];
-//        ChatSelectGroupLocalTVC *vc = (ChatSelectGroupLocalTVC *)[[navigationController viewControllers] objectAtIndex:0];
-//        vc.modalCallerDelegate = self;
-//    }
 }
 
 -(void)openConversationWithUser:(ChatUser *)user {

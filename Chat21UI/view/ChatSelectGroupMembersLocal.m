@@ -55,9 +55,9 @@
     self.imageCache = [ChatManager getInstance].imageCache;
 }
 
-//-(void)viewDidAppear:(BOOL)animated {
-//    [super viewDidAppear:animated];
-//}
+-(void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+}
 
 -(void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
