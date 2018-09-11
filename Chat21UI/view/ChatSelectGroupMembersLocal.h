@@ -13,6 +13,7 @@
 @class ChatGroup;
 @class ChatUser;
 @class ChatDiskImageCache;
+@class ChatSelectGroupMembersCellConfigurator;
 
 @interface ChatSelectGroupMembersLocal : UIViewController <UISearchBarDelegate, UITableViewDelegate, UITableViewDataSource>
 
@@ -37,7 +38,7 @@
 
 @property (strong, nonatomic) UIImage *profileImage;
 
-@property (strong, nonatomic) ChatDiskImageCache *imageCache;
-@property (nonatomic, retain) NSMutableDictionary *imageDownloadsInProgress;
+@property (strong, nonatomic) ChatSelectGroupMembersCellConfigurator *cellConfigurator;
 
+-(void)removeButtonPressed:(id)sender;
 @end

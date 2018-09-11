@@ -36,19 +36,14 @@
         self.navigationItem.title = [ChatLocal translate:@"NewMessage"];
     }
     
-    self.imageDownloadsInProgress = [NSMutableDictionary dictionary];
-    
     self.searchBar.delegate = self;
     
     self.tableView.delegate = self;
     self.tableView.dataSource = self;
-//    [self initImageCache];
-    self.imageCache = [ChatManager getInstance].imageCache;
     ChatManager *chatm = [ChatManager getInstance];
     contacts = chatm.contactsSynchronizer;
     [self setupSynchronizing];
     [contacts addSynchSubscriber:self];
-    self.imageCache = [ChatManager getInstance].imageCache;
     self.cellConfigurator = [[ChatUserCellConfigurator alloc] initWith:self];
 }
 
@@ -91,7 +86,8 @@
     if (self.users) { // users found matching search criteria
         return 1;
     }
-    return 2; // recentUsers, allUsers
+    return 0;
+//    return 2; // recentUsers, allUsers
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
@@ -101,12 +97,12 @@
     else if (section == 0 && self.users) {
         return self.users.count;
     }
-    else if (section == 0) {
-        return self.recentUsers.count;
-    }
-    else if (section == 1) {
-        return self.allUsers.count;
-    }
+//    else if (section == 0) {
+//        return self.recentUsers.count;
+//    }
+//    else if (section == 1) {
+//        return self.allUsers.count;
+//    }
     else {
         return 0;
     }
@@ -114,50 +110,15 @@
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
 {
-    if (section == 1 && self.allUsers.count > 0) {
-        return [ChatLocal translate:@"all contacts"];
-    }
+//    if (section == 1 && self.allUsers.count > 0) {
+//        return [ChatLocal translate:@"all contacts"];
+//    }
     return nil;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     UITableViewCell *cell;
     cell = [self.cellConfigurator configureCellAtIndexPath:indexPath];
-//    if (indexPath.section == 0 && self.synchronizing) {
-//        cell = [self.tableView dequeueReusableCellWithIdentifier:@"WaitCell"];
-//        UIActivityIndicatorView *indicator = (UIActivityIndicatorView *)[cell viewWithTag:1];
-//        [indicator startAnimating];
-//        UILabel *messageLabel = (UILabel *)[cell viewWithTag:2];
-//        messageLabel.text = [ChatLocal translate:@"Synchronizing contacts"];
-//    }
-//    else if (indexPath.section == 0 && self.users) {
-//        long userIndex = indexPath.row;
-//        cell = [self.tableView dequeueReusableCellWithIdentifier:@"UserCell"];
-//        ChatUser *user = [self.users objectAtIndex:userIndex];
-//
-//        [self setupUserLabel:user cell:cell];
-//
-//        UIImage *circled = [ChatUtil circleImage:[UIImage imageNamed:@"avatar"]];
-//        UIImageView *image_view = (UIImageView *)[cell viewWithTag:1];
-//        image_view.image = circled;
-//    }
-//    else if (indexPath.section == 0 && self.recentUsers.count > 0) {
-//        // show recents
-//        long userIndex = indexPath.row;
-//        cell = [self.tableView dequeueReusableCellWithIdentifier:@"UserCell"];
-//        ChatUser *user = [self.recentUsers objectAtIndex:userIndex];
-//
-//        [self setupUserLabel:user cell:cell];
-//    }
-//    else if (indexPath.section == 1 && self.allUsers.count > 0) {
-//        // show recents
-//        long userIndex = indexPath.row;
-//        cell = [self.tableView dequeueReusableCellWithIdentifier:@"UserCell"];
-//        ChatUser *user = [self.allUsers objectAtIndex:userIndex];
-//
-//        [self setupUserLabel:user cell:cell];
-//    }
-//    return [self.]
     return cell;
 }
 
@@ -173,13 +134,6 @@
     else if (self.users) {
         selectedUser = [self.users objectAtIndex:userIndex];
     }
-    else if (indexPath.section == 0){
-        selectedUser = [self.recentUsers objectAtIndex:userIndex];
-    }
-    else if (indexPath.section == 1) {
-        selectedUser = [self.allUsers objectAtIndex:userIndex];
-    }
-    
     if (self.group) {
         if (![self.group isMember:selectedUser.userId]) {
             NSLog(@"Just in this group!");
@@ -187,24 +141,6 @@
         }
     } else {
         [self selectUser:selectedUser];
-    }
-}
-
--(void)setupUserLabel:(ChatUser *)user cell:(UITableViewCell *)cell {
-    UILabel *fullnameLabel = (UILabel *) [cell viewWithTag:2];
-    UILabel *usernameLabel = (UILabel *) [cell viewWithTag:3];
-    if (self.group && [self.group isMember:user.userId]) {
-        cell.selectionStyle = UITableViewCellSelectionStyleNone;
-        fullnameLabel.textColor = [UIColor grayColor];
-        usernameLabel.textColor = [UIColor grayColor];
-        fullnameLabel.text = [user fullname];
-        usernameLabel.text = [ChatLocal translate:@"Just in group"];
-    } else {
-        cell.selectionStyle = UITableViewCellSelectionStyleGray;
-        fullnameLabel.textColor = [UIColor blackColor];
-        usernameLabel.textColor = [UIColor blackColor];
-        fullnameLabel.text = user.fullname;
-        usernameLabel.text = user.userId;
     }
 }
 
@@ -236,8 +172,6 @@
 }
 
 -(void)selectUser:(ChatUser *)selectedUser {
-    //    [self updateRecentUsersWith:selectedUser];
-    //    [self saveRecents];
     [self disposeResources];
     NSMutableDictionary *options = [[NSMutableDictionary alloc] init];
     [options setObject:selectedUser forKey:@"user"];
@@ -307,11 +241,7 @@
 // IMAGE HANDLING
 
 -(void)terminatePendingImageConnections {
-    //    NSArray *allDownloads = [self.imageDownloadsInProgress allValues];
-    //    for(SHPImageDownloader *obj in allDownloads) {
-    //        obj.delegate = nil;
-    //    }
-    //    [allDownloads makeObjectsPerformSelector:@selector(cancelDownload)];
+    [self.cellConfigurator teminatePendingTasks];
 }
 
 // all users

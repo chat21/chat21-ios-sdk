@@ -29,7 +29,6 @@
 @property (strong, nonatomic) NSTimer *searchTimer;
 @property (strong, nonatomic) NSString *lastUsersTextSearch;
 @property (strong, nonatomic) ChatGroup *group;
-@property (strong, nonatomic) ChatDiskImageCache *imageCache;
 @property (assign, nonatomic) BOOL synchronizing;
 @property (strong, nonatomic) UIActivityIndicatorView *activityIndicator;
 @property (strong, nonatomic) ChatUserCellConfigurator *cellConfigurator;

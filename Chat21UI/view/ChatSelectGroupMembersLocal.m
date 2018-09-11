@@ -20,6 +20,7 @@
 #import "ChatLocal.h"
 #import "ChatManager.h"
 #import "ChatDiskImageCache.h"
+#import "ChatSelectGroupMembersCellConfigurator.h"
 
 @interface ChatSelectGroupMembersLocal () {
     ChatProgressView *HUD;
@@ -33,26 +34,15 @@
     
     self.title = [ChatLocal translate:@"add members"];
     self.users = nil;
-    
-    //    self.imageCache = self.applicationContext.smallImagesCache;
-    
-    self.imageDownloadsInProgress = [NSMutableDictionary dictionary];
-    
-    NSLog(@"tableView %@", self.tableView);
-    
     self.searchBar.delegate = self;
-    
     self.tableView.delegate = self;
     self.tableView.dataSource = self;
-    
     self.members = [[NSMutableArray alloc] init];
     self.createButton.title = [ChatLocal translate:@"create"];
     self.searchBar.placeholder = [ChatLocal translate:@"contact name"];
-    
     [self.searchBar becomeFirstResponder];
-    
     [self enableCreateButton];
-    self.imageCache = [ChatManager getInstance].imageCache;
+    self.cellConfigurator = [[ChatSelectGroupMembersCellConfigurator alloc] initWith:self];
 }
 
 -(void)viewDidAppear:(BOOL)animated {
@@ -62,25 +52,13 @@
 -(void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
     //    NSLog(@"VIEW WILL DISAPPEAR...");
-    //    if (self.isMovingFromParentViewController) {
-    //        NSLog(@"VIEW WILL DISAPPEAR...DISMISSING..");
-    //        [self disposeResources];
-    //    }
+    if (self.isMovingFromParentViewController) {
+        NSLog(@"VIEW WILL DISAPPEAR...DISMISSING..");
+        [self disposeResources];
+    }
 }
 
-//-(void)disposeResources {
-//    self.userDC.delegate = nil;
-//    NSLog(@"Disposing userDC...");
-//    [self.userDC cancelConnection];
-//    NSLog(@"Disposing pending image connections...");
-//    [self terminatePendingImageConnections];
-//}
-
 -(void)disposeResources {
-//    if (self.currentRequest) {
-//        [self.currentRequest cancel];
-//    }
-    NSLog(@"Disposing pending image connections...");
     [self terminatePendingImageConnections];
 }
 
@@ -112,63 +90,64 @@
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     UITableViewCell *cell;
-    if (self.users && self.users.count > 0) {
-        long userIndex = indexPath.row;
-        cell = [self.tableView dequeueReusableCellWithIdentifier:@"UserCell"];
-        //        cell.contentView.backgroundColor = [UIColor whiteColor];
-        ChatUser *user = [self.users objectAtIndex:userIndex];
-        //        NSLog(@"USER:::::::::::::::::: %@", user);
-        UILabel *fullnameLabel = (UILabel *) [cell viewWithTag:2];
-        UILabel *usernameLabel = (UILabel *) [cell viewWithTag:3];
-        //        NSLog(@"LABEL::::::: %@", usernameLabel);
-        fullnameLabel.text = user.fullname;
-        usernameLabel.text = user.userId;
-        
-        
-        UIImage *circled = [ChatUtil circleImage:[UIImage imageNamed:@"avatar"]];
-        UIImageView *image_view = (UIImageView *)[cell viewWithTag:1];
-        image_view.image = circled;
-        
-        // is just a member'
-        
-        if(![self userIsMember:user])
-        {
-            cell.accessoryType = UITableViewCellAccessoryNone;
-            cell.selectionStyle = UITableViewCellSelectionStyleDefault;
-            cell.userInteractionEnabled = YES;
-        }
-        else
-        {
-            cell.accessoryType = UITableViewCellAccessoryCheckmark;
-            cell.selectionStyle = UITableViewCellSelectionStyleNone;
-            cell.userInteractionEnabled = NO;
-        }
-        
-    } else {
-        // show members
-        
-        long userIndex = indexPath.row;
-        ChatUser *user = [self.members objectAtIndex:userIndex];
-        cell = [self.tableView dequeueReusableCellWithIdentifier:@"UserMemberCell"];
-        cell.selectionStyle = UITableViewCellSelectionStyleNone;
-        
-        //remove member button
-        UIButton *removeButton = (UIButton *)[cell viewWithTag:4];
-        [removeButton setTitle:[ChatLocal translate:@"remove"] forState:UIControlStateNormal];
-        NSLog(@"REMOVE BUTTON %@", removeButton);
-        [removeButton addTarget:self action:@selector(removeButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
-        removeButton.property = user.userId; //[NSNumber numberWithInt:(int)indexPath.row];
-        
-        UILabel *fullnameLabel = (UILabel *) [cell viewWithTag:2];
-        UILabel *usernameLabel = (UILabel *) [cell viewWithTag:3];
-        fullnameLabel.text = user.fullname;
-        usernameLabel.text = user.userId;
-        
-        UIImage *circled = [ChatUtil circleImage:[UIImage imageNamed:@"avatar"]];
-        UIImageView *image_view = (UIImageView *)[cell viewWithTag:1];
-        image_view.image = circled;
-        
-    }
+    cell = [self.cellConfigurator configureCellAtIndexPath:indexPath];
+//    if (self.users && self.users.count > 0) {
+//        long userIndex = indexPath.row;
+//        cell = [self.tableView dequeueReusableCellWithIdentifier:@"UserCell"];
+//        //        cell.contentView.backgroundColor = [UIColor whiteColor];
+//        ChatUser *user = [self.users objectAtIndex:userIndex];
+//        //        NSLog(@"USER:::::::::::::::::: %@", user);
+//        UILabel *fullnameLabel = (UILabel *) [cell viewWithTag:2];
+//        UILabel *usernameLabel = (UILabel *) [cell viewWithTag:3];
+//        //        NSLog(@"LABEL::::::: %@", usernameLabel);
+//        fullnameLabel.text = user.fullname;
+//        usernameLabel.text = user.userId;
+//
+//
+//        UIImage *circled = [ChatUtil circleImage:[UIImage imageNamed:@"avatar"]];
+//        UIImageView *image_view = (UIImageView *)[cell viewWithTag:1];
+//        image_view.image = circled;
+//
+//        // is just a member'
+//
+//        if(![self userIsMember:user])
+//        {
+//            cell.accessoryType = UITableViewCellAccessoryNone;
+//            cell.selectionStyle = UITableViewCellSelectionStyleDefault;
+//            cell.userInteractionEnabled = YES;
+//        }
+//        else
+//        {
+//            cell.accessoryType = UITableViewCellAccessoryCheckmark;
+//            cell.selectionStyle = UITableViewCellSelectionStyleNone;
+//            cell.userInteractionEnabled = NO;
+//        }
+//
+//    } else {
+//        // show members
+//
+//        long userIndex = indexPath.row;
+//        ChatUser *user = [self.members objectAtIndex:userIndex];
+//        cell = [self.tableView dequeueReusableCellWithIdentifier:@"UserMemberCell"];
+//        cell.selectionStyle = UITableViewCellSelectionStyleNone;
+//
+//        //remove member button
+//        UIButton *removeButton = (UIButton *)[cell viewWithTag:4];
+//        [removeButton setTitle:[ChatLocal translate:@"remove"] forState:UIControlStateNormal];
+//        NSLog(@"REMOVE BUTTON %@", removeButton);
+//        [removeButton addTarget:self action:@selector(removeButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
+//        removeButton.property = user.userId; //[NSNumber numberWithInt:(int)indexPath.row];
+//
+//        UILabel *fullnameLabel = (UILabel *) [cell viewWithTag:2];
+//        UILabel *usernameLabel = (UILabel *) [cell viewWithTag:3];
+//        fullnameLabel.text = user.fullname;
+//        usernameLabel.text = user.userId;
+//
+//        UIImage *circled = [ChatUtil circleImage:[UIImage imageNamed:@"avatar"]];
+//        UIImageView *image_view = (UIImageView *)[cell viewWithTag:1];
+//        image_view.image = circled;
+//
+//    }
     return cell;
 }
 
@@ -234,19 +213,6 @@
     }
 }
 
-//-(void) userPaused:(NSTimer *)timer {
-//    NSLog(@"(SHPSearchViewController) userPaused:");
-//    NSString *text = self.searchBar.text;
-//    self.textToSearch = [self prepareTextToSearch:text];
-//    NSLog(@"timer on userPaused: searching for %@", self.textToSearch);
-//
-////    self.userDC = [[SHPUserDC alloc] init];
-//    self.userDC = [[ChatUsersDC alloc] init];
-//    self.userDC.delegate = self;
-//    [self.userDC findByText:self.textToSearch page:0 pageSize:30 withUser:self.applicationContext.loggedUser];
-////    [self.userDC searchByText:self.textToSearch location:nil page:0 pageSize:30 withUser:self.applicationContext.loggedUser];
-//}
-
 -(void) userPaused:(NSTimer *)timer {
     NSLog(@"(SHPSearchViewController) userPaused:");
     NSString *text = self.searchBar.text;
@@ -272,80 +238,16 @@
             [self.tableView reloadData];
         });
     }];
-//    AlfrescoUsersDC *service = [[AlfrescoUsersDC alloc] init];
-//    self.currentRequest = [service usersByText:self.textToSearch completion:^(NSArray<SHPUser *> *users) {
-//        NSLog(@"USERS LOADED OK!");
-//        // remove group's admin
-//        NSMutableArray *m_users = [users mutableCopy];
-//        for (int i=0; i < m_users.count; i++) {
-//            SHPUser *user = [m_users objectAtIndex:i];
-//            if ([user.username isEqualToString:self.applicationContext.loggedUser.username]) {
-//                NSLog(@"Admin user %@ removed.", user.username);
-//                [m_users removeObjectAtIndex:i];
-//                break;
-//            }
-//        }
-//        self.users = m_users;
-//        self.tableView.allowsSelection = YES;
-//        [self.tableView reloadData];
-//    }];
 }
 
 -(NSString *)prepareTextToSearch:(NSString *)text {
     return [text stringByTrimmingCharactersInSet: [NSCharacterSet whitespaceAndNewlineCharacterSet]];
 }
-// DC delegate
-
-//- (void)usersDidLoad:(NSArray *)__users usersDC:usersDC error:(NSError *)error {
-//    NSLog(@"USERS LOADED OK!");
-//    if (error) {
-//        NSLog(@"Error loading users!");
-//    }
-//    if (usersDC == self.userDC) {
-//        self.users = __users;
-//        [self.tableView reloadData];
-//    } else {
-//        self.recentUsers = [__users mutableCopy];
-//        [self saveRecents];
-//        [self.tableView reloadData];
-//    }
-//
-//}
-
-//- (void)usersDidLoad:(NSArray *)__users usersDC:usersDC error:(NSError *)error {
-////- (void)usersDidLoad:(NSMutableArray *)__users error:(NSError *)error {
-//    NSLog(@"USERS LOADED OK!");
-//    if (error) {
-//        NSLog(@"Error loading users!");
-//    }
-//    // remove group's admin
-//    NSMutableArray *m_users = [__users mutableCopy];
-//    for (int i=0; i < m_users.count; i++) {
-//        SHPUser *user = [m_users objectAtIndex:i];
-//        if ([user.username isEqualToString:self.applicationContext.loggedUser.username]) {
-//            NSLog(@"Admin user %@ removed.", user.username);
-//            [m_users removeObjectAtIndex:i];
-//            break;
-//        }
-//    }
-//    self.users = m_users;
-//    self.tableView.allowsSelection = YES;
-//    [self.tableView reloadData];
-//}
-//
-//-(void)networkError {
-//    NSString *title = NSLocalizedString(@"NetworkErrorTitle", nil);
-//    NSString *msg = NSLocalizedString(@"NetworkError", nil);
-//    UIAlertView* alertView = [[UIAlertView alloc] initWithTitle:title message:msg delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
-//    [alertView show];
-//}
-
 
 // dismiss modal
 
 - (IBAction)CancelAction:(id)sender {
-//    NSLog(@"dismiss %@", self.modalCallerDelegate);
-//    [self.modalCallerDelegate setupViewController:self didCancelSetupWithInfo:nil];
+    [self disposeResources];
     if (self.completionCallback) {
         [self dismissViewControllerAnimated:YES completion:^{
             self.completionCallback(nil, YES);
@@ -353,20 +255,8 @@
     }
 }
 
-// IMAGE HANDLING
-
 -(void)terminatePendingImageConnections {
-//    NSLog(@"''''''''''''''''''''''   Terminate all pending IMAGE connections...");
-//    NSArray *allDownloads = [self.imageDownloadsInProgress allValues];
-//    NSLog(@"total downloads: %ld", (long)allDownloads.count);
-//    for(SHPImageDownloader *obj in allDownloads) {
-//        obj.delegate = nil;
-//    }
-//    [allDownloads makeObjectsPerformSelector:@selector(cancelDownload)];
-}
-
-- (void)startIconDownload:(NSString *)username forIndexPath:(NSIndexPath *)indexPath
-{
+    [self.cellConfigurator teminatePendingTasks];
 }
 
 -(void)addGroupMember:(ChatUser *)user {
@@ -376,14 +266,14 @@
     [self.tableView reloadData];
 }
 
--(BOOL)userIsMember:(ChatUser *) user {
-    for (ChatUser *u in self.members) {
-        if ([u.userId isEqualToString:user.userId]) {
-            return YES;
-        }
-    }
-    return NO;
-}
+//-(BOOL)userIsMember:(ChatUser *) user {
+//    for (ChatUser *u in self.members) {
+//        if ([u.userId isEqualToString:user.userId]) {
+//            return YES;
+//        }
+//    }
+//    return NO;
+//}
 
 -(void)removeButtonPressed:(id)sender {
     NSLog(@"removeButtonPressed!");
@@ -413,7 +303,6 @@
     else {
         NSLog(@"ERROR: username_found_at_index can't be -1");
     }
-    
 }
 
 -(void)enableCreateButton {
@@ -464,33 +353,38 @@
                 }
                 else if (self.profileImage) {
                     [[ChatManager getInstance] uploadProfileImage:self.profileImage profileId:group.groupId completion:^(NSString *downloadURL, NSError *error) {
-                        NSLog(@"Image uploaded. Download url: %@", downloadURL);
-                        if (error) {
-                            NSLog(@"Error during image upload.");
-                        }
-                        [self hideWaiting];
-                        [self.imageCache addImageToCache:self.profileImage withKey:[self.imageCache urlAsKey:[NSURL URLWithString:downloadURL]]];
-                        // adds also a local thumb in cache. The remote thumb get time to be created
-                        // and the rendering of conversations will leave the new group conversation
-                        // without a downloaded image.
-                        NSString *thumbImageURL = [ChatManager profileThumbImageURLOf:group.groupId];
-                        [self.imageCache addImageToCache:self.profileImage withKey:[self.imageCache urlAsKey:[NSURL URLWithString:thumbImageURL]]];
-                        [self.imageCache getCachedImage:thumbImageURL sized:120 circle:true];
-                        
-                        [self dismissViewControllerAnimated:YES completion:^{
-                            self.completionCallback(group, NO);
-                        }];
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            NSLog(@"Image uploaded. Download url: %@", downloadURL);
+                            if (error) {
+                                NSLog(@"Error during image upload.");
+                            }
+                            ChatDiskImageCache *imageCache = [ChatManager getInstance].imageCache;
+                            [imageCache addImageToCache:self.profileImage withKey:[imageCache urlAsKey:[NSURL URLWithString:downloadURL]]];
+                            // adds also a local thumb in cache. The remote thumb get time to be created
+                            // and the rendering of conversations will leave the new group conversation
+                            // without a downloaded image.
+                            NSString *thumbImageURL = [ChatManager profileThumbImageURLOf:group.groupId];
+                            [imageCache addImageToCache:self.profileImage withKey:[imageCache urlAsKey:[NSURL URLWithString:thumbImageURL]]];
+                            [imageCache getCachedImage:thumbImageURL sized:120 circle:true];
+                            
+                            [self dismiss:group];
+                        });
                     } progressCallback:nil];
                 }
                 else {
-                    [self hideWaiting];
-                    [self dismissViewControllerAnimated:YES completion:^{
-                        self.completionCallback(group, NO);
-                    }];
+                    [self dismiss:group];
                 }
             });
         }];
     }
+}
+
+-(void)dismiss:(ChatGroup *)group {
+    [self hideWaiting];
+    [self disposeResources];
+    [self dismissViewControllerAnimated:YES completion:^{
+        self.completionCallback(group, NO);
+    }];
 }
 
 -(void)showWaiting:(NSString *)label {

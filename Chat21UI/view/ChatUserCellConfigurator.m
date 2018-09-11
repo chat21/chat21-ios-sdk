@@ -13,6 +13,7 @@
 #import "ChatDiskImageCache.h"
 #import "ChatUtil.h"
 #import "ChatSelectUserLocalVC.h"
+#import "ChatManager.h"
 
 @implementation ChatUserCellConfigurator
 
@@ -20,8 +21,9 @@
     if (self = [super init]) {
         self.vc = vc;
         self.tableView = vc.tableView;
-        self.imageCache = vc.imageCache;
+        self.imageCache = [ChatManager getInstance].imageCache;
         self.group = vc.group;
+        self.tasks = [[NSMutableDictionary alloc] init];
     }
     return self;
 }
@@ -84,7 +86,7 @@
     UIImage *image = [self setupPhotoCell:cell imageURL:imageURL];
     // then from remote
     if (image == nil) {
-        [self.imageCache getImage:imageURL sized:120 circle:YES completionHandler:^(NSString *imageURL, UIImage *image) {
+        NSURLSessionDataTask *task = [self.imageCache getImage:imageURL sized:120 circle:YES completionHandler:^(NSString *imageURL, UIImage *image) {
             NSLog(@"requested-image-url: %@ > image: %@", imageURL, image);
             if (!image) {
                 return;
@@ -124,6 +126,7 @@
                 }
             });
         }];
+        [self.tasks setObject:task forKey:imageURL];
     }
 }
 
@@ -156,6 +159,12 @@
         }
     }
     return NO;
+}
+
+-(void)teminatePendingTasks {
+    for (NSString *k in self.tasks.allKeys) {
+        [self.tasks[k] cancel];
+    }
 }
 
 @end
