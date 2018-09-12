@@ -10,6 +10,7 @@
 #import "ChatUtil.h"
 #import "ChatUser.h"
 #import "ChatContactsDB.h"
+#import "ChatManager.h"
 
 @import Firebase;
 
@@ -26,6 +27,10 @@
 //-(NSString *)iconUrl {
 //    return [ChatUtil groupImageUrlById:self.groupId];
 //}
+-(BOOL)imAdmin {
+    ChatManager *chatm = [ChatManager getInstance];
+    return [chatm.loggedUser.userId isEqualToString:self.owner] ? YES : NO;
+}
 
 -(FIRDatabaseReference *)reference {
     FIRDatabaseReference *rootRef = [[FIRDatabase database] reference];

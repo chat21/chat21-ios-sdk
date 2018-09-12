@@ -19,7 +19,7 @@
 #import "ChatUser.h"
 #import "ChatLocal.h"
 #import "ChatImageUtil.h"
-#import "ChatImagePreviewVC.h"
+#import "ChatShowImage.h"
 #import "SVProgressHUD.h"
 
 @interface ChatGroupInfoVC ()
@@ -50,10 +50,10 @@
     
     
     UITapGestureRecognizer *tapImageView = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapProfilePhoto:)];
-    UITapGestureRecognizer *tapLabelView = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapProfilePhoto:)];
+//    UITapGestureRecognizer *tapLabelView = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapProfilePhoto:)];
     [self.profilePhotoImageView addGestureRecognizer:tapImageView];
-    [self.addPhotoLabelOverloaded addGestureRecognizer:tapLabelView];
-    self.addPhotoLabelOverloaded.userInteractionEnabled = YES;
+//    [self.addPhotoLabelOverloaded addGestureRecognizer:tapLabelView];
+//    self.addPhotoLabelOverloaded.userInteractionEnabled = YES;
     self.profilePhotoImageView.userInteractionEnabled = YES;
     self.profileId = self.group.groupId;
     
@@ -86,16 +86,34 @@
     }
     else {
         self.profilePhotoImageView.image = image;
-        self.addPhotoLabelOverloaded.hidden = YES;
+//        self.addPhotoLabelOverloaded.hidden = YES;
     }
 }
 
 -(void)resetProfilePhoto {
-    self.profilePhotoImageView.image = [UIImage imageNamed:@"user-profile-man.jpg"];
-    self.addPhotoLabelOverloaded.hidden = NO;
+    self.profilePhotoImageView.image = [UIImage imageNamed:@"group-conversation-avatar"];
+//    self.addPhotoLabelOverloaded.hidden = NO;
 }
 
+//-(BOOL)imGroupAdmin {
+//    ChatManager *chatm = [ChatManager getInstance];
+//    return [chatm.loggedUser.userId isEqualToString:self.group.owner] ? YES : NO;
+//}
+
 -(void)tapProfilePhoto:(UITapGestureRecognizer *)gestureRecognizer {
+    
+    if (self.currentProfilePhoto == nil && !self.group.imAdmin) {
+        // no photo and no admin: no menu makes sense. there is nothing you can do
+        return;
+    }
+    else if (self.currentProfilePhoto && !self.group.imAdmin) {
+        // photo ok but not admin. on tap you see the group's photo.
+        [self showPhoto];
+        return;
+    }
+    
+    // else you are an admin. ok for menu
+    
     UIAlertController * alert =   [UIAlertController
                                    alertControllerWithTitle:nil
                                    message:NSLocalizedString(@"Change Profile Photo", nil)
@@ -144,8 +162,11 @@
 //        [alert addAction:delete];
         [alert addAction:show];
     }
-    [alert addAction:photo];
-    [alert addAction:photo_from_library];
+    NSLog(@"groupsowner %@", self.group.owner);
+    if (self.group.imAdmin) {
+        [alert addAction:photo];
+        [alert addAction:photo_from_library];
+    }
     [alert addAction:cancel];
     UIPopoverPresentationController *popPresenter = [alert
                                                      popoverPresentationController];
@@ -226,7 +247,7 @@
         vc.group = self.group;
     }
     else if ([[segue identifier] isEqualToString:@"imagePreview"]) {
-        ChatImagePreviewVC *vc = (ChatImagePreviewVC *)[segue destinationViewController];
+        ChatShowImage *vc = (ChatShowImage *)[segue destinationViewController];
         NSLog(@"vc %@", vc);
         vc.image = self.currentProfilePhoto;
     }

@@ -35,6 +35,7 @@ static NSString* const GROUP_ICON_ID = @"iconID";
 @property (nonatomic, strong) NSMutableDictionary *members;
 @property (nonatomic, strong) NSArray<ChatUser *> *membersFull;
 //@property (assign, nonatomic) BOOL completeData;
+@property (assign, nonatomic) BOOL imAdmin;
 
 //-(NSString *)iconUrl;
 -(FIRDatabaseReference *)reference;

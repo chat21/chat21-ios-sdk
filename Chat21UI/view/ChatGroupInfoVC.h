@@ -17,9 +17,8 @@
 @property(strong, nonatomic) ChatGroup *group;
 
 @property (weak, nonatomic) IBOutlet UIImageView *profilePhotoImageView;
-@property (weak, nonatomic) IBOutlet UILabel *addPhotoLabelOverloaded;
+//@property (weak, nonatomic) IBOutlet UILabel *addPhotoLabelOverloaded;
 // imagepicker
-@property (strong, nonatomic) UIActionSheet *photoMenuSheet;
 @property (nonatomic, strong) UIImagePickerController *imagePickerController;
 @property (nonatomic, strong) UIImagePickerController *photoLibraryController;
 @property (nonatomic, strong) UIImage *scaledImage;
@@ -35,6 +34,7 @@
 @property (weak, nonatomic) IBOutlet UILabel *createdByLabel;
 @property (weak, nonatomic) IBOutlet UILabel *adminLabel;
 @property (weak, nonatomic) IBOutlet UILabel *idLabel;
+
 
 - (IBAction)unwindToGroupInfoVC:(UIStoryboardSegue*)sender;
 
