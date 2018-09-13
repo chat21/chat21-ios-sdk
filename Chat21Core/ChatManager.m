@@ -728,7 +728,7 @@ static NSString *PROFILE_THUMB_PHOTO_NAME = @"thumb_photo.jpg";
 +(NSString *)fileURLOfProfile:(NSString *)profileId fileName:(NSString *)fileName {
     NSString *profile_base_url = [ChatManager profileBaseURL:profileId];
     NSString *file_url = [[NSString alloc] initWithFormat:@"%@%%2F%@?alt=media", profile_base_url, fileName];
-    NSLog(@"profile file url: %@", file_url);
+//    NSLog(@"profile file url: %@", file_url);
     return file_url;
 }
 
@@ -741,7 +741,7 @@ static NSString *PROFILE_THUMB_PHOTO_NAME = @"thumb_photo.jpg";
     NSString *profile_image_base_url = [chat_info_dict objectForKey:@"profile-image-base-url"];
     NSString *base_url = [[NSString alloc] initWithFormat:profile_image_base_url, bucket ];
     NSString *profile_base_url = [[NSString alloc] initWithFormat:@"%@/profiles%%2F%@", base_url, profileId];
-    NSLog(@"profile_base_url: %@", profile_base_url);
+//    NSLog(@"profile_base_url: %@", profile_base_url);
     return profile_base_url;
 }
 

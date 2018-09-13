@@ -138,7 +138,7 @@
 -(UIImage *)setupPhotoCell:(UITableViewCell *)cell imageURL:(NSString *)imageURL {
     UIImageView *image_view = (UIImageView *)[cell viewWithTag:1];
     NSURL *url = [NSURL URLWithString:imageURL];
-    NSLog(@"IMAGEURL_URL: %@", url);
+//    NSLog(@"IMAGEURL_URL: %@", url);
     NSString *cache_key = [self.imageCache urlAsKey:url];
     NSLog(@"cache_key: %@", cache_key);
     UIImage *image = [self.imageCache getCachedImage:cache_key sized:120 circle:YES];

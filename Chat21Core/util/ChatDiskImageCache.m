@@ -40,8 +40,17 @@ static ChatDiskImageCache *sharedInstance = nil;
     if (key == nil || image == nil) {
         return;
     }
-    [self.memoryObjects setObject:image forKey:key];
+//    [self.memoryObjects setObject:image forKey:key];
+    [self addImageToMemoryCache:image withKey:key];
     [ChatImageUtil saveImageAsPNG:image withName:key inFolder:self.cacheFolder];
+}
+
+-(void)addImageToMemoryCache:(UIImage *)image withKey:(NSString *)key {
+    NSLog(@"adding to memory for key: %@", key);
+    if (key == nil || image == nil) {
+        return;
+    }
+    [self.memoryObjects setObject:image forKey:key];
 }
 
 -(void)deleteImageFromCacheWithKey:(NSString *)key {
@@ -87,7 +96,7 @@ static ChatDiskImageCache *sharedInstance = nil;
 -(void)removeCachedImage:(NSString *)key sized:(long)size {
     NSString *sized_key = key;
     if (size != 0) {
-        sized_key =[ChatDiskImageCache sizedKey:key size:size];
+        sized_key = [ChatDiskImageCache sizedKey:key size:size];
     }
     NSLog(@"sized_key %@", sized_key);
     [self deleteImageFromCacheWithKey:sized_key];
@@ -127,6 +136,7 @@ static ChatDiskImageCache *sharedInstance = nil;
 +(NSString *)sizedKey:(NSString *)key size:(long) size {
     return [NSString stringWithFormat:@"%@_sized_%ld.png", key, size];
 }
+
 +(UIImage *)loadImage:(NSString *)fileName inFolder:(NSString *)folderName {
     NSString *folder_path = [ChatUtil absoluteFolderPath:folderName]; // cache folder path
     

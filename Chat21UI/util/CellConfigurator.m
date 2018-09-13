@@ -138,7 +138,7 @@
 }
 
 -(UITableViewCell *)configureDirectConversationCell:(ChatConversation *)conversation indexPath:(NSIndexPath *)indexPath {
-    NSLog(@"Rendering conversation cell for user: %@", conversation.conversWith);
+//    NSLog(@"Rendering conversation cell for user: %@", conversation.conversWith);
     //    NSLog(@"-------------- DIRECT %@ SENDR %@" , conversation.last_message_text, conversation.sender);
     NSString *me = [ChatManager getInstance].loggedUser.userId;
     static NSString *conversationCellName = @"conversationDMCell";
@@ -230,6 +230,11 @@
         [self.imageCache getImage:imageURL sized:120 circle:YES completionHandler:^(NSString *imageURL, UIImage *image) {
             NSLog(@"requested-image-url: %@ > image: %@", imageURL, image);
             if (!image) {
+                UIImage *avatar = [self avatarTypeDirect:typeDirect];
+                NSString *key = [self.imageCache urlAsKey:[NSURL URLWithString:imageURL]];
+                NSString *sized_key = [ChatDiskImageCache sizedKey:key size:120];
+                [self.imageCache addImageToMemoryCache:avatar withKey:sized_key];
+//                [self.imageCache getCachedImage:key sized:120 circle:YES];
                 return;
             }
             dispatch_async(dispatch_get_main_queue(), ^{
@@ -254,32 +259,40 @@
                     if (image) {
                         image_view.image = image;
                     }
-                    else {
-                        [self setupDefaultImageFor:image_view typeDirect:typeDirect];
-                    }
+//                    else {
+//                        UIImage *avatar_image = [self setupDefaultImageFor:image_view typeDirect:typeDirect];
+//                        NSString *key = [self.imageCache urlAsKey:[NSURL URLWithString:imageURL]];
+//                        [self.imageCache addImageToMemoryCache:avatar_image withKey:key];
+//                    }
                 }
             });
         }];
     }
 }
 
--(void)setupDefaultImageFor:(UIImageView *)imageView typeDirect:(BOOL)typeDirect {
-    UIImage *avatar_circle_image = [ChatUtil circleImage:[UIImage imageNamed:@"avatar"]];
-    UIImage *group_avatar_image = [UIImage imageNamed:@"group-conversation-avatar"];
+-(UIImage *)setupDefaultImageFor:(UIImageView *)imageView typeDirect:(BOOL)typeDirect {
+    UIImage *avatar = [self avatarTypeDirect:typeDirect];
+    imageView.image = avatar;
+    return avatar;
+}
+
+-(UIImage *)avatarTypeDirect:(BOOL) typeDirect {
+    UIImage *avatar;
     if (typeDirect) {
-        imageView.image = avatar_circle_image;
+        avatar = [ChatUtil circleImage:[UIImage imageNamed:@"avatar"]];
     }
     else {
-        imageView.image = group_avatar_image;
+        avatar = [UIImage imageNamed:@"group-conversation-avatar"];
     }
+    return avatar;
 }
 
 -(UIImage *)setupPhotoCell:(UITableViewCell *)cell typeDirect:(BOOL)typeDirect imageURL:(NSString *)imageURL {
     UIImageView *image_view = (UIImageView *)[cell viewWithTag:1];
     NSURL *url = [NSURL URLWithString:imageURL];
-    NSLog(@"IMAGEURL_URL: %@", url);
+//    NSLog(@"IMAGEURL_URL: %@", url);
     NSString *cache_key = [self.imageCache urlAsKey:url];
-    NSLog(@"cache_key: %@", cache_key);
+//    NSLog(@"cache_key: %@", cache_key);
     UIImage *image = [self.imageCache getCachedImage:cache_key sized:120 circle:YES];
     if (image) {
         image_view.image = image;

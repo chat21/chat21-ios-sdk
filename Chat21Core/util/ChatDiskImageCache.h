@@ -22,17 +22,18 @@
 -(UIImage *)getCachedImage:(NSString *)key;
 -(UIImage *)getCachedImage:(NSString *)key sized:(long)size circle:(BOOL)circle;
 -(void)addImageToCache:(UIImage *)image withKey:(NSString *)key;
+-(void)addImageToMemoryCache:(UIImage *)image withKey:(NSString *)key;
 -(void)deleteImageFromCacheWithKey:(NSString *)key;
 -(void)removeCachedImage:(NSString *)key sized:(long)size;
 -(void)deleteFilesFromCacheStartingWith:(NSString *)partial_key;
 -(void)deleteFilesFromDiskCacheOfProfile:(NSString *)profileId;
+-(NSString *)urlAsKey:(NSURL *)url;
+-(void)updateProfile:(NSString *)profileId image:(UIImage *)image;
 
++(NSString *)sizedKey:(NSString *)key size:(long) size;
 //+(void)saveImageAsJPEG:(UIImage *)image withName:(NSString*)name inFolder:(NSString *)folderName;
 +(UIImage *)loadImage:(NSString *)name inFolder:(NSString *)folderName;
-//+(NSString *)filePath:(NSString *)fileName inFolder:(NSString *)folderName;
--(NSString *)urlAsKey:(NSURL *)url;
-
 +(ChatDiskImageCache *)getSharedInstance;
--(void)updateProfile:(NSString *)profileId image:(UIImage *)image;
+
 
 @end
