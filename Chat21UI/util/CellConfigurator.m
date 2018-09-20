@@ -18,7 +18,7 @@
 #import <QuartzCore/QuartzCore.h>
 #import "ChatLocal.h"
 #import "ChatDiskImageCache.h"
-//#import <UIKit/UIKit.h>
+#import "ChatImageUtil.h"
 
 @implementation CellConfigurator
 
@@ -221,24 +221,23 @@
 
 -(void)setImageForCell:(UITableViewCell *)cell imageURL:(NSString *)imageURL typeDirect:(BOOL)typeDirect {
     // get from cache first
-//    if ([imageURL containsString:@"LLoSHCcEV4gMyd28XCD"]) {
-//        NSLog(@"ok");
-//    }
-    UIImage *image = [self setupPhotoCell:cell typeDirect:typeDirect imageURL:imageURL];
+    int size = CONVERSATION_LIST_CELL_SIZE;
+    UIImageView *image_view = (UIImageView *)[cell viewWithTag:1];
+    UIImage *image = [CellConfigurator setupPhotoCell:image_view typeDirect:typeDirect imageURL:imageURL imageCache:self.imageCache size:size];
     // then from remote
     if (image == nil) {
-        [self.imageCache getImage:imageURL sized:120 circle:YES completionHandler:^(NSString *imageURL, UIImage *image) {
+        [self.imageCache getImage:imageURL sized:size circle:YES completionHandler:^(NSString *imageURL, UIImage *image) {
             NSLog(@"requested-image-url: %@ > image: %@", imageURL, image);
-            if (!image) {
-                UIImage *avatar = [self avatarTypeDirect:typeDirect];
-                NSString *key = [self.imageCache urlAsKey:[NSURL URLWithString:imageURL]];
-                NSString *sized_key = [ChatDiskImageCache sizedKey:key size:120];
-                [self.imageCache addImageToMemoryCache:avatar withKey:sized_key];
-//                [self.imageCache getCachedImage:key sized:120 circle:YES];
-                return;
-            }
             dispatch_async(dispatch_get_main_queue(), ^{
                 NSLog(@"REQ-IMAGE-URL: %@ > IMAGE: %@", imageURL, image);
+                if (!image) {
+                    UIImage *avatar = [CellConfigurator avatarTypeDirect:typeDirect];
+                    NSString *key = [self.imageCache urlAsKey:[NSURL URLWithString:imageURL]];
+                    NSString *sized_key = [ChatDiskImageCache sizedKey:key size:size];
+                    UIImage *resized_image = [ChatImageUtil scaleImage:avatar toSize:CGSizeMake(size, size)];
+                    [self.imageCache addImageToMemoryCache:resized_image withKey:sized_key];
+                    return;
+                }
                 // find indexpath of this imageURL (aka conversation).
                 int index_path_row = 0;
                 NSIndexPath *conversationIndexPath = nil;
@@ -250,7 +249,7 @@
                     index_path_row++;
                 }
                 
-                if (conversationIndexPath && [self isIndexPathVisible:conversationIndexPath]) {
+                if (conversationIndexPath && [CellConfigurator isIndexPathVisible:conversationIndexPath tableView:self.tableView]) {
                     UITableViewCell *cell = (id)[self.tableView cellForRowAtIndexPath:conversationIndexPath];
                     UIImageView *image_view = (UIImageView *)[cell viewWithTag:1];
                     if (!cell) {
@@ -259,24 +258,19 @@
                     if (image) {
                         image_view.image = image;
                     }
-//                    else {
-//                        UIImage *avatar_image = [self setupDefaultImageFor:image_view typeDirect:typeDirect];
-//                        NSString *key = [self.imageCache urlAsKey:[NSURL URLWithString:imageURL]];
-//                        [self.imageCache addImageToMemoryCache:avatar_image withKey:key];
-//                    }
                 }
             });
         }];
     }
 }
 
--(UIImage *)setupDefaultImageFor:(UIImageView *)imageView typeDirect:(BOOL)typeDirect {
-    UIImage *avatar = [self avatarTypeDirect:typeDirect];
++(UIImage *)setupDefaultImageFor:(UIImageView *)imageView typeDirect:(BOOL)typeDirect {
+    UIImage *avatar = [CellConfigurator avatarTypeDirect:typeDirect];
     imageView.image = avatar;
     return avatar;
 }
 
--(UIImage *)avatarTypeDirect:(BOOL) typeDirect {
++(UIImage *)avatarTypeDirect:(BOOL)typeDirect {
     UIImage *avatar;
     if (typeDirect) {
         avatar = [ChatUtil circleImage:[UIImage imageNamed:@"avatar"]];
@@ -287,24 +281,35 @@
     return avatar;
 }
 
--(UIImage *)setupPhotoCell:(UITableViewCell *)cell typeDirect:(BOOL)typeDirect imageURL:(NSString *)imageURL {
-    UIImageView *image_view = (UIImageView *)[cell viewWithTag:1];
++(UIImage *)setupPhotoCell:(UIImageView *)image_view typeDirect:(BOOL)typeDirect imageURL:(NSString *)imageURL imageCache:(ChatDiskImageCache *)imageCache size:(int)size {
     NSURL *url = [NSURL URLWithString:imageURL];
-//    NSLog(@"IMAGEURL_URL: %@", url);
-    NSString *cache_key = [self.imageCache urlAsKey:url];
-//    NSLog(@"cache_key: %@", cache_key);
-    UIImage *image = [self.imageCache getCachedImage:cache_key sized:120 circle:YES];
+    NSString *cache_key = [imageCache urlAsKey:url];
+    UIImage *image = [imageCache getCachedImage:cache_key sized:size circle:YES];
     if (image) {
         image_view.image = image;
     }
     else {
-        [self setupDefaultImageFor:image_view typeDirect:typeDirect];
+        [CellConfigurator setupDefaultImageFor:image_view typeDirect:typeDirect];
     }
     return image;
 }
 
--(BOOL)isIndexPathVisible:(NSIndexPath *)indexPath {
-    NSArray *indexes = [self.tableView indexPathsForVisibleRows];
+//-(UIImage *)setupPhotoCell:(UITableViewCell *)cell typeDirect:(BOOL)typeDirect imageURL:(NSString *)imageURL {
+//    UIImageView *image_view = (UIImageView *)[cell viewWithTag:1];
+//    NSURL *url = [NSURL URLWithString:imageURL];
+//    NSString *cache_key = [self.imageCache urlAsKey:url];
+//    UIImage *image = [self.imageCache getCachedImage:cache_key sized:CONVERSATION_LIST_CELL_SIZE circle:YES];
+//    if (image) {
+//        image_view.image = image;
+//    }
+//    else {
+//        [self setupDefaultImageFor:image_view typeDirect:typeDirect];
+//    }
+//    return image;
+//}
+
++(BOOL)isIndexPathVisible:(NSIndexPath *)indexPath tableView:(UITableView *)tableView {
+    NSArray *indexes = [tableView indexPathsForVisibleRows];
     for (NSIndexPath *index in indexes) {
         if (indexPath.row == index.row && indexPath.section == index.section) {
             return YES;

@@ -14,6 +14,8 @@
 @class ChatConversationsVC;
 @class ChatDiskImageCache;
 
+static int CONVERSATION_LIST_CELL_SIZE = 120;
+
 @interface CellConfigurator : NSObject
 
 @property(strong, nonatomic) NSArray<ChatConversation *> *conversations;
@@ -24,5 +26,8 @@
 -(UITableViewCell *)configureConversationCell:(ChatConversation *)conversation indexPath:(NSIndexPath *)indexPath;
 +(void)changeReadStatus:(ChatConversation *)conversation forCell:(UITableViewCell *)cell;
 +(void)archiveLabel:(UITableViewCell *)cell archived:(BOOL)archived;
++(UIImage *)avatarTypeDirect:(BOOL)typeDirect;
++(UIImage *)setupPhotoCell:(UIImageView *)image_view typeDirect:(BOOL)typeDirect imageURL:(NSString *)imageURL imageCache:(ChatDiskImageCache *)imageCache size:(int)size;
++(BOOL)isIndexPathVisible:(NSIndexPath *)indexPath tableView:(UITableView *)tableView;
 
 @end

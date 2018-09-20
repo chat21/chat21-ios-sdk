@@ -83,11 +83,12 @@
 #pragma mark - Table view data source
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-    if (self.users) { // users found matching search criteria
-        return 1;
-    }
-    return 0;
+//    if (self.users || self.synchronizing) { // users found matching search criteria
+//        return 1;
+//    }
+//    return 0;
 //    return 2; // recentUsers, allUsers
+    return 1;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
@@ -97,12 +98,6 @@
     else if (section == 0 && self.users) {
         return self.users.count;
     }
-//    else if (section == 0) {
-//        return self.recentUsers.count;
-//    }
-//    else if (section == 1) {
-//        return self.allUsers.count;
-//    }
     else {
         return 0;
     }
@@ -118,7 +113,10 @@
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     UITableViewCell *cell;
+//    NSLog(@"Inside-Decoding cell (vc: %@ - table: %@ -  synch: %d) for indexpath.row: %ld .section: %ld", self,  self.tableView, self.synchronizing, (long)indexPath.row, (long)indexPath.section);
+    NSLog(@"self.cellConfigurator: %@", self.cellConfigurator);
     cell = [self.cellConfigurator configureCellAtIndexPath:indexPath];
+//    NSLog(@"Got cell: %@", cell);
     return cell;
 }
 

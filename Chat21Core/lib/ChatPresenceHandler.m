@@ -72,7 +72,7 @@
                 // when I disconnect, update the last time I was seen online
                 [lastOnlineRef onDisconnectSetValue:[FIRServerValue timestamp]];
             } else {
-                NSLog(@"This is an error. self.deviceConnectionRef already set. Cannot be set again.");
+                NSLog(@"self.deviceConnectionRef already set. Cannot be set again.");
             }
         }
     }];

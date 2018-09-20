@@ -15,6 +15,8 @@
 @class ChatSelectUserLocalVC;
 @class NSURLSessionDataTask;
 
+static int SELECT_USER_LIST_CELL_SIZE = 80;
+
 @interface ChatUserCellConfigurator : NSObject
 
 @property(strong, nonatomic) ChatSelectUserLocalVC *vc;

@@ -208,6 +208,7 @@ static ChatDiskImageCache *sharedInstance = nil;
     if (currentTask) {
         NSLog(@"Image %@ already downloading.", imageURL);
         callback(imageURL, nil);
+        return nil;
     }
     NSURLSessionConfiguration *_config = [NSURLSessionConfiguration defaultSessionConfiguration];
     NSURLSession *_session = [NSURLSession sessionWithConfiguration:_config];

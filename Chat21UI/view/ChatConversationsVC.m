@@ -501,7 +501,7 @@
             return 0;
         }
     }
-    return UITableViewAutomaticDimension;// else 70;//
+    return 70;//UITableViewAutomaticDimension;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath

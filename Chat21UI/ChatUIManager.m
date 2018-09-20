@@ -156,6 +156,7 @@ static NotificationAlertView *notificationAlertInstance = nil;
         UIViewController *currentVc = [controllers objectAtIndex:tabController.selectedIndex];
         [currentVc dismissViewControllerAnimated:NO completion:nil];
         UINavigationController *conversationsNC = [controllers objectAtIndex:chat_tab_index];
+//        [conversationsNC popToRootViewControllerAnimated:NO];
         ChatConversationsVC *conversationsVC = conversationsNC.viewControllers[0];
         NSLog(@"openConversationWithRecipient:%@ orGroup: %@ sendText:%@", user.userId, group.groupId, message);
         tabController.selectedIndex = chat_tab_index;

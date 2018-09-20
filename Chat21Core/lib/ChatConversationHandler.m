@@ -139,10 +139,10 @@
     }
     
 //    NSLog(@"Setting up references' connections with firebase using token: %@", self.firebaseToken);
-    if (self.messages_ref_handle) {
-        NSLog(@"Trying to re-open messages_ref_handle %ld while already open. Returning.", self.messages_ref_handle);
-        return;
-    }
+//    if (self.messages_ref_handle) {
+//        NSLog(@"Trying to re-open messages_ref_handle %ld while already open. Returning.", self.messages_ref_handle);
+//        return;
+//    }
     self.messagesRef = [ChatUtil conversationMessagesRef:self.recipientId];
     self.conversationOnSenderRef = [ChatUtil conversationRefForUser:self.senderId conversationId:self.conversationId];
     self.conversationOnReceiverRef = [ChatUtil conversationRefForUser:self.recipientId conversationId:self.conversationId];

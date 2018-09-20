@@ -18,9 +18,9 @@
 
 @property (strong, nonatomic) ChatUser *userSelected;
 @property (strong, nonatomic) NSArray<ChatUser *> *users;
-@property (strong, nonatomic) NSMutableArray<ChatUser *> *recentUsers;
-@property (strong, nonatomic) NSMutableArray *allUsers;
-@property (nonatomic, retain) NSMutableDictionary *imageDownloadsInProgress;
+//@property (strong, nonatomic) NSMutableArray<ChatUser *> *recentUsers;
+//@property (strong, nonatomic) NSMutableArray *allUsers;
+//@property (nonatomic, retain) NSMutableDictionary *imageDownloadsInProgress;
 @property (nonatomic, copy) void (^completionCallback)(ChatUser *contact, BOOL canceled);
 @property (weak, nonatomic) IBOutlet UITableView *tableView;
 @property (weak, nonatomic) IBOutlet UISearchBar *searchBar;

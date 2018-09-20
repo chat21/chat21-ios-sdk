@@ -14,6 +14,8 @@
 #import "ChatLocal.h"
 #import "UIView+Property.h"
 #import "ChatDiskImageCache.h"
+#import "CellConfigurator.h"
+#import "ChatImageUtil.h"
 
 @implementation ChatSelectGroupMembersCellConfigurator
 
@@ -116,16 +118,23 @@
 
 -(void)setImageForCell:(UITableViewCell *)cell imageURL:(NSString *)imageURL {
     // get from cache first
-    UIImage *image = [self setupPhotoCell:cell imageURL:imageURL];
+    int size = SELECT_GROUP_MEMBER_LIST_CELL_SIZE;
+    UIImageView *image_view = (UIImageView *)[cell viewWithTag:1];
+    UIImage *image = [CellConfigurator setupPhotoCell:image_view typeDirect:YES imageURL:imageURL imageCache:self.imageCache size:size];
     // then from remote
     if (image == nil) {
-        NSURLSessionDataTask *task = [self.imageCache getImage:imageURL sized:120 circle:YES completionHandler:^(NSString *imageURL, UIImage *image) {
+        NSURLSessionDataTask *task = [self.imageCache getImage:imageURL sized:size circle:YES completionHandler:^(NSString *imageURL, UIImage *image) {
             NSLog(@"requested-image-url: %@ > image: %@", imageURL, image);
-            if (!image) {
-                return;
-            }
             dispatch_async(dispatch_get_main_queue(), ^{
                 NSLog(@"REQ-IMAGE-URL: %@ > IMAGE: %@", imageURL, image);
+                if (!image) {
+                    UIImage *avatar = [CellConfigurator avatarTypeDirect:YES];
+                    NSString *key = [self.imageCache urlAsKey:[NSURL URLWithString:imageURL]];
+                    NSString *sized_key = [ChatDiskImageCache sizedKey:key size:size];
+                    UIImage *resized_image = [ChatImageUtil scaleImage:avatar toSize:CGSizeMake(size, size)];
+                    [self.imageCache addImageToMemoryCache:resized_image withKey:sized_key];
+                    return;
+                }
                 // find indexpath of this imageURL
                 NSIndexPath *cellIndexPath = nil;
                 NSArray *users;
@@ -144,7 +153,7 @@
                     }
                     index_path_row++;
                 }
-                if (cellIndexPath && [self isIndexPathVisible:cellIndexPath]) {
+                if (cellIndexPath && [CellConfigurator isIndexPathVisible:cellIndexPath tableView:self.tableView]) {
                     UITableViewCell *cell = (id)[self.tableView cellForRowAtIndexPath:cellIndexPath];
                     UIImageView *image_view = (UIImageView *)[cell viewWithTag:1];
                     if (!cell) {
@@ -153,45 +162,11 @@
                     else if (image) {
                         image_view.image = image;
                     }
-                    else {
-                        [self setupDefaultImageFor:image_view];
-                    }
                 }
             });
         }];
         [self.tasks setObject:task forKey:imageURL];
     }
-}
-
--(void)setupDefaultImageFor:(UIImageView *)imageView {
-    UIImage *avatar_circle_image = [ChatUtil circleImage:[UIImage imageNamed:@"avatar"]];
-    imageView.image = avatar_circle_image;
-}
-
--(UIImage *)setupPhotoCell:(UITableViewCell *)cell imageURL:(NSString *)imageURL {
-    UIImageView *image_view = (UIImageView *)[cell viewWithTag:1];
-    NSURL *url = [NSURL URLWithString:imageURL];
-//    NSLog(@"IMAGEURL_URL: %@", url);
-    NSString *cache_key = [self.imageCache urlAsKey:url];
-    NSLog(@"cache_key: %@", cache_key);
-    UIImage *image = [self.imageCache getCachedImage:cache_key sized:120 circle:YES];
-    if (image) {
-        image_view.image = image;
-    }
-    else {
-        [self setupDefaultImageFor:image_view];
-    }
-    return image;
-}
-
--(BOOL)isIndexPathVisible:(NSIndexPath *)indexPath {
-    NSArray *indexes = [self.tableView indexPathsForVisibleRows];
-    for (NSIndexPath *index in indexes) {
-        if (indexPath.row == index.row && indexPath.section == index.section) {
-            return YES;
-        }
-    }
-    return NO;
 }
 
 -(void)teminatePendingTasks {

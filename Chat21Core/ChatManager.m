@@ -115,24 +115,24 @@ static ChatManager *sharedInstance = nil;
     return self.conversationsHandler;
 }
 
--(void)startConversationHandler:(ChatConversation *)conv {
-    if (conv.isDirect) {
-        NSString *recipientId = conv.conversWith;
-        NSString *recipientFullname = conv.conversWith_fullname;
-        ChatUser *recipient = [[ChatUser alloc] init:recipientId fullname:recipientFullname];
-        ChatConversationHandler *handler;
-        handler = [self getConversationHandlerForRecipient:recipient];
-        [handler connect];
-    }
-    else {
-        NSString *groupId = conv.recipient;
-        NSString *groupName = conv.recipientFullname;
-        ChatGroup *group = [[ChatGroup alloc] initWithGroupId:groupId name:groupName];
-        ChatConversationHandler *handler;
-        handler = [self getConversationHandlerForGroup:group];
-        [handler connect];
-    }
-}
+//-(void)startConversationHandler:(ChatConversation *)conv {
+//    if (conv.isDirect) {
+//        NSString *recipientId = conv.conversWith;
+//        NSString *recipientFullname = conv.conversWith_fullname;
+//        ChatUser *recipient = [[ChatUser alloc] init:recipientId fullname:recipientFullname];
+//        ChatConversationHandler *handler;
+//        handler = [self getConversationHandlerForRecipient:recipient];
+//        [handler connect];
+//    }
+//    else {
+//        NSString *groupId = conv.recipient;
+//        NSString *groupName = conv.recipientFullname;
+//        ChatGroup *group = [[ChatGroup alloc] initWithGroupId:groupId name:groupName];
+//        ChatConversationHandler *handler;
+//        handler = [self getConversationHandlerForGroup:group];
+//        [handler connect];
+//    }
+//}
 
 -(ChatConversationHandler *)getConversationHandlerForRecipient:(ChatUser *)recipient {
     ChatConversationHandler *handler = [self.handlers objectForKey:recipient.userId];

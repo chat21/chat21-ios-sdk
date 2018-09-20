@@ -169,12 +169,12 @@
     }];
 }
 
--(void)startConversationMessagesHandler:(ChatConversation *)conversation {
-    ChatManager *chatm = [ChatManager getInstance];
-    if (conversation.is_new) {
-        [chatm startConversationHandler:conversation];
-    }
-}
+//-(void)startConversationMessagesHandler:(ChatConversation *)conversation {
+//    ChatManager *chatm = [ChatManager getInstance];
+//    if (conversation.is_new) {
+//        [chatm startConversationHandler:conversation];
+//    }
+//}
 
 -(NSDictionary *)findConversationInMemoryById:(NSString *)conversationId {
     for (int i = 0; i < self.conversations.count; i++) {

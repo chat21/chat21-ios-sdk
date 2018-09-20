@@ -12,6 +12,8 @@
 @class ChatSelectGroupMembersLocal;
 @class ChatDiskImageCache;
 
+static int SELECT_GROUP_MEMBER_LIST_CELL_SIZE = 80;
+
 @interface ChatSelectGroupMembersCellConfigurator : NSObject
 
 @property(strong, nonatomic) ChatSelectGroupMembersLocal *vc;
