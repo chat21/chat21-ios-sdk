@@ -612,21 +612,40 @@
 }
 
 -(void)openConversationWithUser:(ChatUser *)user orGroup:(ChatGroup *)group sendMessage:(NSString *)text attributes:(NSDictionary *)attributes {
+    
     NSLog(@"Opening conversation with recipient: %@ or group: %@", user.userId, group.groupId);
-    [self loadViewIfNeeded];
-    [self.navigationController popToRootViewControllerAnimated:NO];
+    NSLog(@"self.selectedConversationId = %@", self.selectedConversationId);
+    NSLog(@"self.conversationsHandler.currentOpenConversationId = %@", self.conversationsHandler.currentOpenConversationId);
+    NSString *newConvId;
+    if (user != nil) {
+        newConvId = user.userId;
+    }
+    else if (group != nil) {
+        newConvId = group.groupId;
+    }
+    else {
+        NSLog(@"ERROR. User and Group can't be both null.");
+        return;
+    }
+    if ([self.selectedConversationId isEqualToString:newConvId]) {
+        NSLog(@"Conversation %@ already open. User: %@ group: %@",self.selectedConversationId, user.userId, group.groupId);
+        return;
+    }
     self.selectedRecipientTextToSend = text;
+    self.selectedConversationId = newConvId;
     if (user) {
         self.selectedRecipientId = user.userId;
         self.selectedRecipientFullname = user.fullname;
-        self.selectedConversationId = user.userId;
+//        self.selectedConversationId = user.userId;
         self.selectedRecipientAttributesToSend = attributes;
     }
     else {
         self.selectedGroupId = group.groupId;
         self.selectedGroupName = group.name;
-        self.selectedConversationId = group.groupId;
+//        self.selectedConversationId = group.groupId;
     }
+    [self loadViewIfNeeded];
+    [self.navigationController popToRootViewControllerAnimated:NO];
     [self performSegueWithIdentifier:@"CHAT_SEGUE" sender:self];
 }
 
