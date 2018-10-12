@@ -37,7 +37,9 @@
 
 @end
 
-@implementation ChatConversationsVC
+@implementation ChatConversationsVC {
+    BOOL performSelectedConversationOnAppear;
+}
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -77,7 +79,7 @@
     UIBarButtonItem *write_to_button = [[UIBarButtonItem alloc] initWithImage:write_to_image style:UIBarButtonItemStylePlain target:self action:@selector(write_to_action:)];
     
     self.navigationItem.rightBarButtonItems = @[write_to_button, archived_button];
-
+    performSelectedConversationOnAppear = NO;
 //    self.cellConfigurator = [[CellConfigurator alloc] initWithTableView:self.tableView imageCache:self.imageCache];
 }
 
@@ -164,10 +166,12 @@
 
 -(void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
+    
     if (self.selectedConversationIndexPath != nil) {
         [self.tableView deselectRowAtIndexPath:self.selectedConversationIndexPath animated:YES];
         self.selectedConversationIndexPath = nil;
     }
+    
     ChatManager *chat = [ChatManager getInstance];
     [chat.connectionStatusHandler isStatusConnectedWithCompletionBlock:^(BOOL connected, NSError *error) {
         if (connected) {
@@ -177,6 +181,15 @@
             [self setUIStatusDisconnected];
         }
     }];
+    
+    if (performSelectedConversationOnAppear) {
+        [self performSegueWithIdentifier:@"CHAT_SEGUE" sender:self];
+        performSelectedConversationOnAppear = NO;
+    }
+    else {
+        [self resetCurrentConversation];
+    }
+        
 }
 
 -(void)viewWillAppear:(BOOL)animated {
@@ -184,7 +197,7 @@
     
     [self initializeWithSignedUser];
     
-    [self resetCurrentConversation];
+//    [self resetCurrentConversation];
 }
 
 -(void)initializeWithSignedUser {
@@ -614,8 +627,8 @@
 -(void)openConversationWithUser:(ChatUser *)user orGroup:(ChatGroup *)group sendMessage:(NSString *)text attributes:(NSDictionary *)attributes {
     
     NSLog(@"Opening conversation with recipient: %@ or group: %@", user.userId, group.groupId);
-    NSLog(@"self.selectedConversationId = %@", self.selectedConversationId);
-    NSLog(@"self.conversationsHandler.currentOpenConversationId = %@", self.conversationsHandler.currentOpenConversationId);
+    NSLog(@"self.selectedConversationId: %@", self.selectedConversationId);
+    NSLog(@"self.conversationsHandler.currentOpenConversationId: %@", self.conversationsHandler.currentOpenConversationId);
     NSString *newConvId;
     if (user != nil) {
         newConvId = user.userId;
@@ -645,12 +658,30 @@
 //        self.selectedConversationId = group.groupId;
     }
     [self loadViewIfNeeded];
+    
+    // popViewControllerAnimated completionCallback
+//    [CATransaction begin];
+//    [CATransaction setCompletionBlock:^{
+//        [self performSegueWithIdentifier:@"CHAT_SEGUE" sender:self];
+//    }];
+//    performSelectedConversationOnAppear = YES;
+//    [self.navigationController popViewControllerAnimated:NO];
+//    [CATransaction commit];
+    
     [self.navigationController popToRootViewControllerAnimated:NO];
-    [self performSegueWithIdentifier:@"CHAT_SEGUE" sender:self];
+//    [self performSegueWithIdentifier:@"CHAT_SEGUE" sender:self];
+    BOOL isConversationsVCOnscreen = self.view.window != nil;
+    if (isConversationsVCOnscreen) {
+        [self performSegueWithIdentifier:@"CHAT_SEGUE" sender:self];
+    }
+    else {
+        performSelectedConversationOnAppear = YES;
+    }
 }
 
 -(void)resetCurrentConversation {
     self.conversationsHandler.currentOpenConversationId = nil;
+    self.selectedConversationId = nil;
 }
 
 -(void)resetSelectedConversationStatus {
