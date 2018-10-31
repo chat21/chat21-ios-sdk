@@ -18,7 +18,7 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    NSLog(@"URL: %@", self.urlPage);
+    NSLog(@"URL to load: %@", self.urlPage);
     
 //    [self.tabBarController.tabBar setHidden:YES];
     self.webView.delegate=self;
@@ -53,6 +53,7 @@
     NSLog(@"initialize %@", self.urlPage);
     self.urlPage = [self.urlPage stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
     NSURL *url = [NSURL URLWithString:self.urlPage];
+    NSLog(@"url to load trimmed: %@", [url absoluteString]);
     NSMutableURLRequest *requestObj = [NSMutableURLRequest requestWithURL:url];
     if (self.username && ![self.username isEqualToString:@""] && self.password && ![self.password isEqualToString:@""]) {
         NSString *basicAuthCredentials = [NSString stringWithFormat:@"%@:%@", self.username, self.password];
@@ -61,6 +62,7 @@
     }
     
     [self.webView loadRequest:requestObj];
+    NSLog(@"webviewURLAbsolute: %@", [self.webView.request.URL absoluteString]);
     if(self.titlePage){
         self.navigationItem.title = self.titlePage;
     }
@@ -113,12 +115,16 @@ static NSString * AFBase64EncodedStringFromString(NSString *string) {
 }
 
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error{
-    NSLog(@"error: %@",error);
-    [activityIndicator stopAnimating];
-    self.navigationItem.rightBarButtonItem = refreshButtonItem;
-    UIAlertView *userAdviceAlert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Network Error Title", nil) message:NSLocalizedString(@"Network Error Message", nil) delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
-    [userAdviceAlert show];
-    //[alertView release];
+    NSLog(@"didFailLoadWithError: %@",error);
+    NSString *theURLString = [error.userInfo objectForKey:@"NSErrorFailingURLStringKey"];
+    NSLog(@"didFailLoadWithError URL: %@", theURLString);
+    NSLog(@"didFailLoadWithError webview URL: %@", [webView.request.URL absoluteString]);
+    if ([theURLString isEqualToString:[webView.request.URL absoluteString]]) {
+        [activityIndicator stopAnimating];
+        self.navigationItem.rightBarButtonItem = refreshButtonItem;
+        UIAlertView *userAdviceAlert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"NetworkErrorTitle", nil) message:NSLocalizedString(@"A network error occurred", nil) delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
+        [userAdviceAlert show];
+    }
 }
 
 

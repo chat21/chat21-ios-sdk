@@ -25,6 +25,7 @@
 }
 
 @property (nonatomic, strong) NSString *urlPage;
+@property (nonatomic, strong) NSString *webviewURLAbsoluteString;
 @property (nonatomic, strong) NSString *titlePage;
 
 @property (weak, nonatomic) IBOutlet UIToolbar *toolBar;
