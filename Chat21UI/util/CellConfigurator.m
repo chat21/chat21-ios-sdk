@@ -56,6 +56,7 @@
     UILabel *message_label = (UILabel *)[cell viewWithTag:3];
     UILabel *group_message_label = (UILabel *)[cell viewWithTag:22];
     UILabel *sender_label = (UILabel *)[cell viewWithTag:20];
+    UIImageView *new_messages_icon = (UIImageView *)[cell viewWithTag:50];
     
     UILabel *date_label = (UILabel *)[cell viewWithTag:4];
     
@@ -76,7 +77,7 @@
         group_message_label.hidden = YES;
         message_label.text = conversation.last_message_text;
     }
-    else if (conversation.status == CONV_STATUS_LAST_MESSAGE) {
+    else if (conversation.status >= CONV_STATUS_LAST_MESSAGE) {
         message_label.hidden = YES;
         sender_label.hidden = NO;
         group_message_label.hidden = NO;
@@ -97,6 +98,7 @@
         // CONV_STATUS_LAST_MESSAGE
         group_message_label.textColor = [UIColor blackColor];
         group_message_label.font = [UIFont boldSystemFontOfSize:message_label.font.pointSize];
+        new_messages_icon.hidden = NO;
     }
     else {
         // NORMAL STYLE
@@ -107,6 +109,7 @@
         // CONV_STATUS_LAST_MESSAGE
         group_message_label.textColor = [UIColor lightGrayColor];
         group_message_label.font = [UIFont systemFontOfSize:message_label.font.pointSize];
+        new_messages_icon.hidden = YES;
     }
     return cell;
 }
@@ -115,6 +118,7 @@
     UILabel *subject_label = (UILabel *)[cell viewWithTag:2];
     UILabel *message_label = (UILabel *)[cell viewWithTag:3];
     UILabel *group_message_label = (UILabel *)[cell viewWithTag:22];
+    UIImageView *new_messages_icon = (UIImageView *)[cell viewWithTag:50];
     if (conversation.is_new) {
         // BOLD STYLE
         subject_label.font = [UIFont boldSystemFontOfSize:subject_label.font.pointSize];
@@ -124,6 +128,7 @@
         // CONV_STATUS_LAST_MESSAGE
         group_message_label.textColor = [UIColor blackColor];
         group_message_label.font = [UIFont boldSystemFontOfSize:message_label.font.pointSize];
+        new_messages_icon.hidden = NO;
     }
     else {
         // NORMAL STYLE
@@ -134,6 +139,7 @@
         // CONV_STATUS_LAST_MESSAGE
         group_message_label.textColor = [UIColor lightGrayColor];
         group_message_label.font = [UIFont systemFontOfSize:message_label.font.pointSize];
+        new_messages_icon.hidden = YES;
     }
 }
 
@@ -145,6 +151,7 @@
     UITableViewCell *cell = [self.tableView dequeueReusableCellWithIdentifier:conversationCellName forIndexPath:indexPath];
     UILabel *subject_label = (UILabel *)[cell viewWithTag:2];
     UILabel *message_label = (UILabel *)[cell viewWithTag:3];
+    UIImageView *new_messages_icon = (UIImageView *)[cell viewWithTag:50];
     //    UILabel *sender_label = (UILabel *)[cell viewWithTag:20];
     
     UILabel *date_label = (UILabel *)[cell viewWithTag:4];
@@ -158,26 +165,29 @@
     [self setImageForCell:cell imageURL:conversation.thumbImageURL typeDirect:YES];
     date_label.text = [conversation dateFormattedForListView];
     //    NSLog(@"date lebel text %@", date_label.text);
-    if (conversation.status == CONV_STATUS_LAST_MESSAGE) {
-        if (conversation.is_new) {
-            // BOLD STYLE
-            subject_label.font = [UIFont boldSystemFontOfSize:subject_label.font.pointSize];
-            message_label.textColor = [UIColor blackColor];
-            message_label.font = [UIFont boldSystemFontOfSize:message_label.font.pointSize];
-        }
-        else {
-            // NORMAL STYLE
-            subject_label.font = [UIFont systemFontOfSize:subject_label.font.pointSize];
-            // direct
-            message_label.textColor = [UIColor lightGrayColor];
-            message_label.font = [UIFont systemFontOfSize:message_label.font.pointSize];
-        }
-    } else {
+//    if (conversation.status >= CONV_STATUS_LAST_MESSAGE) {
+    if (conversation.is_new) {
+        // BOLD STYLE
+        subject_label.font = [UIFont boldSystemFontOfSize:subject_label.font.pointSize];
+        message_label.textColor = [UIColor blackColor];
+        message_label.font = [UIFont boldSystemFontOfSize:message_label.font.pointSize];
+        new_messages_icon.hidden = NO;
+    }
+    else {
         // NORMAL STYLE
         subject_label.font = [UIFont systemFontOfSize:subject_label.font.pointSize];
+        // direct
         message_label.textColor = [UIColor lightGrayColor];
         message_label.font = [UIFont systemFontOfSize:message_label.font.pointSize];
+        new_messages_icon.hidden = YES;
     }
+//    }
+//    else {
+//        // NORMAL STYLE
+//        subject_label.font = [UIFont systemFontOfSize:subject_label.font.pointSize];
+//        message_label.textColor = [UIColor lightGrayColor];
+//        message_label.font = [UIFont systemFontOfSize:message_label.font.pointSize];
+//    }
     
     [CellConfigurator archiveLabel:cell archived:conversation.archived];
     return cell;

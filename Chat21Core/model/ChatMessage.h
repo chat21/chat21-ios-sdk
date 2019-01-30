@@ -78,7 +78,7 @@ static NSString* const MSG_METADATA_IMAGE_HEIGHT = @"height";
 @property (strong, nonatomic) NSString *imageURL; // firebase
 @property (strong, nonatomic) NSString *imageFilename; // firebase - used to save image locally
 @property (nonatomic, strong) ChatMessageMetadata *metadata; // firebase
-@property (nonatomic, strong) NSDictionary *attributes; // firebase
+@property (nonatomic, strong) NSMutableDictionary *attributes; // firebase
 
 @property (nonatomic, strong) NSString *conversationId; // decoded, = recipientId
 @property (nonatomic, assign) BOOL archived;

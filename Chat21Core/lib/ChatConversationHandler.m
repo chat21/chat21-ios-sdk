@@ -302,7 +302,7 @@
 //    message.imageFilename = imageFilename;
     message.mtype = MSG_TYPE_IMAGE;
     message.metadata = imageMetadata;
-    message.attributes = attributes;
+    message.attributes = [attributes mutableCopy];
     message.recipient = self.recipientId;
     message.recipientFullName = self.recipientFullname;
     message.channel_type = self.channel_type;
@@ -359,7 +359,7 @@
     if (metadata) {
         message.metadata = metadata;
     }
-    message.attributes = attributes;
+    message.attributes = [attributes mutableCopy];
     message.recipient = self.recipientId;
     message.recipientFullName = self.recipientFullname;
     message.channel_type = self.channel_type;
@@ -384,55 +384,7 @@
     }
 }
 
-//-(void)sendTextMessage:(NSString *)text subtype:(NSString *)subtype attributes:(NSDictionary *)attributes completion:(void(^)(ChatMessage *message, NSError *error)) callback {
-//    ChatMessage *message = [self newBaseMessage];
-//    if (text) {
-//        message.text = text;
-//    }
-//    message.mtype = MSG_TYPE_TEXT;
-//    if (subtype) {
-//        message.subtype = subtype;
-//    }
-//    message.attributes = attributes;
-////    if (self.groupId) {
-//    if ([self.channel_type isEqualToString:MSG_CHANNEL_TYPE_GROUP]) {
-//        NSLog(@"SENDING MESSAGE IN GROUP MODE. User: %@", [FIRAuth auth].currentUser.uid);
-////        message.recipientGroupId = self.groupId;
-//        message.channel_type = MSG_CHANNEL_TYPE_GROUP;
-//        message.recipient = self.recipientId;
-//        message.recipientFullName = self.recipientFullname;
-//
-//        FIRDatabaseReference *messageRef = [self.messagesRef childByAutoId]; // CHILD'S AUTOGEN UNIQUE ID
-//        message.messageId = messageRef.key;
-//        // save message locally
-//        [self insertMessageInMemory:message];
-//        [self insertMessageOnDBIfNotExists:message];
-//        [self notifyEvent:ChatEventMessageAdded message:message];
-//        [self sendMessageToGroup:message completion:^(ChatMessage *m, NSError *error){
-//            callback(m, error);
-//        }];
-//    } else {
-//        NSLog(@"SENDING MESSAGE DIRECT MODE. User: %@", [FIRAuth auth].currentUser.uid);
-//        message.channel_type = MSG_CHANNEL_TYPE_DIRECT;
-//        message.recipient = self.recipientId;
-//        message.recipientFullName = self.recipientFullname;
-//
-//        FIRDatabaseReference *messageRef = [self.messagesRef childByAutoId]; // CHILD'S AUTOGEN UNIQUE ID
-//        message.messageId = messageRef.key;
-//        // save message locally
-//        [self insertMessageInMemory:message];
-//        [self insertMessageOnDBIfNotExists:message];
-//        [self notifyEvent:ChatEventMessageAdded message:message];
-//        [self sendDirect:message completion:^(ChatMessage *m, NSError *error){
-//            callback(m, error);
-//        }];
-//    }
-//}
-
-
 -(NSString *)createLocalMessage:(ChatMessage *)message {
-//    FIRDatabaseReference *messageRef = [self.messagesRef childByAutoId]; // CHILD'S AUTOGEN UNIQUE ID
-//    message.messageId = messageRef.key;
     // save message locally
     [self insertMessageInMemoryIfNotExists:message];
     [self insertMessageOnDBIfNotExists:message];
@@ -443,16 +395,8 @@
 -(void)sendDirect:(ChatMessage *)message completion:(void(^)(ChatMessage *message, NSError *error))callback {
     // create firebase reference
     FIRDatabaseReference *messageRef = [self.messagesRef child:message.messageId];
-//    FIRDatabaseReference *messageRef = [self.messagesRef childByAutoId]; // CHILD'S AUTOGEN UNIQUE ID
-//    message.messageId = messageRef.key;
-    
-//    // save message locally
-//    [self insertMessageInMemory:message];
-//    [self insertMessageOnDBIfNotExists:message];
-//    [self notifyEvent:ChatEventMessageAdded message:message];
     
     // save message to firebase
-//    NSMutableDictionary *message_dict = [ChatConversationHandler firebaseMessageFor:message];
     NSMutableDictionary *message_dict = [message asFirebaseMessage];
     NSLog(@"Sending message to Firebase: %@ %@ %d", message.text, message.messageId, message.status);
     [messageRef setValue:message_dict withCompletionBlock:^(NSError *error, FIRDatabaseReference *ref) {

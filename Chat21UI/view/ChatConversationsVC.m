@@ -189,7 +189,8 @@
     else {
         [self resetCurrentConversation];
     }
-        
+    
+    [self update_unread];
 }
 
 -(void)viewWillAppear:(BOOL)animated {
@@ -377,6 +378,11 @@
             nextVC.unread_count = count;
             [nextVC performSelector:@selector(updateUnreadMessagesCount) withObject:nil];
         }
+    }
+    if (self.unread_count > 0) {
+        [[self navigationController] tabBarItem].badgeValue = [[NSString alloc] initWithFormat:@"%d", self.unread_count];
+    } else {
+        [[self navigationController] tabBarItem].badgeValue = nil;
     }
 }
 
@@ -613,6 +619,7 @@
                 vc.group = temporaryGroup;
             }
         }
+        [self update_unread];
         vc.unread_count = self.unread_count;
         vc.textToSendAsChatOpens = self.selectedRecipientTextToSend;
         vc.attributesToSendAsChatOpens = self.selectedRecipientAttributesToSend;

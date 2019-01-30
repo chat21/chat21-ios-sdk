@@ -8,9 +8,9 @@
 
 #import <Foundation/Foundation.h>
 
-static int const CONV_STATUS_FAILED = 0;
-static int const CONV_STATUS_JUST_CREATED = 1;
-static int const CONV_STATUS_LAST_MESSAGE = 2;
+static int const CONV_STATUS_FAILED = -1000;
+static int const CONV_STATUS_JUST_CREATED = -900; // for group management
+static int const CONV_STATUS_LAST_MESSAGE = 0;
 
 static NSString* const CONV_LAST_MESSAGE_TEXT_KEY = @"last_message_text";
 static NSString* const CONV_RECIPIENT_KEY = @"recipient";

@@ -109,12 +109,12 @@
             NSLog(@"UPDATING IS_NEW=NO FOR CONVERSATION %@", conversation_ref);
             [chatm updateConversationIsNew:conversation_ref is_new:conversation.is_new];
         }
-        if (conversation.status == CONV_STATUS_FAILED) {
-            // a remote conversation can't be in failed status. force to last_message status
-            // if the sender WRONGLY set the conversation STATUS to 0 this will block the access to the conversation.
-            // IN FUTURE SERVER-SIDE HANDLING OF MESSAGE SENDING, WILL BE THE SERVER-SIDE SCRIPT RESPONSIBLE OF SETTING THE CONV STATUS AND THIS VERIFICATION CAN BE REMOVED.
-            conversation.status = CONV_STATUS_LAST_MESSAGE;
-        }
+//        if (conversation.status == CONV_STATUS_FAILED) {
+//            // a remote conversation can't be in failed status. force to last_message status
+//            // if the sender WRONGLY set the conversation STATUS to 0 this will block the access to the conversation.
+//            // IN FUTURE SERVER-SIDE HANDLING OF MESSAGE SENDING, WILL BE THE SERVER-SIDE SCRIPT RESPONSIBLE OF SETTING THE CONV STATUS AND THIS VERIFICATION CAN BE REMOVED.
+//            conversation.status = CONV_STATUS_LAST_MESSAGE;
+//        }
         conversation.archived = NO;
         [self insertConversationInMemory:conversation];
         [self insertOrUpdateConversationOnDB:conversation];
@@ -215,12 +215,12 @@
             return;
         }
         ChatConversation *conversation = [ChatConversation conversationFromSnapshotFactory:snapshot me:self.loggeduser];
-        if (conversation.status == CONV_STATUS_FAILED) {
-            // a remote conversation can't be in failed status. force to last_message status
-            // if the sender WRONGLY set the conversation STATUS to 0 this will block the access to the conversation.
-            // IN FUTURE SERVER-SIDE HANDLING OF MESSAGE SENDING, WILL BE THE SERVER-SIDE SCRIPT RESPONSIBLE OF SETTING THE CONV STATUS AND THIS VERIFICATION CAN BE REMOVED.
-            conversation.status = CONV_STATUS_LAST_MESSAGE;
-        }
+//        if (conversation.status == CONV_STATUS_FAILED) {
+//            // a remote conversation can't be in failed status. force to last_message status
+//            // if the sender WRONGLY set the conversation STATUS to 0 this will block the access to the conversation.
+//            // IN FUTURE SERVER-SIDE HANDLING OF MESSAGE SENDING, WILL BE THE SERVER-SIDE SCRIPT RESPONSIBLE OF SETTING THE CONV STATUS AND THIS VERIFICATION CAN BE REMOVED.
+//            conversation.status = CONV_STATUS_LAST_MESSAGE;
+//        }
         conversation.archived = YES;
         [self insertArchivedConversationInMemory:conversation];
         [self insertOrUpdateConversationOnDB:conversation];

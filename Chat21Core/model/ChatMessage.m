@@ -235,6 +235,12 @@
         [message_dict setObject:self.senderFullname forKey:MSG_FIELD_SENDER_FULLNAME];
     }
     
+    // TEMPORARY
+    NSLog(@"recpient_id: %@", self.recipient);
+    if ([self.recipient isEqualToString:@"bot_5b439b28e10db0001461d992"]) {
+        [message_dict setObject:@"5b439a78e10db0001461d98f" forKey:@"projectid"];
+    }
+    
     if (self.subtype) {
         [message_dict setObject:self.subtype forKey:MSG_FIELD_SUBTYPE];
     }
@@ -245,6 +251,14 @@
     
     if (self.mtype) {
         [message_dict setObject:self.mtype forKey:MSG_FIELD_TYPE];
+    }
+    
+    // TEMPORARY
+    if ([self.recipient isEqualToString:@"bot_5b439b28e10db0001461d992"]) {
+        if (!self.attributes) {
+            self.attributes = [[NSMutableDictionary alloc] init];
+        }
+        [self.attributes setObject:@"5b439a78e10db0001461d991" forKey:@"departmentId"];
     }
     
     if (self.attributes) {
