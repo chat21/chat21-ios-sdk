@@ -21,6 +21,9 @@ static ChatStyles *sharedInstance = nil;
         self.ballonRightBackgroundColor = [UIColor colorWithRed:0.207 green:0.525 blue:0.968 alpha:1.0];
         self.ballonRightTextColor = [UIColor colorWithRed:1 green:1 blue:1 alpha:1.0];
         self.ballonFont = [UIFont fontWithName:@"Arial" size:20];
+        self.lastMessageTextColor = [UIColor colorWithRed:0.5 green:0.5 blue:0.5 alpha:1.0];
+        self.lastMessageIsNewTextColor = [UIColor blackColor];
+        self.lastMessageTextColor = self.lastMessageTextColor;
     }
     return self;
 }

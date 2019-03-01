@@ -19,14 +19,20 @@
 #import "ChatLocal.h"
 #import "ChatDiskImageCache.h"
 #import "ChatImageUtil.h"
+#import "ChatDMConversationCell.h"
+#import "ChatGroupConversationCell.h"
+#import "ChatStyles.h"
 
-@implementation CellConfigurator
+@implementation CellConfigurator {
+    ChatStyles *styles;
+}
 
 -(id)initWithTableView:(UITableView *)tableView imageCache:(ChatDiskImageCache *)imageCache conversations:(NSArray<ChatConversation *> *)conversations {
     if (self = [super init]) {
         self.tableView = tableView;
         self.imageCache = imageCache;
         self.conversations = conversations;
+        styles = [ChatStyles sharedInstance];
     }
     return self;
 }
@@ -48,17 +54,15 @@
 //    ChatGroup *group = [[ChatManager getInstance] groupById:groupId];
     
     NSString *me = [ChatManager getInstance].loggedUser.userId;
-    static NSString *conversationCellName = @"conversationGroupCell";
+    ChatGroupConversationCell *cell = [self.tableView dequeueReusableCellWithIdentifier:@"conversationGroupCell" forIndexPath:indexPath];
     
-    UITableViewCell *cell = [self.tableView dequeueReusableCellWithIdentifier:conversationCellName forIndexPath:indexPath];
+    UILabel *subject_label = cell.subjectLabel; //(UILabel *)[cell viewWithTag:2];
+    UILabel *info_message_label = cell.infoMessageLabel; //(UILabel *)[cell viewWithTag:3];
+    UILabel *last_message_label = cell.lastMessageLabel; //(UILabel *)[cell viewWithTag:22];
+    UILabel *sender_label = cell.senderLabel; //(UILabel *)[cell viewWithTag:20];
+    UIImageView *new_messages_icon = cell.is_newMessageIcon; //(UIImageView *)[cell viewWithTag:50];
     
-    UILabel *subject_label = (UILabel *)[cell viewWithTag:2];
-    UILabel *message_label = (UILabel *)[cell viewWithTag:3];
-    UILabel *group_message_label = (UILabel *)[cell viewWithTag:22];
-    UILabel *sender_label = (UILabel *)[cell viewWithTag:20];
-    UIImageView *new_messages_icon = (UIImageView *)[cell viewWithTag:50];
-    
-    UILabel *date_label = (UILabel *)[cell viewWithTag:4];
+    UILabel *date_label = cell.dateLabel; //(UILabel *)[cell viewWithTag:4];
     
     // SUBJECT LABEL
     
@@ -66,129 +70,143 @@
     subject_label.text = groupName;
     
     if (conversation.status == CONV_STATUS_FAILED) {
-        message_label.hidden = NO;
+        info_message_label.hidden = NO;
         sender_label.hidden = YES;
-        group_message_label.hidden = YES;
-        message_label.text = [[NSString alloc] initWithFormat:@"Errore nella creazione del gruppo. Tocca per riprovare"];
+        last_message_label.hidden = YES;
+        info_message_label.text = [[NSString alloc] initWithFormat:@"Errore nella creazione del gruppo. Tocca per riprovare"];
     }
     else if (conversation.status == CONV_STATUS_JUST_CREATED) {
-        message_label.hidden = NO;
+        info_message_label.hidden = NO;
         sender_label.hidden = YES;
-        group_message_label.hidden = YES;
-        message_label.text = conversation.last_message_text;
+        last_message_label.hidden = YES;
+        info_message_label.text = conversation.last_message_text;
     }
     else if (conversation.status >= CONV_STATUS_LAST_MESSAGE) {
-        message_label.hidden = YES;
+        info_message_label.hidden = YES;
         sender_label.hidden = NO;
-        group_message_label.hidden = NO;
-        group_message_label.text = [conversation textForLastMessage:me];
+        last_message_label.hidden = NO;
+        last_message_label.text = [conversation textForLastMessage:me];
         NSString *sender_display_text = [CellConfigurator displayUserOfGroupConversation:conversation];
         sender_label.text = sender_display_text;
     }
     [CellConfigurator archiveLabel:cell archived:conversation.archived];
-//    [self setImageForIndexPath:indexPath cell:cell imageURL:[ChatUtil profileThumbImageURLOf:group.groupId] typeDirect:NO];
-    [self setImageForCell:cell imageURL:conversation.thumbImageURL typeDirect:NO];
+    UIImageView *groupProfileImageView = cell.profileImageView; //[cell viewWithTag:1];
+    [self setImageFor:groupProfileImageView imageURL:conversation.thumbImageURL typeDirect:NO];
     date_label.text = [conversation dateFormattedForListView];
     if (conversation.is_new) {
         // BOLD STYLE
         subject_label.font = [UIFont boldSystemFontOfSize:subject_label.font.pointSize];
         // CONV_STATUS_JUST_CREATED
-        message_label.textColor = [UIColor blackColor];
-        message_label.font = [UIFont boldSystemFontOfSize:message_label.font.pointSize];
+        info_message_label.textColor = styles.infoMessageTextColor;
+        info_message_label.font = [UIFont boldSystemFontOfSize:info_message_label.font.pointSize];
         // CONV_STATUS_LAST_MESSAGE
-        group_message_label.textColor = [UIColor blackColor];
-        group_message_label.font = [UIFont boldSystemFontOfSize:message_label.font.pointSize];
+        last_message_label.textColor = styles.lastMessageIsNewTextColor;
+        last_message_label.font = [UIFont boldSystemFontOfSize:info_message_label.font.pointSize];
         new_messages_icon.hidden = NO;
     }
     else {
         // NORMAL STYLE
         subject_label.font = [UIFont systemFontOfSize:subject_label.font.pointSize];
         // CONV_STATUS_JUST_CREATED
-        message_label.textColor = [UIColor lightGrayColor];
-        message_label.font = [UIFont systemFontOfSize:message_label.font.pointSize];
+        info_message_label.textColor = styles.infoMessageTextColor;
+        info_message_label.font = [UIFont systemFontOfSize:info_message_label.font.pointSize];
         // CONV_STATUS_LAST_MESSAGE
-        group_message_label.textColor = [UIColor lightGrayColor];
-        group_message_label.font = [UIFont systemFontOfSize:message_label.font.pointSize];
+        last_message_label.textColor = styles.lastMessageTextColor;
+        last_message_label.font = [UIFont systemFontOfSize:info_message_label.font.pointSize];
         new_messages_icon.hidden = YES;
     }
     return cell;
 }
 
-+(void)changeReadStatus:(ChatConversation *)conversation forCell:(UITableViewCell *)cell {
-    UILabel *subject_label = (UILabel *)[cell viewWithTag:2];
-    UILabel *message_label = (UILabel *)[cell viewWithTag:3];
-    UILabel *group_message_label = (UILabel *)[cell viewWithTag:22];
-    UIImageView *new_messages_icon = (UIImageView *)[cell viewWithTag:50];
++(void)changeReadStatus:(ChatConversation *)conversation forCell:(ChatBaseConversationCell *)cell {
+    ChatStyles *styles = [ChatStyles sharedInstance];
+    UILabel *subject_label = cell.subjectLabel; //(UILabel *)[cell viewWithTag:2];
+    UILabel *last_message_label = cell.lastMessageLabel; //(UILabel *)[cell viewWithTag:3];
+//    UILabel *group_message_label = (UILabel *)[cell viewWithTag:22];
+    UIImageView *new_messages_icon = cell.is_newMessageIcon; //(UIImageView *)[cell viewWithTag:50];
     if (conversation.is_new) {
         // BOLD STYLE
         subject_label.font = [UIFont boldSystemFontOfSize:subject_label.font.pointSize];
         // CONV_STATUS_JUST_CREATED
-        message_label.textColor = [UIColor blackColor];
-        message_label.font = [UIFont boldSystemFontOfSize:message_label.font.pointSize];
+        last_message_label.textColor = styles.lastMessageIsNewTextColor;
+        last_message_label.font = [UIFont boldSystemFontOfSize:last_message_label.font.pointSize];
         // CONV_STATUS_LAST_MESSAGE
-        group_message_label.textColor = [UIColor blackColor];
-        group_message_label.font = [UIFont boldSystemFontOfSize:message_label.font.pointSize];
+//        group_message_label.textColor = [UIColor blackColor];
+//        group_message_label.font = [UIFont boldSystemFontOfSize:message_label.font.pointSize];
         new_messages_icon.hidden = NO;
     }
     else {
         // NORMAL STYLE
         subject_label.font = [UIFont systemFontOfSize:subject_label.font.pointSize];
         // CONV_STATUS_JUST_CREATED
-        message_label.textColor = [UIColor lightGrayColor];
-        message_label.font = [UIFont systemFontOfSize:message_label.font.pointSize];
+        ChatStyles *styles = [ChatStyles sharedInstance];
+        last_message_label.textColor = styles.lastMessageTextColor;
+        last_message_label.font = [UIFont systemFontOfSize:last_message_label.font.pointSize];
         // CONV_STATUS_LAST_MESSAGE
-        group_message_label.textColor = [UIColor lightGrayColor];
-        group_message_label.font = [UIFont systemFontOfSize:message_label.font.pointSize];
+//        group_message_label.textColor = [UIColor lightGrayColor];
+//        group_message_label.font = [UIFont systemFontOfSize:message_label.font.pointSize];
         new_messages_icon.hidden = YES;
     }
+//    UILabel *subject_label = (UILabel *)[cell viewWithTag:2];
+//    UILabel *message_label = (UILabel *)[cell viewWithTag:3];
+//    UILabel *group_message_label = (UILabel *)[cell viewWithTag:22];
+//    UIImageView *new_messages_icon = (UIImageView *)[cell viewWithTag:50];
+//    if (conversation.is_new) {
+//        // BOLD STYLE
+//        subject_label.font = [UIFont boldSystemFontOfSize:subject_label.font.pointSize];
+//        // CONV_STATUS_JUST_CREATED
+//        message_label.textColor = [UIColor blackColor];
+//        message_label.font = [UIFont boldSystemFontOfSize:message_label.font.pointSize];
+//        // CONV_STATUS_LAST_MESSAGE
+//        group_message_label.textColor = [UIColor blackColor];
+//        group_message_label.font = [UIFont boldSystemFontOfSize:message_label.font.pointSize];
+//        new_messages_icon.hidden = NO;
+//    }
+//    else {
+//        // NORMAL STYLE
+//        subject_label.font = [UIFont systemFontOfSize:subject_label.font.pointSize];
+//        // CONV_STATUS_JUST_CREATED
+//        message_label.textColor = [UIColor lightGrayColor];
+//        message_label.font = [UIFont systemFontOfSize:message_label.font.pointSize];
+//        // CONV_STATUS_LAST_MESSAGE
+//        group_message_label.textColor = [UIColor lightGrayColor];
+//        group_message_label.font = [UIFont systemFontOfSize:message_label.font.pointSize];
+//        new_messages_icon.hidden = YES;
+//    }
 }
 
 -(UITableViewCell *)configureDirectConversationCell:(ChatConversation *)conversation indexPath:(NSIndexPath *)indexPath {
-//    NSLog(@"Rendering conversation cell for user: %@", conversation.conversWith);
-    //    NSLog(@"-------------- DIRECT %@ SENDR %@" , conversation.last_message_text, conversation.sender);
     NSString *me = [ChatManager getInstance].loggedUser.userId;
     static NSString *conversationCellName = @"conversationDMCell";
-    UITableViewCell *cell = [self.tableView dequeueReusableCellWithIdentifier:conversationCellName forIndexPath:indexPath];
-    UILabel *subject_label = (UILabel *)[cell viewWithTag:2];
-    UILabel *message_label = (UILabel *)[cell viewWithTag:3];
-    UIImageView *new_messages_icon = (UIImageView *)[cell viewWithTag:50];
-    //    UILabel *sender_label = (UILabel *)[cell viewWithTag:20];
-    
-    UILabel *date_label = (UILabel *)[cell viewWithTag:4];
-    //    NSLog(@"DATELABEL..... %@", date_label);
+    ChatDMConversationCell *cell = [self.tableView dequeueReusableCellWithIdentifier:conversationCellName forIndexPath:indexPath];
+    UILabel *subject_label = cell.subjectLabel; // (UILabel *)[cell viewWithTag:2];
+    UILabel *last_message_label = cell.lastMessageLabel; //(UILabel *)[cell viewWithTag:3];
+    UIImageView *new_messages_icon = cell.is_newMessageIcon; //(UIImageView *)[cell viewWithTag:50];
+    UILabel *date_label = cell.dateLabel; //(UILabel *)[cell viewWithTag:4];
+    UIImageView *profileImageView = cell.profileImageView;
     subject_label.text = conversation.conversWith_fullname ? conversation.conversWith_fullname : conversation.conversWith;
     
-    message_label.hidden = NO;
-    //    sender_label.hidden = YES;
-    message_label.text = [conversation textForLastMessage:me];
-//    [self setImageForIndexPath:indexPath cell:cell imageURL:[ChatUtil profileThumbImageURLOf:conversation.conversWith] typeDirect:YES];
-    [self setImageForCell:cell imageURL:conversation.thumbImageURL typeDirect:YES];
+    last_message_label.hidden = NO;
+    last_message_label.text = [conversation textForLastMessage:me];
+    
+//    [self setImageForCell:cell imageURL:conversation.thumbImageURL typeDirect:YES];
+    [self setImageFor:profileImageView imageURL:conversation.thumbImageURL typeDirect:YES];
     date_label.text = [conversation dateFormattedForListView];
-    //    NSLog(@"date lebel text %@", date_label.text);
-//    if (conversation.status >= CONV_STATUS_LAST_MESSAGE) {
     if (conversation.is_new) {
         // BOLD STYLE
         subject_label.font = [UIFont boldSystemFontOfSize:subject_label.font.pointSize];
-        message_label.textColor = [UIColor blackColor];
-        message_label.font = [UIFont boldSystemFontOfSize:message_label.font.pointSize];
+        last_message_label.textColor = styles.lastMessageIsNewTextColor;
+        last_message_label.font = [UIFont boldSystemFontOfSize:last_message_label.font.pointSize];
         new_messages_icon.hidden = NO;
     }
     else {
         // NORMAL STYLE
         subject_label.font = [UIFont systemFontOfSize:subject_label.font.pointSize];
         // direct
-        message_label.textColor = [UIColor lightGrayColor];
-        message_label.font = [UIFont systemFontOfSize:message_label.font.pointSize];
+        last_message_label.textColor = styles.lastMessageTextColor;
+        last_message_label.font = [UIFont systemFontOfSize:last_message_label.font.pointSize];
         new_messages_icon.hidden = YES;
     }
-//    }
-//    else {
-//        // NORMAL STYLE
-//        subject_label.font = [UIFont systemFontOfSize:subject_label.font.pointSize];
-//        message_label.textColor = [UIColor lightGrayColor];
-//        message_label.font = [UIFont systemFontOfSize:message_label.font.pointSize];
-//    }
-    
     [CellConfigurator archiveLabel:cell archived:conversation.archived];
     return cell;
 }
@@ -229,10 +247,10 @@
     label.text = [ChatLocal translate:@"ArchivedBadgeLabel"];
 }
 
--(void)setImageForCell:(UITableViewCell *)cell imageURL:(NSString *)imageURL typeDirect:(BOOL)typeDirect {
+-(void)setImageFor:(UIImageView *)image_view imageURL:(NSString *)imageURL typeDirect:(BOOL)typeDirect {
     // get from cache first
     int size = CONVERSATION_LIST_CELL_SIZE;
-    UIImageView *image_view = (UIImageView *)[cell viewWithTag:1];
+//    UIImageView *image_view = (UIImageView *)[cell viewWithTag:1];
     UIImage *image = [CellConfigurator setupPhotoCell:image_view typeDirect:typeDirect imageURL:imageURL imageCache:self.imageCache size:size];
     // then from remote
     if (image == nil) {
@@ -260,8 +278,9 @@
                 }
                 
                 if (conversationIndexPath && [CellConfigurator isIndexPathVisible:conversationIndexPath tableView:self.tableView]) {
-                    UITableViewCell *cell = (id)[self.tableView cellForRowAtIndexPath:conversationIndexPath];
-                    UIImageView *image_view = (UIImageView *)[cell viewWithTag:1];
+//                    UITableViewCell *cell = (id)[self.tableView cellForRowAtIndexPath:conversationIndexPath];
+                    ChatBaseConversationCell *cell = (id)[self.tableView cellForRowAtIndexPath:conversationIndexPath];
+                    UIImageView *image_view = cell.profileImageView; //(UIImageView *)[cell viewWithTag:1];
                     if (!cell) {
                         return;
                     }
