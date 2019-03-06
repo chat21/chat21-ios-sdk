@@ -87,67 +87,9 @@
     }
 }
 
-
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     UITableViewCell *cell;
     cell = [self.cellConfigurator configureCellAtIndexPath:indexPath];
-//    if (self.users && self.users.count > 0) {
-//        long userIndex = indexPath.row;
-//        cell = [self.tableView dequeueReusableCellWithIdentifier:@"UserCell"];
-//        //        cell.contentView.backgroundColor = [UIColor whiteColor];
-//        ChatUser *user = [self.users objectAtIndex:userIndex];
-//        //        NSLog(@"USER:::::::::::::::::: %@", user);
-//        UILabel *fullnameLabel = (UILabel *) [cell viewWithTag:2];
-//        UILabel *usernameLabel = (UILabel *) [cell viewWithTag:3];
-//        //        NSLog(@"LABEL::::::: %@", usernameLabel);
-//        fullnameLabel.text = user.fullname;
-//        usernameLabel.text = user.userId;
-//
-//
-//        UIImage *circled = [ChatUtil circleImage:[UIImage imageNamed:@"avatar"]];
-//        UIImageView *image_view = (UIImageView *)[cell viewWithTag:1];
-//        image_view.image = circled;
-//
-//        // is just a member'
-//
-//        if(![self userIsMember:user])
-//        {
-//            cell.accessoryType = UITableViewCellAccessoryNone;
-//            cell.selectionStyle = UITableViewCellSelectionStyleDefault;
-//            cell.userInteractionEnabled = YES;
-//        }
-//        else
-//        {
-//            cell.accessoryType = UITableViewCellAccessoryCheckmark;
-//            cell.selectionStyle = UITableViewCellSelectionStyleNone;
-//            cell.userInteractionEnabled = NO;
-//        }
-//
-//    } else {
-//        // show members
-//
-//        long userIndex = indexPath.row;
-//        ChatUser *user = [self.members objectAtIndex:userIndex];
-//        cell = [self.tableView dequeueReusableCellWithIdentifier:@"UserMemberCell"];
-//        cell.selectionStyle = UITableViewCellSelectionStyleNone;
-//
-//        //remove member button
-//        UIButton *removeButton = (UIButton *)[cell viewWithTag:4];
-//        [removeButton setTitle:[ChatLocal translate:@"remove"] forState:UIControlStateNormal];
-//        NSLog(@"REMOVE BUTTON %@", removeButton);
-//        [removeButton addTarget:self action:@selector(removeButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
-//        removeButton.property = user.userId; //[NSNumber numberWithInt:(int)indexPath.row];
-//
-//        UILabel *fullnameLabel = (UILabel *) [cell viewWithTag:2];
-//        UILabel *usernameLabel = (UILabel *) [cell viewWithTag:3];
-//        fullnameLabel.text = user.fullname;
-//        usernameLabel.text = user.userId;
-//
-//        UIImage *circled = [ChatUtil circleImage:[UIImage imageNamed:@"avatar"]];
-//        UIImageView *image_view = (UIImageView *)[cell viewWithTag:1];
-//        image_view.image = circled;
-//
-//    }
     return cell;
 }
 
@@ -205,11 +147,21 @@
     NSLog(@"Scheduling new search for: %@", text);
     NSString *preparedText = [self prepareTextToSearch:text]; // [text stringByTrimmingCharactersInSet: [NSCharacterSet whitespaceAndNewlineCharacterSet]];
     if (![preparedText isEqualToString:@""]) {
+        [self resetSearchTimer];
         self.searchTimer = [NSTimer scheduledTimerWithTimeInterval:0.0 target:self selector:@selector(userPaused:) userInfo:nil repeats:NO];
     } else {
         // test reset. show "members" or nothing
         NSLog(@"show members...");
         [self dismissUsersMode];
+    }
+}
+
+-(void)resetSearchTimer {
+    if (self.searchTimer) {
+        if ([self.searchTimer isValid]) {
+            [self.searchTimer invalidate];
+        }
+        self.searchTimer = nil;
     }
 }
 

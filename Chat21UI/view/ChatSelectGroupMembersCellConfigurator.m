@@ -124,7 +124,7 @@
     // then from remote
     if (image == nil) {
         NSURLSessionDataTask *task = [self.imageCache getImage:imageURL sized:size circle:YES completionHandler:^(NSString *imageURL, UIImage *image) {
-            NSLog(@"requested-image-url: %@ > image: %@", imageURL, image);
+            NSLog(@"requested-image-url-group-CONFIGURATOR: %@ > image: %@", imageURL, image);
             dispatch_async(dispatch_get_main_queue(), ^{
                 NSLog(@"REQ-IMAGE-URL: %@ > IMAGE: %@", imageURL, image);
                 if (!image) {
@@ -165,7 +165,10 @@
                 }
             });
         }];
-        [self.tasks setObject:task forKey:imageURL];
+//        NSLog(@"adding task: %@", task);
+        if (task != nil) {
+            [self.tasks setObject:task forKey:imageURL];
+        }
     }
 }
 
