@@ -207,6 +207,7 @@
         last_message_label.font = [UIFont systemFontOfSize:last_message_label.font.pointSize];
         new_messages_icon.hidden = YES;
     }
+    NSLog(@"test: %@ - %d", [conversation textForLastMessage:me], conversation.archived);
     [CellConfigurator archiveLabel:cell archived:conversation.archived];
     return cell;
 }
@@ -230,21 +231,24 @@
     return _displayName;
 }
 
-+(void)archiveLabel:(UITableViewCell *)cell archived:(BOOL)archived {
-    UILabel *label = (UILabel *)[cell viewWithTag:80];
-    if (label) {
++(void)archiveLabel:(ChatBaseConversationCell *)cell archived:(BOOL)archived {
+//    UILabel *label = (UILabel *)[cell viewWithTag:80];
+    UIImageView *archivedImageView = cell.archivedImageView;
+    if (archivedImageView) {
         if (archived) {
-            label.hidden = NO;
-            label.layer.cornerRadius = 5.0f;
-            label.layer.masksToBounds = NO;
-            label.layer.borderWidth = .5f;
-            label.layer.borderColor = [UIColor grayColor].CGColor;
+            archivedImageView.hidden = NO;
+//            label.hidden = NO;
+//            label.layer.cornerRadius = 5.0f;
+//            label.layer.masksToBounds = NO;
+//            label.layer.borderWidth = .5f;
+//            label.layer.borderColor = [UIColor grayColor].CGColor;
         }
         else {
-            label.hidden = YES;
+//            label.hidden = YES;
+            archivedImageView.hidden = YES;
         }
     }
-    label.text = [ChatLocal translate:@"ArchivedBadgeLabel"];
+//    label.text = [ChatLocal translate:@"ArchivedBadgeLabel"];
 }
 
 -(void)setImageFor:(UIImageView *)image_view imageURL:(NSString *)imageURL typeDirect:(BOOL)typeDirect {

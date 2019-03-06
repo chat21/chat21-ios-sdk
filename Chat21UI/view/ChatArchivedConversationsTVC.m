@@ -52,6 +52,9 @@
 //    self.cellConfigurator.conversations = self.conversationsHandler.archivedConversations;
     
     self.cellConfigurator = [[CellConfigurator alloc] initWithTableView:self.tableView imageCache:self.imageCache conversations:self.conversationsHandler.archivedConversations];
+    [self.tableView registerNib:[UINib nibWithNibName:@"dm_conversation_cell" bundle:nil] forCellReuseIdentifier:@"conversationDMCell"];
+    // conversationGroupCell
+    [self.tableView registerNib:[UINib nibWithNibName:@"group_conversation_cell" bundle:nil] forCellReuseIdentifier:@"conversationGroupCell"];
     
     [self.tableView reloadData];
 }

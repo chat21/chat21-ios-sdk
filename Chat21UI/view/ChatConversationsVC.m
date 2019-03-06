@@ -80,7 +80,10 @@
     
     self.navigationItem.rightBarButtonItems = @[write_to_button, archived_button];
     performSelectedConversationOnAppear = NO;
-//    self.cellConfigurator = [[CellConfigurator alloc] initWithTableView:self.tableView imageCache:self.imageCache];
+    
+    [self.tableView registerNib:[UINib nibWithNibName:@"dm_conversation_cell" bundle:nil] forCellReuseIdentifier:@"conversationDMCell"];
+    // conversationGroupCell
+    [self.tableView registerNib:[UINib nibWithNibName:@"group_conversation_cell" bundle:nil] forCellReuseIdentifier:@"conversationGroupCell"];
 }
 
 -(void)archived_action:(id)sender {
