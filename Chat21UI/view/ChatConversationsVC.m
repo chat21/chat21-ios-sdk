@@ -468,6 +468,7 @@
         FIRDatabaseReference *conversation_ref = [self.conversationsHandler.conversationsRef child:conversation.conversationId];
         ChatManager *chat = [ChatManager getInstance];
         [chat updateConversationIsNew:conversation_ref is_new:read_stastus];
+        [self update_unread];
     }];
     readAction.backgroundColor = [UIColor blueColor];
     return @[readAction, archiveAction];

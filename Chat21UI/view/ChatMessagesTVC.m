@@ -477,8 +477,8 @@ static NSString *MATCH_TYPE_CHAT_LINK = @"CHATLINK";
                            }];
     
     UIAlertAction* cancel = [UIAlertAction
-                             actionWithTitle:[ChatLocal translate:@"Cancel"]
-                             style:UIAlertActionStyleDefault
+                             actionWithTitle:[ChatLocal translate:@"cancel"]
+                             style:UIAlertActionStyleCancel
                              handler:^(UIAlertAction * action)
                              {
                                  NSLog(@"cancel");
