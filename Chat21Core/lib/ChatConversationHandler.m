@@ -101,48 +101,11 @@
     }
 }
 
-//-(void)updateMemoryFromDB {
-//    NSLog(@"UPDATE DB > MEMORY ALL MESSAGES FOR CONVERSATION %@", self.conversationId);
-//    int count = (int) self.messages.count + 1;
-//    [self.messages removeAllObjects];
-//    NSArray *inverted_messages = [[[ChatDB getSharedInstance] getAllMessagesForConversation:self.conversationId start:0 count:count] mutableCopy];
-//    NSLog(@"DB MESSAGES NUMBER: %lu", (unsigned long) inverted_messages.count);
-//    NSLog(@"Last %d messages restored...", count);
-//    NSLog(@"Reversing array...");
-//    NSEnumerator *enumerator = [inverted_messages reverseObjectEnumerator];
-//    for (id element in enumerator) {
-//        [self.messages addObject:element];
-//    }
-//}
-
-//-(void)firebaseLogin {
-//    SHPFirebaseTokenDC *dc = [[SHPFirebaseTokenDC alloc] init];
-//    dc.delegate = self;
-//    [dc getTokenWithParameters:nil withUser:self.user];
-//}
-
-//-(void)didFinishFirebaseAuthWithToken:(NSString *)token error:(NSError *)error {
-//    if (token) {
-//        NSLog(@"Auth Firebase ok. Token: %@", token);
-//        self.firebaseToken = token;
-//        [self setupConversation];
-//    } else {
-//        NSLog(@"Auth Firebase error: %@", error);
-//    }
-//    [self.delegateView didFinishInitConversationHandler:self error:error];
-//}
-
 -(void)connect {
     // if already connected return
     if (self.messages_ref_handle) {
         return;
     }
-    
-//    NSLog(@"Setting up references' connections with firebase using token: %@", self.firebaseToken);
-//    if (self.messages_ref_handle) {
-//        NSLog(@"Trying to re-open messages_ref_handle %ld while already open. Returning.", self.messages_ref_handle);
-//        return;
-//    }
     self.messagesRef = [ChatUtil conversationMessagesRef:self.recipientId];
     self.conversationOnSenderRef = [ChatUtil conversationRefForUser:self.senderId conversationId:self.conversationId];
     self.conversationOnReceiverRef = [ChatUtil conversationRefForUser:self.recipientId conversationId:self.conversationId];
@@ -159,7 +122,7 @@
     self.messages_ref_handle = [[[self.messagesRef queryOrderedByChild:@"timestamp"] queryStartingAtValue:@(lasttime)] observeEventType:FIRDataEventTypeChildAdded withBlock:^(FIRDataSnapshot *snapshot) {
         // IMPORTANT: this query ignores messages without a timestamp.
         // IMPORTANT: This callback is called also for newly locally created messages still not sent.
-//        NSLog(@"NEW MESSAGE SNAPSHOT: %@", snapshot);
+        NSLog(@"NEW MESSAGE SNAPSHOT: %@", snapshot);
         if (![self isValidMessageSnapshot:snapshot]) {
             NSLog(@"Discarding invalid snapshot: %@", snapshot);
             return;

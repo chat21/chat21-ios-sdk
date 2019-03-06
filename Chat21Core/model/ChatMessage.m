@@ -161,6 +161,9 @@
         channel_type = MSG_CHANNEL_TYPE_DIRECT;
     }
     NSString *text = snapshot.value[MSG_FIELD_TEXT];
+//    if ([text hasPrefix:@"Image:"]) {
+//        NSLog(@"STOP: %@" , text);
+//    }
     NSString *sender = snapshot.value[MSG_FIELD_SENDER];
     NSString *senderFullname = snapshot.value[MSG_FIELD_SENDER_FULLNAME];
     NSString *recipient = snapshot.value[MSG_FIELD_RECIPIENT];
@@ -172,7 +175,7 @@
     ChatMessage *message = [[ChatMessage alloc] init];
     
     message.snapshot = (NSDictionary *) snapshot.value;
-    message.attributes = attributes;
+    message.attributes = [attributes mutableCopy];
     message.metadata = [ChatMessageMetadata fromDictionaryFactory:snapshot.value[MSG_FIELD_METADATA]];
     message.ref = snapshot.ref;
     message.messageId = snapshot.key;
@@ -284,7 +287,29 @@
 }
 
 -(BOOL)typeImage {
-    return [self.mtype isEqualToString:MSG_TYPE_IMAGE] ? YES : NO;
+    if ([self.mtype isEqualToString:MSG_TYPE_IMAGE] && [self validImageMetadata]) {
+        return YES;
+    }
+    return NO; //[self.mtype isEqualToString:MSG_TYPE_IMAGE] ? YES : NO;
+}
+
+-(BOOL)validImageMetadata {
+    CGSize size = [self imageSize];
+    if (size.height > 0 && size.width > 0) {
+        return YES;
+    }
+    return NO;
+}
+
+-(CGSize)imageSize {
+    float max_width = 200;
+    float max_height = 200;
+    float imageview_scale_w = max_width / self.metadata.width;
+    float imageview_height = self.metadata.width * imageview_scale_w;
+    if (imageview_height > max_height) {
+        imageview_height = 200;
+    }
+    return CGSizeMake(max_width, imageview_height);
 }
 
 +(NSString *)imageTextPlaceholder:(NSString *)imageURL {

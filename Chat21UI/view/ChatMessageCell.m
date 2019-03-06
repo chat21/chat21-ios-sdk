@@ -12,6 +12,7 @@
 #import "ChatUtil.h"
 #import "ChatLocal.h"
 #import "ChatMessageMetadata.h"
+#import "ChatStyles.h"
 
 @implementation ChatMessageCell
 
@@ -60,11 +61,19 @@
     return displayName;
 }
 
--(void)attributedString:(UILabel *)label text:(ChatMessage *)message indexPath:(NSIndexPath *)indexPath rowComponents:(NSDictionary *)rowComponents {
+-(void)attributedString:(UILabel *)label text:(ChatMessage *)message indexPath:(NSIndexPath *)indexPath rowComponents:(NSDictionary *)rowComponents right_cell:(BOOL)right_cell{
+    ChatStyles *styles = [ChatStyles sharedInstance];
     // consider use of: https://github.com/TTTAttributedLabel/TTTAttributedLabel
     NSString *text = message.text;
     if (!text) {
         text = @"";
+    }
+    UIColor *textColor;
+    if (right_cell) {
+        textColor = styles.ballonRightLinkColor;
+    }
+    else {
+        textColor = styles.ballonLeftTextColor;
     }
     NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:text];
     [attributedString addAttributes:@{NSFontAttributeName: label.font} range:NSMakeRange(0, attributedString.string.length)];
@@ -72,7 +81,7 @@
     NSArray *urlMatches = components.urlsMatches;
     if (urlMatches) {
         for (NSTextCheckingResult *match in urlMatches) {
-            [attributedString addAttribute:NSForegroundColorAttributeName value:[UIColor blueColor] range:match.range];
+            [attributedString addAttribute:NSForegroundColorAttributeName value:textColor range:match.range];
         }
     }
     NSArray *chatLinkMatches = components.chatLinkMatches;
@@ -107,15 +116,23 @@
     }
 }
 
-+(CGSize)computeImageSize:(ChatMessage *)message {
-    float max_width = 200;
-    float max_height = 200;
-    float imageview_scale_w = max_width / message.metadata.width; //image.size.width;
-    float imageview_height = message.metadata.width * imageview_scale_w;
-    if (imageview_height > max_height) {
-        imageview_height = 200;
-    }
-    return CGSizeMake(max_width, imageview_height);
-}
+//+(CGSize)computeImageSize:(ChatMessage *)message {
+//    float max_width = 200;
+//    float max_height = 200;
+//    float imageview_scale_w = max_width / message.metadata.width; //image.size.width;
+//    float imageview_height = message.metadata.width * imageview_scale_w;
+//    if (imageview_height > max_height) {
+//        imageview_height = 200;
+//    }
+//    return CGSizeMake(max_width, imageview_height);
+//}
+
+//+(BOOL)hasValidImageMetadata:(ChatMessage *)message {
+//    CGSize size = [ChatMessageCell computeImageSize:message];
+//    if (size.height > 0 && size.width > 0) {
+//        return YES;
+//    }
+//    return NO;
+//}
 
 @end

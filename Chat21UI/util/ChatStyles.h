@@ -12,11 +12,20 @@
 @interface ChatStyles : NSObject
 
 // messages
+@property(strong, nonatomic) UIFont *ballonFont;
+// left ballon
 @property(strong, nonatomic) UIColor *ballonLeftBackgroundColor;
 @property(strong, nonatomic) UIColor *ballonLeftTextColor;
+@property(strong, nonatomic) UIColor *ballonLeftLinkColor;
+@property(strong, nonatomic) UIColor *linkLeftHLBackgroundColor;
+@property(strong, nonatomic) UIColor *linkLeftHLTextColor;
+
+// right ballon
 @property(strong, nonatomic) UIColor *ballonRightBackgroundColor;
 @property(strong, nonatomic) UIColor *ballonRightTextColor;
-@property(strong, nonatomic) UIFont *ballonFont;
+@property(strong, nonatomic) UIColor *ballonRightLinkColor;
+@property(strong, nonatomic) UIColor *linkRightHLBackgroundColor;
+@property(strong, nonatomic) UIColor *linkRightHLTextColor;
 
 // conversation
 @property(strong, nonatomic) UIColor *lastMessageTextColor;

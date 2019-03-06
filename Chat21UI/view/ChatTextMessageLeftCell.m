@@ -50,7 +50,7 @@
     [labelMessage setFont:styles.ballonFont];
     [labelMessage setTextColor:styles.ballonLeftTextColor];
     
-    [self attributedString:labelMessage text:message indexPath:indexPath rowComponents:rowComponents];
+    [self attributedString:labelMessage text:message indexPath:indexPath rowComponents:rowComponents right_cell:NO];
     
     UILabel *labelTime = self.timeLabel;//(UILabel *)[cell viewWithTag:40];
     labelTime.text = [message dateFormattedForListView];

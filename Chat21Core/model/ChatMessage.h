@@ -111,4 +111,7 @@ static NSString* const MSG_METADATA_IMAGE_HEIGHT = @"height";
 +(NSString *)imageTextPlaceholder:(NSString *)imageURL;
 -(void)setCorrectText:(ChatMessage *)message text:(NSString *)text;
 
+-(BOOL)validImageMetadata;
+-(CGSize)imageSize;
+
 @end

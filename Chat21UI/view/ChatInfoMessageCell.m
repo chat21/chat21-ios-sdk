@@ -30,7 +30,7 @@
     sfondo.layer.shadowOpacity = 0.5;
     self.selectionStyle = UITableViewCellSelectionStyleNone;
     UILabel *labelMessage = self.messageLabel;//(UILabel *)[cell viewWithTag:10];
-    [self attributedString:labelMessage text:message indexPath:indexPath rowComponents:rowComponents];
+    [self attributedString:labelMessage text:message indexPath:indexPath rowComponents:rowComponents right_cell:NO];
 }
 
 @end

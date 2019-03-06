@@ -27,6 +27,9 @@
 #import <NYTPhotoViewer/NYTPhotosViewController.h>
 #import <NYTPhotoViewer/NYTPhotoViewerArrayDataSource.h>
 #import "ChatNYTPhoto.h"
+#import "ChatMessageCell.h"
+#import "ChatStyles.h"
+#import "ChatTextMessageRightCell.h"
 
 @interface ChatMessagesTVC ()
 
@@ -112,7 +115,17 @@ static NSString *MATCH_TYPE_CHAT_LINK = @"CHATLINK";
         return;
     }
     
-    NSLog(@"Long tap.");
+    NSLog(@"Long tap on: %@", recognizer.view);
+    UITableViewCell *containerCell = (UITableViewCell *)recognizer.view.superview.superview.superview;
+    NSLog(@"suoerview; %@", containerCell);
+    if ([containerCell isKindOfClass:[ChatTextMessageRightCell class]]) {
+        NSLog(@"Right Cell");
+        self.right_cell_hl = YES;
+    }
+    else if ([containerCell isKindOfClass:[ChatTextMessageLeftCell class]]) {
+        NSLog(@"Left Cell");
+        self.right_cell_hl = NO;
+    }
     
     CGPoint tapLocation = [recognizer locationInView:self.tableView];
     NSIndexPath *indexPath = [self.tableView indexPathForRowAtPoint:tapLocation];
@@ -138,7 +151,7 @@ static NSString *MATCH_TYPE_CHAT_LINK = @"CHATLINK";
 }
 
 -(void)processLongTapOnImageMessage:(UIGestureRecognizer *)recognizer message:(ChatMessage *)message {
-    NSLog(@"Processing tap on Image message. Not implemented.");
+    NSLog(@"Long tap on Image message not implemented.");
 }
 
 -(void)processLongTapOnTextMessage:(UIGestureRecognizer *)recognizer message:(ChatMessage *)message {
@@ -155,11 +168,11 @@ static NSString *MATCH_TYPE_CHAT_LINK = @"CHATLINK";
     if (urlsMatches) {
         for (NSTextCheckingResult *match in urlsMatches) {
             if (NSLocationInRange(indexOfCharacter, match.range)) {
-                NSLog(@"Link tapped WITH LONG TAP!");
+                NSLog(@"Link tapped WITH LONG TAP! %@", components.text);
                 selectedMatch = match;
                 selectedmatchType = MATCH_TYPE_URL;
                 NSString* link = [components.text substringWithRange:match.range];
-                [self unhighlightTappedLink];
+//                [self unhighlightTappedLink];
                 self.selectedHighlightLabel = label;
                 self.selectedHighlightRange = match.range;
                 self.selectedHighlightLink = link;
@@ -193,21 +206,7 @@ static NSString *MATCH_TYPE_CHAT_LINK = @"CHATLINK";
             NSLog(@"Opening link menuc for: %@", self.selectedHighlightLink);
             [self highlightTappedLinkWithTimeout:NO];
             [self setupMenuForSelectedLink];
-            //        [self.linkMenu showInView:[[[UIApplication sharedApplication] delegate] window]];//]self.view];
         }
-//        else if ([selectedmatchType isEqualToString:MATCH_TYPE_CHAT_LINK]) {
-//            [self highlightTappedLinkWithTimeout:YES];
-//            NSLog(@"chat link: %@", self.selectedHighlightLink);
-//            NSArray *parts = [self.selectedHighlightLink componentsSeparatedByString:@"//"];
-//            for (NSString *p in parts) {
-//                NSLog(@"part: %@", p);
-//            }
-//            NSString *chatToUser = parts[1];
-//            ChatUser *user = [[ChatUser alloc] init];
-//            user.userId = chatToUser;
-//            [ChatUtil moveToConversationViewWithUser:user];
-//            NSLog(@"MATCH_TYPE_CHAT_LINK");
-//        }
     } else {
         // ****** LONG TAP ON CELL ****** //
         [self showCustomPopupMenu:recognizer];
@@ -295,9 +294,6 @@ static NSString *MATCH_TYPE_CHAT_LINK = @"CHATLINK";
                 self.selectedHighlightLabel = label;
                 self.selectedHighlightRange = match.range;
                 self.selectedHighlightLink = link;
-                //                [self highlightTappedLinkWithTimeout:YES];
-                //                NSLog(@"URL: %@ in pos start:%ld end:%ld", link, match.range.location, match.range.location);
-                //                [[UIApplication sharedApplication] openURL:[NSURL URLWithString:link]];
                 break;
             }
         }
@@ -325,13 +321,12 @@ static NSString *MATCH_TYPE_CHAT_LINK = @"CHATLINK";
         if ([selectedmatchType isEqualToString:MATCH_TYPE_URL]) {
             NSLog(@"Opening link menu for: %@", self.selectedHighlightLink);
             [self highlightTappedLinkWithTimeout:YES];
-            //[[UIApplication sharedApplication] openURL:[NSURL URLWithString:self.selectedHighlightLink]];
             [self performSegueWithIdentifier:@"webView" sender:self];
         }
     }
 }
 
--(void)highlightTappedLinkWithTimeout:(BOOL)timeout {
+-(void)highlightTappedLinkWithTimeout:(BOOL)timeout { // left or right?
     // if a timer was still active first invalidate
     [self.highlightTimer invalidate];
     self.highlightTimer = nil;
@@ -339,10 +334,21 @@ static NSString *MATCH_TYPE_CHAT_LINK = @"CHATLINK";
     if (!self.selectedHighlightLabel) {
         return;
     }
-    
+    ChatStyles *styles = [ChatStyles sharedInstance];
     NSMutableAttributedString *string = [[NSMutableAttributedString alloc] initWithAttributedString:self.selectedHighlightLabel.attributedText];
-    UIColor *highlightColor = [UIColor whiteColor];
-    [string addAttribute:NSBackgroundColorAttributeName value:highlightColor range:self.selectedHighlightRange];
+    
+    UIColor *backgroundColor;
+    UIColor *textColor;
+    if (self.right_cell_hl) {
+        backgroundColor = styles.linkRightHLBackgroundColor;
+        textColor = styles.linkRightHLTextColor;
+    }
+    else {
+        backgroundColor = styles.linkLeftHLBackgroundColor;
+        textColor = styles.linkLeftHLTextColor;
+    }
+    [string addAttribute:NSBackgroundColorAttributeName value:backgroundColor range:self.selectedHighlightRange];
+    [string addAttribute:NSForegroundColorAttributeName value:textColor range:self.selectedHighlightRange];
     self.selectedHighlightLabel.attributedText = string;
     if (timeout) {
         self.highlightTimer = [NSTimer scheduledTimerWithTimeInterval:0.5 target:self selector:@selector(endHighlight) userInfo:nil repeats:NO];
@@ -353,9 +359,22 @@ static NSString *MATCH_TYPE_CHAT_LINK = @"CHATLINK";
     if (!self.selectedHighlightLabel) {
         return;
     }
+    NSLog(@"TAP5!");
+    ChatStyles *styles = [ChatStyles sharedInstance];
     NSMutableAttributedString *string = [[NSMutableAttributedString alloc] initWithAttributedString:self.selectedHighlightLabel.attributedText];
-    UIColor *highlightColor = [UIColor clearColor];
-    [string addAttribute:NSBackgroundColorAttributeName value:highlightColor range:self.selectedHighlightRange];
+    NSLog(@"TAP6!");
+    UIColor *backgroundColor = [UIColor clearColor];
+    UIColor *textColor;
+    if (self.right_cell_hl) {
+        textColor = styles.ballonRightTextColor;
+    }
+    else {
+        textColor = styles.ballonLeftTextColor;
+    }
+    NSLog(@"TAP7! %@", string);
+    [string addAttribute:NSBackgroundColorAttributeName value:backgroundColor range:self.selectedHighlightRange];
+    [string addAttribute:NSForegroundColorAttributeName value:textColor range:self.selectedHighlightRange];
+    NSLog(@"TAP9!");
     self.selectedHighlightLabel.attributedText = string;
 }
 
@@ -562,7 +581,7 @@ static NSString *MATCH_TYPE_CHAT_LINK = @"CHATLINK";
             return cell;
         }
         else if ([self isOutgoing:message]) {
-            if ([message.mtype isEqualToString:MSG_TYPE_IMAGE]) {
+            if ([message typeImage]) {
                 ChatImageMessageRightCell *cell = [tableView dequeueReusableCellWithIdentifier:cellImageRight forIndexPath:indexPath];
                 [cell configure:message
                     messages:messages
@@ -593,7 +612,7 @@ static NSString *MATCH_TYPE_CHAT_LINK = @"CHATLINK";
             }
         }
         else {
-            if ([message.mtype isEqualToString:MSG_TYPE_IMAGE]) {
+            if ([message typeImage]) {
                 ChatImageMessageLeftCell *cell = [tableView dequeueReusableCellWithIdentifier:cellImageLeft forIndexPath:indexPath];
                 [cell configure:message
                        messages:messages
@@ -623,6 +642,7 @@ static NSString *MATCH_TYPE_CHAT_LINK = @"CHATLINK";
 //                return cell;
             }
             else {
+                NSLog(@"rendering text message %@", message.text);
                 ChatTextMessageLeftCell *cell = [tableView dequeueReusableCellWithIdentifier:cellMessageLeft forIndexPath:indexPath];
 //                NSLog(@"cell class: %@", NSStringFromClass([cell class]));
                 [cell configure:message messages:messages indexPath:indexPath viewController:self rowComponents:self.rowComponents];

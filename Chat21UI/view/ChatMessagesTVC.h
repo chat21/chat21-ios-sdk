@@ -26,6 +26,7 @@
 @property (strong, nonatomic) NSMutableDictionary *rowComponents;
 @property (strong, nonatomic) NSTimer *highlightTimer;
 @property (strong, nonatomic) UILabel *selectedHighlightLabel;
+@property (assign, nonatomic) BOOL right_cell_hl;
 @property (assign, nonatomic) NSRange selectedHighlightRange;
 @property (strong, nonatomic) NSString *selectedHighlightLink;
 @property (strong, nonatomic) NSString *selectedImageURL;

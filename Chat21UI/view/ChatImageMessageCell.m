@@ -76,14 +76,14 @@
     
     UIImage *cached_image = ((ChatImageWrapper *)[imageCache getImage:message.messageId]).image;
     if (cached_image) {
-        CGSize size = [ChatMessageCell computeImageSize:message];
+        CGSize size = [message imageSize];//[ChatMessageCell computeImageSize:message];
         self.imageHeightConstraint.constant = size.height;
         self.imageWidthConstraint.constant = size.width;
         self.messageImageView.image = cached_image;
         return;
     }
     else {
-        CGSize size = [ChatMessageCell computeImageSize:message];
+        CGSize size = [message imageSize]; //[ChatMessageCell computeImageSize:message];
         self.imageHeightConstraint.constant = size.height;
         self.imageWidthConstraint.constant = size.width;
         //        UIImage *placeholder_image = [message imagePlaceholder];

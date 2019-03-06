@@ -11,10 +11,11 @@
 
 @interface ChatMessageCell : UITableViewCell
 
--(void)attributedString:(UILabel *)label text:(ChatMessage *)message indexPath:(NSIndexPath *)indexPath rowComponents:(NSDictionary *)rowComponents;
+-(void)attributedString:(UILabel *)label text:(ChatMessage *)message indexPath:(NSIndexPath *)indexPath rowComponents:(NSDictionary *)rowComponents right_cell:(BOOL)right_cell;
 -(NSString *)displayUserOfMessage:(ChatMessage *)m;
 -(NSString*)formatDateMessage:(int)numberDaysBetweenChats message:(ChatMessage*)message row:(CGFloat)row;
 +(void)setStatusImage:(ChatMessage *)message statusImage:(UIImageView *)status_image_view;
-+(CGSize)computeImageSize:(ChatMessage *)message;
+//+(CGSize)computeImageSize:(ChatMessage *)message;
+//+(BOOL)hasValidImageMetadata:(ChatMessage *)message;
 
 @end
