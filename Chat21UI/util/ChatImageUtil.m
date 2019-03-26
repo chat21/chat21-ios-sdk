@@ -123,7 +123,6 @@
 }
 
 +(CGSize)fitSize:(CGSize)size intoSize:(CGSize)newSize {
-    //    - (UIImage*) scaleImage:(UIImage*)image toSize:(CGSize)newSize {
     CGSize scaledSize = size;
     
     // first scale on width
@@ -143,14 +142,6 @@
         scaledSize.width = scaledSize.width * vScaleFactor;
     }
     return scaledSize;
-    
-    //        UIGraphicsBeginImageContextWithOptions( scaledSize, NO, 0.0 );
-    //        CGRect scaledImageRect = CGRectMake( 0.0, 0.0, scaledSize.width, scaledSize.height );
-    //        [image drawInRect:scaledImageRect];
-    //        UIImage* scaledImage = UIGraphicsGetImageFromCurrentImageContext();
-    //        UIGraphicsEndImageContext();
-    //
-    //        return scaledImage;
 }
 
 

@@ -122,7 +122,6 @@ static ChatContactsDB *sharedInstance = nil;
 
 -(void)insertOrUpdateContactSyncronized:(ChatUser *)contact completion:(void(^)(void)) callback {
     dispatch_async(serialDatabaseQueue, ^{
-//        NSLog(@"INSERT OR UPDATE CONTACT: %@/%@ saved-date: %@", contact.userId, contact.fullname, contact.createdonAsDate);
         [self getContactByIdSyncronized:contact.userId completion:^(ChatUser *user) {
             if (user) {
                 [self updateContact:contact];

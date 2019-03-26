@@ -85,7 +85,6 @@
             dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
                 ChatUser *contact = [ChatContactsSynchronizer contactFromSnapshotFactory:snapshot];
                 if (contact) {
-//                    NSLog(@"FIREBASE: NEW CONTACT id: %@ firstname: %@ fullname: %@",contact.userId, contact.firstname, contact.fullname);
                     [self insertOrUpdateContactOnDB:contact];
                 }
             });

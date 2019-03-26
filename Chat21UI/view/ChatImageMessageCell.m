@@ -91,9 +91,7 @@
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),^{
             if ([message imageExistsInMediaFolder]) {
                 UIImage *image = [message imageFromMediaFolder];
-//                NSLog(@"image on disk size w: %f h: %f", image.size.width, image.size.height);
                 UIImage *scaled_image = [ChatImageUtil scaleImage:image toSize:size];
-//                NSLog(@"image resized size w: %f h: %f", scaled_image.size.width, scaled_image.size.height);
                 dispatch_async(dispatch_get_main_queue(), ^{
                     callback(scaled_image);
                 });
