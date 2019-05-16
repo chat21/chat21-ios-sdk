@@ -161,9 +161,6 @@
         channel_type = MSG_CHANNEL_TYPE_DIRECT;
     }
     NSString *text = snapshot.value[MSG_FIELD_TEXT];
-//    if ([text hasPrefix:@"Image:"]) {
-//        NSLog(@"STOP: %@" , text);
-//    }
     NSString *sender = snapshot.value[MSG_FIELD_SENDER];
     NSString *senderFullname = snapshot.value[MSG_FIELD_SENDER_FULLNAME];
     NSString *recipient = snapshot.value[MSG_FIELD_RECIPIENT];
@@ -314,6 +311,29 @@
 
 +(NSString *)imageTextPlaceholder:(NSString *)imageURL {
     return [[NSString alloc] initWithFormat:@"Image: %@", imageURL];
+}
+
+-(ChatMessage *)clone {
+    ChatMessage *clonedMessage = [[ChatMessage alloc] init];
+    clonedMessage.snapshot = self.snapshot;
+    clonedMessage.attributes = self.attributes;
+    clonedMessage.metadata = self.metadata;
+    clonedMessage.ref = self.ref;
+    clonedMessage.messageId = self.messageId;
+    clonedMessage.conversationId = self.conversationId;
+    clonedMessage.mtype = self.mtype;
+    clonedMessage.text = [[NSString alloc] initWithString:self.text];
+    clonedMessage.lang = self.lang;
+    clonedMessage.subtype = self.subtype;
+    clonedMessage.media = self.media;
+    clonedMessage.channel_type = self.channel_type;
+    clonedMessage.sender = self.sender;
+    clonedMessage.senderFullname = self.senderFullname;
+    clonedMessage.date = self.date;
+    clonedMessage.status = self.status;
+    clonedMessage.recipient = self.recipient;
+    clonedMessage.recipientFullName = self.recipientFullName;
+    return clonedMessage;
 }
 
 @end

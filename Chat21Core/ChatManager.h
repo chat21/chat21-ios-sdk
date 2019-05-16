@@ -25,6 +25,7 @@
 @class ChatConversationHandler;
 @class ChatConnectionStatusHandler;
 @class ChatDiskImageCache;
+@class ChatMessage;
 
 @interface ChatManager : NSObject
 
@@ -110,6 +111,9 @@
 +(NSString *)profileThumbImageURLOf:(NSString *)profileId;
 +(NSString *)fileURLOfProfile:(NSString *)profileId fileName:(NSString *)fileName;
 +(NSString *)profileBaseURL:(NSString *)profileId;
+
+@property (nonatomic, copy) ChatMessage *(^onBeforeMessageSend)(ChatMessage *msg);
+@property (nonatomic, copy) void (^onMessageArrived)(ChatMessage *msg);
 
 @end
 

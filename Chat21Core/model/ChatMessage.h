@@ -74,11 +74,11 @@ static NSString* const MSG_METADATA_IMAGE_HEIGHT = @"height";
 @property (nonatomic, strong, nonnull) NSDate *date; // firebase (converted to timestamp)
 @property (nonatomic, assign) int status; // firebase
 @property (nonatomic, strong, nonnull) NSString *mtype; // firebase
-@property (nonatomic, strong) NSString *subtype; // firebase
-@property (strong, nonatomic) NSString *imageURL; // firebase
-@property (strong, nonatomic) NSString *imageFilename; // firebase - used to save image locally
-@property (nonatomic, strong) ChatMessageMetadata *metadata; // firebase
-@property (nonatomic, strong) NSMutableDictionary *attributes; // firebase
+@property (nonatomic, strong) NSString * _Nullable subtype; // firebase
+@property (strong, nonatomic) NSString * _Nullable imageURL; // firebase
+@property (strong, nonatomic) NSString * _Nullable imageFilename; // firebase - used to save image locally
+@property (nonatomic, strong) ChatMessageMetadata * _Nullable metadata; // firebase
+@property (nonatomic, strong) NSMutableDictionary * _Nullable attributes; // firebase
 
 @property (nonatomic, strong) NSString *conversationId; // decoded, = recipientId
 @property (nonatomic, assign) BOOL archived;
@@ -94,24 +94,26 @@ static NSString* const MSG_METADATA_IMAGE_HEIGHT = @"height";
 
 //@property (nonatomic, strong) NSString *attributesAsJSONString;
 
-@property (strong, nonatomic) UIImage *image; // only for rendering
+@property (strong, nonatomic) UIImage * _Nullable image; // only for rendering
 
 
--(UIImage *)imageFromMediaFolder;
--(NSString *)dateFormattedForListView;
+-(UIImage *_Nullable)imageFromMediaFolder;
+-(NSString *_Nullable)dateFormattedForListView;
 -(void)updateStatusOnFirebase:(int)status;
 -(BOOL)imageExistsInMediaFolder;
--(NSString *)imagePathFromMediaFolder;
--(UIImage *)imagePlaceholder;
--(NSString *)mediaFolderPath;
--(NSError *)createMediaFolderPathIfNotExists;
-+(ChatMessage *)messageFromfirebaseSnapshotFactory:(FIRDataSnapshot *)snapshot;
--(NSMutableDictionary *)asFirebaseMessage;
+-(NSString *_Nullable)imagePathFromMediaFolder;
+-(UIImage *_Nullable)imagePlaceholder;
+-(NSString *_Nullable)mediaFolderPath;
+-(NSError *_Nullable)createMediaFolderPathIfNotExists;
++(ChatMessage *_Nullable)messageFromfirebaseSnapshotFactory:(FIRDataSnapshot *_Nullable)snapshot;
+-(NSMutableDictionary *_Nullable)asFirebaseMessage;
 //+(ChatMessage *)messageFromSnapshotFactoryTEST:(FDataSnapshot *)snapshot;
-+(NSString *)imageTextPlaceholder:(NSString *)imageURL;
--(void)setCorrectText:(ChatMessage *)message text:(NSString *)text;
++(NSString *)imageTextPlaceholder:(NSString *_Nullable)imageURL;
+-(void)setCorrectText:(ChatMessage *)message text:(NSString *_Nullable)text;
 
 -(BOOL)validImageMetadata;
 -(CGSize)imageSize;
+
+-(ChatMessage *_Nonnull)clone;
 
 @end

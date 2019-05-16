@@ -25,14 +25,14 @@
 @property (assign, nonatomic) BOOL synchronizing;
 @property (strong, nonnull) NSMutableArray<id<ChatSynchDelegate>> *synchSubscribers;
 
--(id)initWithTenant:(NSString *)tenant user:(ChatUser *)user;
+-(id _Nonnull )initWithTenant:(NSString *_Nonnull)tenant user:(ChatUser *_Nonnull)user;
 -(void)startSynchro;
 //-(void)stopSynchro;
 //+(void)insertOrUpdateContactOnDB:(ChatUser *)user;
-+(ChatUser *_Nullable)contactFromDictionaryFactory:(NSDictionary *)snapshot;
++(ChatUser *_Nullable)contactFromDictionaryFactory:(NSDictionary *_Nonnull)snapshot;
 -(void)dispose;
--(void)addSynchSubscriber:(id<ChatSynchDelegate>)subscriber;
--(void)removeSynchSubscriber:(id<ChatSynchDelegate>)subscriber;
-+(ChatUser *)contactFromSnapshotFactory:(FIRDataSnapshot *)snapshot;
+-(void)addSynchSubscriber:(id<ChatSynchDelegate>_Nonnull)subscriber;
+-(void)removeSynchSubscriber:(id<ChatSynchDelegate>_Nonnull)subscriber;
++(ChatUser *_Nonnull)contactFromSnapshotFactory:(FIRDataSnapshot *_Nonnull)snapshot;
 
 @end

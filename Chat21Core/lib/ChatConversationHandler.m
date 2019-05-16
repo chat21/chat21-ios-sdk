@@ -246,8 +246,6 @@
     return message;
 }
 
-//-(void)sendMessage:(NSString *)text image:(UIImage *)image binary:(NSData *)data type:(NSString *)type attributes:(NSDictionary *)attributes {
-
 -(void)appendImagePlaceholderMessageWithImage:(UIImage *)image attributes:(NSDictionary *)attributes completion:(void(^)(ChatMessage *message, NSError *error)) callback {
     // TODO: validate metadata > specialize for image: ChatMessageImageMetadata to simplify validation
     ChatMessage *message = [self newBaseMessage];
@@ -334,13 +332,17 @@
 }
 
 -(void)sendMessage:(ChatMessage *)message completion:(void(^)(ChatMessage *message, NSError *error)) callback {
+    ChatManager *chatm = [ChatManager getInstance];
+    if (chatm.onBeforeMessageSend) {
+        message = chatm.onBeforeMessageSend(message);
+    }
     if ([self.channel_type isEqualToString:MSG_CHANNEL_TYPE_GROUP]) {
-        NSLog(@"SENDING MESSAGE IN GROUP MODE. User: %@", [FIRAuth auth].currentUser.uid);
+        NSLog(@"Sending Group message. User: %@", [FIRAuth auth].currentUser.uid);
         [self sendMessageToGroup:message completion:^(ChatMessage *m, NSError *error) {
             callback(m, error);
         }];
     } else {
-        NSLog(@"SENDING MESSAGE DIRECT MODE. User: %@", [FIRAuth auth].currentUser.uid);
+        NSLog(@"Sending Direct message. User: %@", [FIRAuth auth].currentUser.uid);
         [self sendDirect:message completion:^(ChatMessage *m, NSError *error) {
             callback(m, error);
         }];
@@ -367,18 +369,12 @@
         if (error) {
             NSLog(@"Data could not be saved because of an occurred error: %@", error);
             int status = MSG_STATUS_FAILED;
-//            [self updateMessageStatusInMemory:ref.key withStatus:status];
-//            [self updateMessageStatusOnDB:message.messageId withStatus:status];
-//            [self notifyEvent:ChatEventMessageChanged message:message];
             [self updateMessageStatus:status forMessage:message];
             callback(message, error);
         } else {
             NSLog(@"Data saved successfully. Updating status & reloading tableView.");
             int status = MSG_STATUS_SENT;
             NSAssert([ref.key isEqualToString:message.messageId], @"REF.KEY %@ different by MESSAGE.ID %@",ref.key, message.messageId);
-//            [self updateMessageStatusInMemory:message.messageId withStatus:status];
-//            [self updateMessageStatusOnDB:message.messageId withStatus:status];
-//            [self notifyEvent:ChatEventMessageChanged message:message];
             [self updateMessageStatus:status forMessage:message];
             callback(message, error);
         }

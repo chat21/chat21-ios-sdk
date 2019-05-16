@@ -11,6 +11,7 @@
 @class ChatUser;
 @class ChatMessagesVC;
 @class ChatGroup;
+@class ChatMessage;
 
 @interface ChatUIManager : NSObject
 
