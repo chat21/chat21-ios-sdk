@@ -60,22 +60,6 @@
     return self;
 }
 
-//// ChatGroupsDelegate delegate
-//-(void)groupAddedOrChanged:(ChatGroup *)group {
-//    NSLog(@"Group added or changed delegate. Group name: %@", group.name);
-//    if (![group.groupId isEqualToString:self.groupId]) {
-//        return;
-//    }
-//    if ([group isMember:self.user.userId]) {
-//        [self connect];
-//        [self.delegateView groupConfigurationChanged:group];
-//    }
-//    else {
-//        [self dispose];
-//        [self.delegateView groupConfigurationChanged:group];
-//    }
-//}
-
 -(void)dispose {
     [self.messagesRef removeAllObservers];
     [self removeAllObservers];
@@ -136,7 +120,8 @@
         // updates status only of messages not sent by me
         // HO RICEVUTO UN MESSAGGIO NUOVO
 //        NSLog(@"self.senderId: %@", self.senderId);
-        if (message.status < MSG_STATUS_RECEIVED && ![message.sender isEqualToString:self.senderId]) { // CONTROLLING... "message.status < MSG_STATUS_RECEIVED" IN MODO DA EVITARE IL COSTO DI RI-AGGIORNARE CONTINUAMENTE LO STATO DI MESSAGGI CHE HANNO GIA LO STATO RECEIVED (MAGARI E' LA SINCRONIZZAZIONE DI UN NUOVO DISPOSITIVO CHE NON DEVE PIU' COMUNICARE NULLA AL MITTENTE MA SOLO SCARICARE I MESSAGGI NELLO STATO IN CUI SI TROVANO).
+        if (message.status < MSG_STATUS_RECEIVED && ![message.sender isEqualToString:self.senderId]) {
+            // VERIFY... "message.status < MSG_STATUS_RECEIVED" IN MODO DA EVITARE IL COSTO DI RI-AGGIORNARE CONTINUAMENTE LO STATO DI MESSAGGI CHE HANNO GIA LO STATO "RECEIVED" (MAGARI E' LA SINCRONIZZAZIONE DI UN NUOVO DISPOSITIVO CHE NON DEVE PIU' COMUNICARE NULLA AL MITTENTE MA SOLO SCARICARE I MESSAGGI NELLO STATO IN CUI SI TROVANO).
             // NOT RECEIVED = NEW!
             if (message.isDirect) {
                 [message updateStatusOnFirebase:MSG_STATUS_RECEIVED]; // firebase
@@ -146,6 +131,10 @@
         }
         // updates or insert new messages
         // Note: we always get the last message sent. So this check is necessary to avoid this message notified as "new" (...playing sound etc.)
+        ChatManager *chatm = [ChatManager getInstance];
+        if (chatm.onMessageArrived) {
+            message = chatm.onMessageArrived(message);
+        }
         [self insertMessageIfNotExists:message];
         [self notifyEvent:ChatEventMessageAdded message:message];
     } withCancelBlock:^(NSError *error) {

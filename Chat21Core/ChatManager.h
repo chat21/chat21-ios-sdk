@@ -113,7 +113,7 @@
 +(NSString *)profileBaseURL:(NSString *)profileId;
 
 @property (nonatomic, copy) ChatMessage *(^onBeforeMessageSend)(ChatMessage *msg);
-@property (nonatomic, copy) void (^onMessageArrived)(ChatMessage *msg);
+@property (nonatomic, copy) ChatMessage *(^onMessageArrived)(ChatMessage *msg);
 
 @end
 
