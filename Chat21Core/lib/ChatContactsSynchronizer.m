@@ -227,9 +227,10 @@ static NSString *FIRST_SYNCHRO_KEY = @"first-contacts-synchro";
 }
 
 +(ChatUser *)contactFromSnapshotFactory:(FIRDataSnapshot *)snapshot {
-    //    NSLog(@"Snapshot.value is of type: %@", [snapshot.value class]); // [snapshot.value boolValue]
-    if (![snapshot.value isKindOfClass:[NSString class]]) {
-        NSString *userId = userId = snapshot.value[FIREBASE_USER_ID];
+    NSLog(@"Snapshot.value is of type: %@", [snapshot.value class]); // [snapshot.value boolValue]
+//    if (![snapshot.value isKindOfClass:[NSString class]]) {
+    if ([snapshot.value isKindOfClass:[NSDictionary class]]) {
+        NSString *userId = snapshot.value[FIREBASE_USER_ID];
         if (!userId) { // user_id can t be null
             NSLog(@"ERROR. NO UID. INVALID USER.");
             return nil;
@@ -295,7 +296,7 @@ static NSString *FIRST_SYNCHRO_KEY = @"first-contacts-synchro";
         return contact;
     }
     else {
-        NSLog(@"ERROR. USER IS A STRING. MUST BE A DICTIONARY.");
+        NSLog(@"ERROR! USER (SNAPSHOT.VALUE) IS NOT A DICTIONARY.");
     }
     return nil;
 }

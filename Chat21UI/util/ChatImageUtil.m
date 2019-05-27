@@ -561,11 +561,6 @@
     else {
         NSLog(@"Image saved to cache path.");
     }
-    //    NSArray *directoryList = [filemgr contentsOfDirectoryAtPath:folder_path error:nil];
-    //    for (id file in directoryList) {
-    //        NSLog(@"Image: %@", file);
-    //    }
-    //    NSLog(@"End list.");
 }
 
 +(void)rotateImageView:(UIImageView *)imageView angle:(float)angle{

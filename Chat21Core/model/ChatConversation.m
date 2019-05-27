@@ -120,4 +120,17 @@
 //    return [self.conversationId isEqual:conv.conversationId] ? true : false;
 //}
 
+-(NSString *)snapshotAsJSONString {
+    NSString * json = nil;
+    if (self.snapshot && [self.snapshot isKindOfClass:[NSDictionary class]]) {
+        NSError * err;
+        NSData * jsonData = [NSJSONSerialization dataWithJSONObject:self.snapshot options:0 error:&err];
+        if (err) {
+            NSLog(@"Error: %@", err);
+        }
+        json = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+    }
+    return json;
+}
+
 @end

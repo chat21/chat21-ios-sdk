@@ -12,7 +12,7 @@
 #import "ChatManager.h"
 #import "ChatDB.h"
 #import "ChatGroupsDB.h"
-#import "ChatConversationHandler.h"
+//#import "ChatConversationHandler.h"
 #import "ChatGroupsHandler.h"
 #import "ChatGroup.h"
 #import "ChatImageCache.h"
@@ -557,7 +557,6 @@
 }
 
 - (void)tableView:(UITableView *)_tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-//    [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
     if (indexPath.section == SECTION_GROUP_MENU_INDEX) { // toolbar
         return;
     }
@@ -580,7 +579,7 @@
     }
     
     selectedConversation.is_new = NO;
-    // instantly updates the conversation in memory & local db
+    // instantly updates the conversation in memory & on local db
     [self.conversationsHandler updateLocalConversation:selectedConversation];
     [ChatConversationsVC updateReadStatusForConversationCell:selectedConversation atIndexPath:indexPath inTableView:self.tableView];
     ChatManager *chatm = [ChatManager getInstance];

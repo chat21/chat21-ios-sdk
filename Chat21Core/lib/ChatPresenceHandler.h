@@ -7,7 +7,6 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "ChatPresenceViewDelegate.h"
 
 @import Firebase;
 
@@ -21,8 +20,6 @@
 @property (strong, nonatomic) FirebaseCustomAuthHelper *authHelper;
 
 @property (strong, nonatomic) NSString *firebaseToken;
-//@property (assign, nonatomic) id <ChatPresenceViewDelegate> delegate;
-//@property (strong, nonatomic) NSString *firebaseRef;
 @property (strong, nonatomic) FIRDatabaseReference *rootRef;
 @property (strong, nonatomic) NSString *tenant;
 @property (assign, nonatomic) FIRDatabaseHandle connectionsRefHandle;

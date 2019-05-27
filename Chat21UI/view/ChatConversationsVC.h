@@ -22,11 +22,12 @@
 @class ChatGroup;
 @class CellConfigurator;
 @class ChatDiskImageCache;
+@class ChatConversation;
 
 static const int SECTION_GROUP_MENU_INDEX = 0;
 static const int SECTION_CONVERSATIONS_INDEX = 1;
 
-@interface ChatConversationsVC : UITableViewController <ChatPresenceViewDelegate, UIActionSheetDelegate>
+@interface ChatConversationsVC : UITableViewController <UIActionSheetDelegate>
 - (IBAction)newGroupAction:(id)sender;
 - (IBAction)groupsAction:(id)sender;
 

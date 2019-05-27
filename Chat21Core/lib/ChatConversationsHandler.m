@@ -101,7 +101,16 @@
             NSLog(@"Invalid conversation snapshot, discarding.");
             return;
         }
+        
         ChatConversation *conversation = [ChatConversation conversationFromSnapshotFactory:snapshot me:self.loggeduser];
+        ChatManager *chatm = [ChatManager getInstance];
+        if (chatm.onCoversationArrived) {
+            conversation = chatm.onCoversationArrived(conversation);
+            if (conversation == nil) {
+                return;
+            }
+        }
+                                                 
         if ([self.currentOpenConversationId isEqualToString:conversation.conversationId] && conversation.is_new == YES) {
             // changes (forces) the "is_new" flag to FALSE;
             conversation.is_new = NO;
@@ -109,12 +118,6 @@
             NSLog(@"UPDATING IS_NEW=NO FOR CONVERSATION %@", conversation_ref);
             [chatm updateConversationIsNew:conversation_ref is_new:conversation.is_new];
         }
-//        if (conversation.status == CONV_STATUS_FAILED) {
-//            // a remote conversation can't be in failed status. force to last_message status
-//            // if the sender WRONGLY set the conversation STATUS to 0 this will block the access to the conversation.
-//            // IN FUTURE SERVER-SIDE HANDLING OF MESSAGE SENDING, WILL BE THE SERVER-SIDE SCRIPT RESPONSIBLE OF SETTING THE CONV STATUS AND THIS VERIFICATION CAN BE REMOVED.
-//            conversation.status = CONV_STATUS_LAST_MESSAGE;
-//        }
         conversation.archived = NO;
         [self insertConversationInMemory:conversation];
         [self insertOrUpdateConversationOnDB:conversation];
@@ -128,6 +131,15 @@
     [self.conversationsRef observeEventType:FIRDataEventTypeChildChanged withBlock:^(FIRDataSnapshot *snapshot) {
         NSLog(@"CHANGED CONVERSATION snapshot............... %@", snapshot);
         ChatConversation *conversation = [ChatConversation conversationFromSnapshotFactory:snapshot me:self.loggeduser];
+        
+        ChatManager *chatm = [ChatManager getInstance];
+        if (chatm.onCoversationUpdated) {
+            conversation = chatm.onCoversationUpdated(conversation);
+            if (conversation == nil) {
+                return;
+            }
+        }
+        
         if ([self.currentOpenConversationId isEqualToString:conversation.conversationId] && conversation.is_new == YES) {
             // changes (forces) the "is_new" flag to FALSE;
             conversation.is_new = NO;

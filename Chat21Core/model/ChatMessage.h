@@ -66,11 +66,11 @@ static NSString* const MSG_METADATA_IMAGE_HEIGHT = @"height";
 @property (nonatomic, strong) NSString *messageId; // firebase-key
 @property (nonatomic, strong, nonnull) NSString *text; // firebase
 @property (nonatomic, strong, nonnull) NSString *sender; // firebase
-@property (nonatomic, strong) NSString *senderFullname; // firebase
+@property (nonatomic, strong) NSString * _Nullable senderFullname; // firebase
 @property (nonatomic, strong, nonnull) NSString *recipient; // firebase
-@property (nonatomic, strong) NSString *recipientFullName; // firebase
+@property (nonatomic, strong) NSString * _Nullable recipientFullName; // firebase
 @property (nonatomic, strong, nonnull) NSString *channel_type; // firebase
-@property (nonatomic, strong) NSString *lang; // firebase
+@property (nonatomic, strong) NSString * _Nullable lang; // firebase
 @property (nonatomic, strong, nonnull) NSDate *date; // firebase (converted to timestamp)
 @property (nonatomic, assign) int status; // firebase
 @property (nonatomic, strong, nonnull) NSString *mtype; // firebase
@@ -80,7 +80,7 @@ static NSString* const MSG_METADATA_IMAGE_HEIGHT = @"height";
 @property (nonatomic, strong) ChatMessageMetadata * _Nullable metadata; // firebase
 @property (nonatomic, strong) NSMutableDictionary * _Nullable attributes; // firebase
 
-@property (nonatomic, strong) NSString *conversationId; // decoded, = recipientId
+@property (nonatomic, strong) NSString * _Nullable conversationId; // decoded, = recipientId
 @property (nonatomic, assign) BOOL archived;
 @property (nonatomic, assign) BOOL media; // decode by mtype (if type == IMAGE, media = YES)
 @property (nonatomic, assign) BOOL document; // decode by mtype (if type == DOCUMENT, document = YES)
@@ -89,8 +89,8 @@ static NSString* const MSG_METADATA_IMAGE_HEIGHT = @"height";
 @property (nonatomic, assign) BOOL typeText; // decoded by mtype
 @property (nonatomic, assign) BOOL typeImage; // decoded by mtype
 
-@property (nonatomic, strong) NSDictionary *snapshot;
-@property (nonatomic, strong) NSString *snapshotAsJSONString;
+@property (nonatomic, strong) NSDictionary * _Nullable snapshot;
+@property (nonatomic, strong) NSString * _Nullable snapshotAsJSONString;
 
 //@property (nonatomic, strong) NSString *attributesAsJSONString;
 

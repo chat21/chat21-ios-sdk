@@ -60,7 +60,7 @@
 -(ChatConversationsHandler *)getAndStartConversationsHandler;
 -(ChatConversationHandler *)getConversationHandlerForRecipient:(ChatUser *)recipient;
 -(ChatConversationHandler *)getConversationHandlerForGroup:(ChatGroup *)group;
--(void)startConversationHandler:(ChatConversation *)conv;
+//-(void)startConversationHandler:(ChatConversation *)conv;
 
 -(ChatConversationsHandler *)createConversationsHandler;
 -(ChatPresenceHandler *)createPresenceHandler;
@@ -114,6 +114,8 @@
 
 @property (nonatomic, copy) ChatMessage *(^onBeforeMessageSend)(ChatMessage *msg);
 @property (nonatomic, copy) ChatMessage *(^onMessageArrived)(ChatMessage *msg);
+@property (nonatomic, copy) ChatConversation *(^onCoversationArrived)(ChatConversation *conv);
+@property (nonatomic, copy) ChatConversation *(^onCoversationUpdated)(ChatConversation *conv);
 
 @end
 

@@ -54,14 +54,18 @@ static NSString* const CONV_ATTRIBUTES_KEY = @"attributes";
 @property (nonatomic, assign) int status;
 @property (nonatomic, assign) int indexInMemory;
 @property (nonatomic, strong) NSDictionary *attributes; // firebase
+@property (nonatomic, strong, nonnull) NSString *mtype; // firebase
+
+@property (nonatomic, strong) NSDictionary * _Nullable snapshot;
+@property (nonatomic, strong) NSString * _Nullable snapshotAsJSONString;
 
 @property (nonatomic, assign) BOOL isDirect;
 
--(NSString *)dateFormattedForListView;
+-(NSString *_Nullable)dateFormattedForListView;
 
--(NSString *)textForLastMessage:(NSString *)me;
+-(NSString *_Nullable)textForLastMessage:(NSString *_Nullable)me;
 
-+(ChatConversation *)conversationFromSnapshotFactory:(FIRDataSnapshot *)snapshot me:(ChatUser *)me;
++(ChatConversation *_Nullable)conversationFromSnapshotFactory:(FIRDataSnapshot *_Nonnull)snapshot me:(ChatUser *_Nonnull)me;
 
 
 @end

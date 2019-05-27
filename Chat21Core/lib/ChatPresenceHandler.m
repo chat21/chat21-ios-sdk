@@ -46,34 +46,36 @@
     FIRDatabaseReference *myConnectionsRef = [ChatPresenceHandler onlineRefForUser:userid];
     FIRDatabaseReference *lastOnlineRef = [ChatPresenceHandler lastOnlineRefForUser:userid];
     
-//    NSString *connectedRefURL = [[NSString alloc] initWithFormat:@"%@/.info/connected", self.firebaseRef];
     NSString *connectedRefURL = @"/.info/connected";
     FIRDatabaseReference *connectedRef = [[[FIRDatabase database] reference] child:connectedRefURL];
     if (self.connectionsRefHandle) {
         [connectedRef removeObserverWithHandle:self.connectionsRefHandle];
     }
+    
+    
     self.connectionsRefHandle = [connectedRef observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
-        if([snapshot.value boolValue]) {
-            // connection established (or I've reconnected after a loss of connection)
-            
-            // add this device to my connections list
-            // this value could contain info about the device or a timestamp instead of just true
+        NSLog(@"setupMyPresence: snapshot %@ - %d", snapshot, [snapshot.value boolValue]);
+        BOOL status = [snapshot.value boolValue];
+        if(status) {
+            NSLog(@"Connection established (or reconnected after a loss of connection)");
             if (!self.deviceConnectionRef) {
                 if (self.deviceConnectionKey) {
                     self.deviceConnectionRef = [myConnectionsRef child:self.deviceConnectionKey];
                 }
                 else {
-                    self.deviceConnectionRef = [myConnectionsRef childByAutoId];
+                    NSString *FCMToken = [FIRMessaging messaging].FCMToken;
+                    FCMToken != nil ? self.deviceConnectionRef = [myConnectionsRef child:FCMToken] : [myConnectionsRef childByAutoId];
                     self.deviceConnectionKey = self.deviceConnectionRef.key;
                 }
-                [self.deviceConnectionRef setValue:@YES];
-                // when this device disconnects, remove it
-                [self.deviceConnectionRef onDisconnectRemoveValue];
-                // when I disconnect, update the last time I was seen online
-                [lastOnlineRef onDisconnectSetValue:[FIRServerValue timestamp]];
-            } else {
+            }
+            else {
                 NSLog(@"self.deviceConnectionRef already set. Cannot be set again.");
             }
+            [self.deviceConnectionRef setValue:@YES];
+            // when this device disconnects, remove it
+            [self.deviceConnectionRef onDisconnectRemoveValue];
+            // when I disconnect, update the last time I was seen online
+            [lastOnlineRef onDisconnectSetValue:[FIRServerValue timestamp]];
         }
     }];
 }

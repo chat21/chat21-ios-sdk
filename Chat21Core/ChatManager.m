@@ -281,11 +281,6 @@ static ChatManager *sharedInstance = nil;
         [[FIRAuth auth] removeAuthStateDidChangeListener:self.authStateDidChangeListenerHandle];
         self.authStateDidChangeListenerHandle = nil;
     }
-//    NSString *url = @"/.info/connected";
-//    FIRDatabaseReference *connectedRef = [[[FIRDatabase database] reference] child:url];
-//    if (self.connectedRefHandle) {
-//        [connectedRef removeObserverWithHandle:self.connectedRefHandle];
-//    }
     if (self.presenceHandler) {
         [self.presenceHandler goOffline];
         self.presenceHandler = nil;
@@ -608,6 +603,7 @@ static ChatManager *sharedInstance = nil;
             callback(user);
 //          [self insertOrUpdateContactOnDB:contact];
         }
+        callback(nil);
     } withCancelBlock:^(NSError *error) {
          NSLog(@"%@", error.description);
     }];
