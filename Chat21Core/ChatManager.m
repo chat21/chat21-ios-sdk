@@ -402,14 +402,6 @@ static ChatManager *sharedInstance = nil;
 -(void)createGroup:(ChatGroup *)group withCompletionBlock:(void (^)(ChatGroup *group, NSError* error))callback {
     //    SHPUser *me = self.context.loggedUser;
     NSString *me = self.loggedUser.userId;
-    //    NSString *sanitized_username_for_firebase = [userId stringByReplacingOccurrencesOfString:@"." withString:@"_"];
-//    ChatGroup *group = [[ChatGroup alloc] init];
-//    group.groupId = [self newGroupId];
-//    group.name = name;
-//    group.user = me; //me.username; // for DB partioning
-//    group.members = [ChatGroup membersArray2Dictionary:membersIDs];
-//    group.owner = me; //sanitized_username_for_firebase;
-//    group.createdOn = [[NSDate alloc] init];
     
     //    ChatManager *chat = [ChatManager getSharedInstance];
     [self createFirebaseGroup:group withCompletionBlock:^(NSString *_groupId, NSError *error) {
@@ -432,10 +424,11 @@ static ChatManager *sharedInstance = nil;
             NSDate *now = [[NSDate alloc] init];
             groupConversation.date = now;
             groupConversation.status = CONV_STATUS_FAILED;
-            BOOL result = [[ChatDB getSharedInstance] insertOrUpdateConversation:groupConversation];
-            NSLog(@">>>>> -Group Failed- Conversation insertOrUpdate operation is %d", result);
-            [self.conversationsHandler restoreConversationsFromDB];
-            callback(group, error);
+            [[ChatDB getSharedInstance] insertOrUpdateConversationSyncronized:groupConversation completion:^{
+//                NSLog(@">>>>> -Group Failed- Conversation insertOrUpdate operation is %d", result);
+                [self.conversationsHandler restoreConversationsFromDB];
+                callback(group, error);
+            }];
         } else {
             // we have the group-id
             NSLog(@"Group created with ID: %@", _groupId);
@@ -497,26 +490,22 @@ static ChatManager *sharedInstance = nil;
 // === CONVERSATIONS ===
 
 -(void)removeConversation:(ChatConversation *)conversation {
-    
     NSString *conversationId = conversation.conversationId;
     NSLog(@"Removing conversation from local DB...");
-    [self removeConversationFromDB:conversationId];
-    
-    NSLog(@"Removing conversation with ref %@...", conversation.ref);
-    FIRDatabaseReference *conversationRef = conversation.ref;
-    [conversationRef removeValueWithCompletionBlock:^(NSError *error, FIRDatabaseReference *firebaseRef) {
-        NSLog(@"Conversation %@ removed from firebase with error: %@", firebaseRef, error);
+//    [self removeConversationFromDB:conversationId];
+    ChatDB *db = [ChatDB getSharedInstance];
+    [db removeConversationSynchronized:conversationId completion:^{
+        [db removeAllMessagesForConversationSynchronized:conversationId completion:^{
+            NSLog(@"Removing conversation with ref %@...", conversation.ref);
+            FIRDatabaseReference *conversationRef = conversation.ref;
+            [conversationRef removeValueWithCompletionBlock:^(NSError *error, FIRDatabaseReference *firebaseRef) {
+                NSLog(@"Conversation %@ removed from firebase with error: %@", firebaseRef, error);
+            }];
+        }];
     }];
 }
 
--(void)removeConversationFromDB:(NSString *)conversationId {
-    ChatDB *db = [ChatDB getSharedInstance];
-    [db removeConversation:conversationId];
-    [db removeAllMessagesForConversation:conversationId];
-}
-
 -(void)updateConversationIsNew:(FIRDatabaseReference *)conversationRef is_new:(int)is_new {
-//    NSLog(@"Updating conversation ref %@ is_new? %d", conversationRef, is_new);
     NSDictionary *conversation_dict = @{
                                         CONV_IS_NEW_KEY: [NSNumber numberWithBool:is_new]
                                         };
@@ -545,14 +534,6 @@ static ChatManager *sharedInstance = nil;
             NSLog(@"instanceId (FCMToken) removed");
         }
     }];
-//    [[[[[FIRDatabase database] reference] child:user_path] child:@"instanceId"] removeValueWithCompletionBlock:^(NSError * _Nullable error, FIRDatabaseReference * _Nonnull ref) {
-//        if (error) {
-//            NSLog(@"Error removing instanceId (FCMToken) on user_path %@: %@", error, user_path);
-//        }
-//        else {
-//            NSLog(@"instanceId (FCMToken) removed");
-//        }
-//    }];
 }
 
 -(void)loadGroup:(NSString *)group_id completion:(void (^)(ChatGroup* group, BOOL error))callback {
@@ -601,7 +582,6 @@ static ChatManager *sharedInstance = nil;
         if (user) {
             NSLog(@"FIREBASE CONTACT, id: %@ firstname: %@ fullname: %@",user.userId, user.firstname, user.fullname);
             callback(user);
-//          [self insertOrUpdateContactOnDB:contact];
         }
         callback(nil);
     } withCancelBlock:^(NSError *error) {

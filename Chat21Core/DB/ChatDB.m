@@ -17,6 +17,7 @@ static ChatDB *sharedInstance = nil;
 //static sqlite3_stmt *statement = nil;
 
 @interface ChatDB () {
+    dispatch_queue_t serialDatabaseQueue;
     sqlite3 *database;
     sqlite3_stmt *statement;
 }
@@ -34,6 +35,7 @@ static ChatDB *sharedInstance = nil;
 
 -(id)init {
     if (self = [super init]) {
+        serialDatabaseQueue = dispatch_queue_create("db_messages_conversations.sqllite", DISPATCH_QUEUE_SERIAL);
         self.logQuery = YES;
         database = nil;
         statement = nil;
@@ -169,22 +171,46 @@ static ChatDB *sharedInstance = nil;
     }
 }
 
--(BOOL)insertMessageIfNotExists:(ChatMessage *)message {
-    if (!message.conversationId) {
-        if (self.logQuery) {NSLog(@"ERROR: CAN'T INSERT A MESSAGE WITHOUT A CONVERSATION ID. MESSAGE ID: %@ MESSAGE TEXT: %@ MESSAGE CONVID: %@", message.messageId, message.text, message.conversationId);}
-        return false;
-    }
-    else if (!message.messageId) {
-        if (self.logQuery) {NSLog(@"ERROR: CAN'T INSERT A MESSAGE WITHOUT THE ID. MESSAGE ID: %@ MESSAGE TEXT: %@ MESSAGE CONVID: %@", message.messageId, message.text, message.conversationId);}
-        return false;
-    }
-    ChatMessage *message_is_present = [self getMessageById:message.messageId];
-    if (message_is_present) {
-        if (self.logQuery) {NSLog(@"Present. Not inserting.");}
-        return NO;
-    }
-    return [self insertMessage:message];
+-(void)insertMessageIfNotExistsSyncronized:(ChatMessage *)message completion:(void(^)(void)) callback {
+    dispatch_async(serialDatabaseQueue, ^{
+        if (!message.conversationId) {
+            if (self.logQuery) {NSLog(@"ERROR: CAN'T INSERT A MESSAGE WITHOUT A CONVERSATION ID. MESSAGE ID: %@ MESSAGE TEXT: %@ MESSAGE CONVID: %@", message.messageId, message.text, message.conversationId);}
+            callback();
+        }
+        else if (!message.messageId) {
+            if (self.logQuery) {NSLog(@"ERROR: CAN'T INSERT A MESSAGE WITHOUT THE ID. MESSAGE ID: %@ MESSAGE TEXT: %@ MESSAGE CONVID: %@", message.messageId, message.text, message.conversationId);}
+            callback();
+        }
+        [self getMessageByIdSyncronized:message.messageId completion:^(ChatMessage *message_is_present) {
+            if (message_is_present) {
+                if (self.logQuery) {NSLog(@"Present. Not inserting.");}
+                callback();
+            }
+            else {
+                [self insertMessage:message];
+                callback();
+            }
+        }];
+    });
 }
+
+//-(void)insertMessageIfNotExists:(ChatMessage *)message {
+//    if (!message.conversationId) {
+//        if (self.logQuery) {NSLog(@"ERROR: CAN'T INSERT A MESSAGE WITHOUT A CONVERSATION ID. MESSAGE ID: %@ MESSAGE TEXT: %@ MESSAGE CONVID: %@", message.messageId, message.text, message.conversationId);}
+//        return;
+//    }
+//    else if (!message.messageId) {
+//        if (self.logQuery) {NSLog(@"ERROR: CAN'T INSERT A MESSAGE WITHOUT THE ID. MESSAGE ID: %@ MESSAGE TEXT: %@ MESSAGE CONVID: %@", message.messageId, message.text, message.conversationId);}
+//        return;
+//    }
+//    ChatMessage *message_is_present = [self getMessageById:message.messageId];
+//    if (message_is_present) {
+//        if (self.logQuery) {NSLog(@"Present. Not inserting.");}
+//        return;
+//    }
+//    [self insertMessage:message];
+//    return;
+//}
 
 -(BOOL)insertMessage:(ChatMessage *)message {
     const char *dbpath = [databasePath UTF8String];
@@ -225,7 +251,16 @@ static ChatDB *sharedInstance = nil;
     return NO;
 }
 
--(BOOL)updateMessage:(NSString *)messageId withStatus:(int)status {
+-(void)updateMessageSynchronized:(NSString *)messageId withStatus:(int)status completion:(void(^)(void)) callback {
+    dispatch_async(serialDatabaseQueue, ^{
+        [self updateMessage:messageId withStatus:status];
+        if (callback != nil) {
+            callback();
+        }
+    });
+}
+
+-(void)updateMessage:(NSString *)messageId withStatus:(int)status {
     const char *dbpath = [databasePath UTF8String];
     if (sqlite3_open(dbpath, &database) == SQLITE_OK) {
         NSString *updateSQL = [NSString stringWithFormat:@"UPDATE messages SET status = %d WHERE messageId = \"%@\"", status, messageId];
@@ -235,16 +270,16 @@ static ChatDB *sharedInstance = nil;
         if (sqlite3_step(statement) == SQLITE_DONE) {
             sqlite3_finalize(statement);
             sqlite3_close(database);
-            return YES;
+            return;
         }
         else {
             sqlite3_finalize(statement);
             sqlite3_close(database);
-            return NO;
+            return;
         }
     }
     sqlite3_close(database);
-    return NO;
+    return;
 }
 
 -(BOOL)updateMessage:(NSString *)messageId status:(int)status text:(NSString *)text snapshotAsJSONString:(NSString *)snapshotAsJSONString {
@@ -280,7 +315,7 @@ static NSString *SELECT_FROM_MESSAGES_STATEMENT = @"select messageId, conversati
     NSMutableArray *messages = [[NSMutableArray alloc] init];
     const char *dbpath = [databasePath UTF8String];
     if (sqlite3_open(dbpath, &database) == SQLITE_OK) {
-        NSString *querySQL = [NSString stringWithFormat:@"%@ order by timestamp desc limit 40", SELECT_FROM_MESSAGES_STATEMENT];
+        NSString *querySQL = [NSString stringWithFormat:@"%@ order by timestamp desc limit 200", SELECT_FROM_MESSAGES_STATEMENT];
         if (self.logQuery) {NSLog(@"querySQL: %@", querySQL);}
         const char *query_stmt = [querySQL UTF8String];
         if (sqlite3_prepare_v2(database, query_stmt, -1, &statement, NULL) == SQLITE_OK) {
@@ -329,6 +364,15 @@ static NSString *SELECT_FROM_MESSAGES_STATEMENT = @"select messageId, conversati
 -(NSArray*)getAllMessagesForConversation:(NSString *)conversationId {
     NSArray *messages = [[ChatDB getSharedInstance] getAllMessagesForConversation:conversationId start:0 count:-1];
     return messages;
+}
+
+-(void)getMessageByIdSyncronized:(NSString *)messageId completion:(void(^)(ChatMessage *)) callback {
+    dispatch_async(serialDatabaseQueue, ^{
+        ChatMessage *message = [self getMessageById:messageId];
+        if (callback != nil) {
+            callback(message);
+        }
+    });
 }
 
 -(ChatMessage *)getMessageById:(NSString *)messageId {
@@ -447,7 +491,14 @@ static NSString *SELECT_FROM_MESSAGES_STATEMENT = @"select messageId, conversati
     return message;
 }
 
--(BOOL)removeAllMessagesForConversation:(NSString *)conversationId {
+-(void)removeAllMessagesForConversationSynchronized:(NSString *)conversationId completion:(void(^)(void)) callback {
+    dispatch_async(serialDatabaseQueue, ^{
+        [self removeAllMessagesForConversation:conversationId];
+        if (callback != nil) callback();
+    });
+}
+
+-(void)removeAllMessagesForConversation:(NSString *)conversationId {
     const char *dbpath = [databasePath UTF8String];
     if (sqlite3_open(dbpath, &database) == SQLITE_OK) {
         NSString *sql = [NSString stringWithFormat:@"DELETE FROM messages WHERE conversationId = \"%@\"", conversationId];
@@ -457,31 +508,59 @@ static NSString *SELECT_FROM_MESSAGES_STATEMENT = @"select messageId, conversati
         if (sqlite3_step(statement) == SQLITE_DONE) {
             sqlite3_finalize(statement);
             sqlite3_close(database);
-            return YES;
+            return;
         }
         else {
             sqlite3_finalize(statement);
             sqlite3_close(database);
-            return NO;
+            return;
         }
     }
     sqlite3_close(database);
-    return NO;
+    return;
 }
 
 // ***********************
 // **** CONVERSATIONS ****
 // ***********************
 
--(BOOL)insertOrUpdateConversation:(ChatConversation *)conversation {
-    ChatConversation *conv_exists = [self getConversationById:conversation.conversationId];
-    if (conv_exists) {
-        return [self updateConversation:conversation];
-    }
-    else {
-        return [self insertConversation:conversation];
-    }
+-(void)insertOrUpdateConversationSyncronized:(ChatConversation *)conversation completion:(void(^)(void)) callback {
+    dispatch_async(serialDatabaseQueue, ^{
+        [self getConversationByIdSynchronized:conversation.conversationId completion:^(ChatConversation *conv_exists) {
+            if (conv_exists) {
+                [self updateConversation:conversation];
+                callback();
+            }
+            else {
+                [self insertConversation:conversation];
+                callback();
+            }
+        }];
+    });
+        
+        
+//        [self getMessageByIdSyncronized:message.messageId completion:^(ChatMessage *message_is_present) {
+//            if (message_is_present) {
+//                if (self.logQuery) {NSLog(@"Present. Not inserting.");}
+//                callback();
+//            }
+//            else {
+//                [self insertMessage:message];
+//                callback();
+//            }
+//        }];
+//    });
 }
+
+//-(BOOL)insertOrUpdateConversation:(ChatConversation *)conversation {
+//    ChatConversation *conv_exists = [self getConversationById:conversation.conversationId];
+//    if (conv_exists) {
+//        return [self updateConversation:conversation];
+//    }
+//    else {
+//        return [self insertConversation:conversation];
+//    }
+//}
 
 -(BOOL)insertConversation:(ChatConversation *)conversation {
     const char *dbpath = [databasePath UTF8String];
@@ -638,9 +717,19 @@ static NSString *SELECT_FROM_CONVERSATIONS_STATEMENT = @"SELECT conversationId, 
     NSLog(@"******************************* END.");
 }
 
+- (void)getConversationByIdSynchronized:(NSString *)conversationId completion:(void(^)(ChatConversation *)) callback {
+    dispatch_async(serialDatabaseQueue, ^{
+        ChatConversation *conv = [self getConversationById:conversationId];
+        if (callback != nil) {
+            callback(conv);
+        }
+    });
+}
+
 - (ChatConversation *)getConversationById:(NSString *)conversationId {
     ChatConversation *conv = nil;
     const char *dbpath = [databasePath UTF8String];
+//    NSLog(@"database: %@ dbpath %s", database, dbpath);
     if (sqlite3_open(dbpath, &database) == SQLITE_OK)
     {
         NSString *querySQL = [NSString stringWithFormat:
@@ -659,6 +748,13 @@ static NSString *SELECT_FROM_CONVERSATIONS_STATEMENT = @"SELECT conversationId, 
     sqlite3_finalize(statement);
     sqlite3_close(database);
     return conv;
+}
+
+- (void)removeConversationSynchronized:(NSString *)conversationId completion:(void(^)(void)) callback {
+    dispatch_async(serialDatabaseQueue, ^{
+        [self removeConversation:conversationId];
+        if (callback != nil) callback();
+    });
 }
 
 -(BOOL)removeConversation:(NSString *)conversationId {

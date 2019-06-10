@@ -207,7 +207,7 @@
         last_message_label.font = [UIFont systemFontOfSize:last_message_label.font.pointSize];
         new_messages_icon.hidden = YES;
     }
-    NSLog(@"test: %@ - %d", [conversation textForLastMessage:me], conversation.archived);
+    NSLog(@"rendering: %@ - %d", [conversation textForLastMessage:me], conversation.archived);
     [CellConfigurator archiveLabel:cell archived:conversation.archived];
     return cell;
 }

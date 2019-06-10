@@ -67,7 +67,8 @@
 +(NSString *)mediaFolderPathOfRecipient:(NSString *)recipiendId;
 -(void)saveImageToRecipientMediaFolderAsPNG:(UIImage *)image imageFileName:(NSString *)imageFileName;
 -(void)uploadImage:(UIImage *)image fileName:(NSString *)fileName completion:(void(^)(NSURL *downloadURL, NSError *error)) callback progressCallback:(void(^)(double fraction))progressCallback;
--(void)updateMessageStatus:(int)status forMessage:(ChatMessage *)message;
-//+(NSMutableDictionary *)firebaseMessageFor:(ChatMessage *)message;
+//-(void)updateMessageStatus:(int)status forMessage:(ChatMessage *)message;
+-(void)updateMessageStatusSynchronized:(NSString *)messageId withStatus:(int)status completion:(void(^)(void))callback;
+-(void)resendMessageWithId:(NSString *)messageId completion:(void(^)(ChatMessage *message, NSError *error)) callback;
 
 @end

@@ -45,7 +45,8 @@
 -(void)connect;
 -(void)dispose;
 -(void)restoreConversationsFromDB;
--(void)updateLocalConversation:(ChatConversation *)conversation;
--(int)removeLocalConversation:(ChatConversation *)conversation;
+-(void)updateLocalConversation:(ChatConversation *)conversation completion:(void(^)(void)) callback;
+//-(void)removeLocalConversation:(ChatConversation *)conversation;
+-(void)removeLocalConversation:(ChatConversation *)conversation completion:(void(^)(void)) callback;
 
 @end

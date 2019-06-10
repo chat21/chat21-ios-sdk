@@ -32,6 +32,7 @@
 @property (assign, nonatomic) BOOL synchronizing;
 @property (strong, nonatomic) UIActivityIndicatorView *activityIndicator;
 @property (strong, nonatomic) ChatUserCellConfigurator *cellConfigurator;
+@property (weak, nonatomic) IBOutlet UIBarButtonItem *cancelButton;
 
 //-(void)networkError;
 - (IBAction)CancelAction:(id)sender;

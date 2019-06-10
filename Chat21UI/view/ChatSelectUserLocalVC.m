@@ -37,7 +37,7 @@
     }
     
     self.searchBar.delegate = self;
-    
+    self.cancelButton.title = [ChatLocal translate:@"cancel"];
     self.tableView.delegate = self;
     self.tableView.dataSource = self;
     ChatManager *chatm = [ChatManager getInstance];

@@ -52,25 +52,12 @@
 
 -(void)startSynchro {
     if (![self getFirstSynchroOver]) {
-//        [[ContactsDB getSharedInstance] drop_database]; // can be corrupted by incomplete synch for app crashs
         self.synchronizing = YES;
     }
     else {
         self.synchronizing = NO;
     }
     [self synchContacts];
-    
-//    [self setFirstSynchro:NO];
-//    if (![self getFirstSynchro]) {
-//        NSLog(@"Synch local contacts");
-//        [self firstLoadWithCompletion:^() {
-//            NSLog(@"Local contacts end");
-//            [self synchFirebase];
-//        }];
-//    }
-//    else {
-//        [self synchContacts];
-//    }
 }
 
 -(void)synchContacts {

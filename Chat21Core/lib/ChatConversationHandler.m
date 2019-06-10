@@ -18,6 +18,11 @@
 #import "ChatMessageMetadata.h"
 #import "ChatImageDownloadManager.h"
 
+@interface ChatConversationHandler () {
+    dispatch_queue_t serialMessagesMemoryQueue;
+}
+@end
+
 @implementation ChatConversationHandler
 
 -(id)init {
@@ -28,6 +33,7 @@
 }
 
 -(void)basicInit {
+    serialMessagesMemoryQueue = dispatch_queue_create("messagesQueue", DISPATCH_QUEUE_SERIAL);
     self.lastEventHandle = 1;
     self.imageDownloader = [[ChatImageDownloadManager alloc] init];
 }
@@ -69,7 +75,7 @@
 
 -(void)restoreMessagesFromDB {
     NSLog(@"RESTORING ALL MESSAGES FOR CONVERSATION %@", self.conversationId);
-    NSArray *inverted_messages = [[[ChatDB getSharedInstance] getAllMessagesForConversation:self.conversationId start:0 count:40] mutableCopy];
+    NSArray *inverted_messages = [[[ChatDB getSharedInstance] getAllMessagesForConversation:self.conversationId start:0 count:200] mutableCopy];
 //    NSLog(@"DB MESSAGES NUMBER: %lu", (unsigned long) inverted_messages.count);
     NSLog(@"Restoring last 40 messages...");
     NSEnumerator *enumerator = [inverted_messages reverseObjectEnumerator];
@@ -98,100 +104,112 @@
     if (self.messages && self.messages.count > 0) {
         ChatMessage *message = [self.messages lastObject];
         NSLog(@"****** MOST RECENT MESSAGE TIME %@ %@", message, message.date);
-        lasttime = message.date.timeIntervalSince1970 * 1000; // objc return time in seconds, firebase saves time in milliseconds. queryStartingAtValue: will respond to events at nodes with a value greater than or equal to startValue. So seconds is always < then milliseconds. * 1000 translates seconds in millis and the query is ok.
+        lasttime = message.date.timeIntervalSince1970 * 1000; // objc returns time in seconds, firebase saves time in milliseconds. queryStartingAtValue: will respond to events at nodes with a value greater than or equal to startValue. So seconds is always < then milliseconds. * 1000 translates seconds in millis and the query is ok.
     } else {
         lasttime = 0;
     }
-    
-    self.messages_ref_handle = [[[self.messagesRef queryOrderedByChild:@"timestamp"] queryStartingAtValue:@(lasttime)] observeEventType:FIRDataEventTypeChildAdded withBlock:^(FIRDataSnapshot *snapshot) {
+//    int i = 0;
+//    __block int count = i;
+    self.messages_ref_handle = [[[[self.messagesRef queryOrderedByChild:@"timestamp"] queryStartingAtValue:@(lasttime)] queryLimitedToLast:40] observeEventType:FIRDataEventTypeChildAdded withBlock:^(FIRDataSnapshot *snapshot) {
         // IMPORTANT: this query ignores messages without a timestamp.
         // IMPORTANT: This callback is called also for newly locally created messages still not sent.
         NSLog(@"NEW MESSAGE SNAPSHOT: %@", snapshot);
-        if (![self isValidMessageSnapshot:snapshot]) {
-            NSLog(@"Discarding invalid snapshot: %@", snapshot);
-            return;
-        }
-        ChatMessage *message = [ChatMessage messageFromfirebaseSnapshotFactory:snapshot];
-        message.conversationId = self.conversationId; // DB query is based on this attribute!!! (conversationID = Recipient)
-        
-        // IMPORTANT (REPEATED)! This callback is called ALSO (and NOT ONLY) for newly locally created messages not still sent (called also with network off!).
-        // Then, for every "new" message received (also locally generated) we update the conversation data & his status to "read" (is_new: NO).
-        
-        // updates status only of messages not sent by me
-        // HO RICEVUTO UN MESSAGGIO NUOVO
-//        NSLog(@"self.senderId: %@", self.senderId);
-        if (message.status < MSG_STATUS_RECEIVED && ![message.sender isEqualToString:self.senderId]) {
-            // VERIFY... "message.status < MSG_STATUS_RECEIVED" IN MODO DA EVITARE IL COSTO DI RI-AGGIORNARE CONTINUAMENTE LO STATO DI MESSAGGI CHE HANNO GIA LO STATO "RECEIVED" (MAGARI E' LA SINCRONIZZAZIONE DI UN NUOVO DISPOSITIVO CHE NON DEVE PIU' COMUNICARE NULLA AL MITTENTE MA SOLO SCARICARE I MESSAGGI NELLO STATO IN CUI SI TROVANO).
-            // NOT RECEIVED = NEW!
-            if (message.isDirect) {
-                [message updateStatusOnFirebase:MSG_STATUS_RECEIVED]; // firebase
-            } else {
-                // TODO: implement received status for group's messages
+//        count = count + 1;
+//        NSLog(@"CURRENT ADDED COUNT: %d", count);
+//        if (count > 20) {
+//            NSLog(@"MAX ADDED COUNT: %d STOP!!", count);
+//            return;
+//        }
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
+            NSLog(@"Asynch message processing pipeline started....");
+            if (![self isValidMessageSnapshot:snapshot]) {
+                NSLog(@"New Message handler. Discarding invalid snapshot: %@", snapshot);
+                return;
             }
-        }
-        // updates or insert new messages
-        // Note: we always get the last message sent. So this check is necessary to avoid this message notified as "new" (...playing sound etc.)
-        ChatManager *chatm = [ChatManager getInstance];
-        if (chatm.onMessageArrived) {
-            message = chatm.onMessageArrived(message);
-        }
-        [self insertMessageIfNotExists:message];
-        [self notifyEvent:ChatEventMessageAdded message:message];
+            else {
+                NSLog(@"New Message handler. Valid snapshot.");
+            }
+            ChatMessage *message = [ChatMessage messageFromfirebaseSnapshotFactory:snapshot];
+            message.conversationId = self.conversationId; // DB query is based on this attribute!!! (conversationID = Recipient)
+            ChatManager *chatm = [ChatManager getInstance];
+            if (chatm.onMessageNew) {
+                message = chatm.onMessageNew(message);
+                if (message == nil) {
+                    return;
+                }
+            }
+            // This callback is also called for newly locally created messages (not still sent, called also with network off).
+            // Then, for every "new" message received (also locally generated) we update onversation status to "read" (is_new = false).
+            // Updates status only of messages not sent by me
+            if (message.status < MSG_STATUS_RECEIVED && ![message.sender isEqualToString:self.senderId]) {
+                // VERIFY... "message.status < MSG_STATUS_RECEIVED" IN ORDER TO AVOID THE COST OF RE-UPDATING CONTINUOUSLY THE STATE OF MESSAGES THAT ALREADY HAVE THE "RECEIVED" STATE (IT MAY BE THE SYNCHRONIZATION OF A NEW DEVICE THAT MUST NO LONGER COMMUNICATE ANYTHING TO THE SENDER BUT ONLY DOWNLOAD THE MESSAGES IN THE STATE IN WHICH THEY ARE FOUND).
+                // NOT RECEIVED = NEW!
+                if (message.isDirect) {
+                    [message updateStatusOnFirebase:MSG_STATUS_RECEIVED]; // firebase
+                } else {
+                    // TODO: implement received status for group's messages
+                }
+            }
+            // updates or inserts new messages
+            // This check is necessary to avoid this message notified as "new" (...playing sound etc.)
+            [self insertMessageIfNotExists:message completion:^{
+                NSLog(@"New message saved. Notiying to subscribers...");
+                [self notifyEvent:ChatEventMessageAdded message:message];
+            }];
+        });
     } withCancelBlock:^(NSError *error) {
         NSLog(@"%@", error.description);
     }];
     
-//    self.updated_messages_ref_handle = [[self.messagesRef queryLimitedToLast:10] observeEventType:FEventTypeChildChanged withBlock:^(FDataSnapshot *snapshot) {
-//        NSLog(@">>>> new UPDATED message snapshot %@", snapshot);
-//    } withCancelBlock:^(NSError *error) {
-//        NSLog(@"%@", error.description);
-//    }];
-    
     self.updated_messages_ref_handle = [self.messagesRef observeEventType:FIRDataEventTypeChildChanged withBlock:^(FIRDataSnapshot *snapshot) {
         NSLog(@"UPDATED MESSAGE SNAPSHOT: %@", snapshot);
-        if (![self isValidMessageSnapshot:snapshot]) {
-            NSLog(@"Discarding invalid snapshot: %@", snapshot);
-            return;
-        }
-        ChatMessage *message = [ChatMessage messageFromfirebaseSnapshotFactory:snapshot];
-        if (message.status == MSG_STATUS_SENDING || message.status == MSG_STATUS_SENT || message.status == MSG_STATUS_RETURN_RECEIPT) {
-            NSLog(@"Message updated. Data saved successfully.");
-//            int status = message.status;
-//            if (message.status == MSG_STATUS_SENDING) {
-//                status = MSG_STATUS_SENT;
-//            }
-            ChatMessage *message_archived = [[ChatDB getSharedInstance] getMessageById:message.messageId];
-            if (message_archived) {
-                [self updateMessageStatusInMemory:message.messageId withStatus:message.status];
-                [self updateMessageStatusOnDB:message.messageId withStatus:message.status];
-                [self notifyEvent:ChatEventMessageChanged message:message];
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
+            if (![self isValidMessageSnapshot:snapshot]) {
+                NSLog(@"Message Updated. Discarding invalid snapshot: %@", snapshot);
+                return;
             }
             else {
-                [self insertMessageIfNotExists:message];
-                [self notifyEvent:ChatEventMessageAdded message:message];
+                NSLog(@"Message Updated. Valid snapshot: %@", snapshot);
             }
-//            [self updateMessageStatusInMemory:message.messageId withStatus:status];
-//            [self updateMessageStatusOnDB:message.messageId withStatus:status];
-            //[self notifyEvent:ChatEventMessageChanged message:message];
-        }
-//        else if (message.status == MSG_STATUS_RETURN_RECEIPT) {
-//            NSLog(@"Message update: return receipt.");
-//            [self updateMessageStatusInMemory:message.messageId withStatus:message.status];
-//            [self updateMessageStatusOnDB:message.messageId withStatus:message.status];
-            //[self notifyEvent:ChatEventMessageChanged message:message];
-//        }
-        
+            ChatMessage *message = [ChatMessage messageFromfirebaseSnapshotFactory:snapshot];
+            ChatManager *chatm = [ChatManager getInstance];
+            if (chatm.onMessageUpdate) {
+                message = chatm.onMessageUpdate(message);
+                if (message == nil) {
+                    return;
+                }
+            }
+            if (message.status == MSG_STATUS_SENDING || message.status == MSG_STATUS_SENT || message.status == MSG_STATUS_RETURN_RECEIPT) {
+                 [[ChatDB getSharedInstance] getMessageByIdSyncronized:message.messageId completion:^(ChatMessage *saved_message) {
+                     if (saved_message) {
+                         // [self updateMessageStatusOnDB:message.messageId withStatus:message.status completion: {
+                         //   [self updateMessageStatusInMemory:message.messageId withStatus:message.status];
+                         //   [self notifyEvent:ChatEventMessageChanged message:message];
+                         // }];
+                         [self updateMessageStatusSynchronized:message.messageId withStatus:message.status completion:^{
+                             [self notifyEvent:ChatEventMessageChanged message:message];
+                         }];
+                     }
+                     else {
+                         [self insertMessageIfNotExists:message completion:^{
+                             [self notifyEvent:ChatEventMessageAdded message:message];
+                         }];
+                     }
+                 }];
+            }
+        });
     } withCancelBlock:^(NSError *error) {
         NSLog(@"%@", error.description);
     }];
 }
 
--(void)insertMessageIfNotExists:(ChatMessage *)message {
-    //ChatMessage *message_archived = [[ChatDB getSharedInstance] getMessageById:message.messageId];
-//    if (!message_archived) {
-        [self insertMessageInMemoryIfNotExists:message];
-        [self insertMessageOnDBIfNotExists:message];
-//    }
+-(void)insertMessageIfNotExists:(ChatMessage *)message completion:(void(^)(void)) callback {
+    [[ChatDB getSharedInstance] insertMessageIfNotExistsSyncronized:message completion:^{
+        // TODO URGENT! Serial queue needed to avoid conflicting in writing on the same, shared, object!
+        [self insertMessageInMemoryIfNotExists:message completion:^{
+            if (callback != nil) callback();
+        }];
+    }];
 }
 
 -(BOOL)isValidMessageSnapshot:(FIRDataSnapshot *)snapshot {
@@ -249,16 +267,19 @@
     
     message.status = MSG_STATUS_UPLOADING;
     message.text = [[NSString alloc] initWithFormat:@"Uploading image: %@...", image_file_name];
-//    message.imageFilename = imageFilename;
     message.mtype = MSG_TYPE_IMAGE;
     message.metadata = imageMetadata;
     message.attributes = [attributes mutableCopy];
     message.recipient = self.recipientId;
     message.recipientFullName = self.recipientFullname;
     message.channel_type = self.channel_type;
-    message.messageId = [self createLocalMessage:message];
-    [self notifyEvent:ChatEventMessageAdded message:message];
-    callback(message, nil);
+    [self createLocalMessage:message completion:^(NSString *messageId, NSError *error) {
+        message.messageId = messageId;
+        [self notifyEvent:ChatEventMessageAdded message:message];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            callback(message, nil);
+        });
+    }];
 }
 
 -(void)sendImagePlaceholderMessage:(ChatMessage *)message completion:(void (^)(ChatMessage *, NSError *))callback {
@@ -313,10 +334,30 @@
     message.recipient = self.recipientId;
     message.recipientFullName = self.recipientFullname;
     message.channel_type = self.channel_type;
-    [self createLocalMessage:message];
-    NSLog(@"Sending message type: %@ with id: %@", message.mtype, message.messageId);
-    [self sendMessage:message completion:^(ChatMessage *message, NSError *error) {
-        callback(message, error);
+    [self createLocalMessage:message completion:^(NSString *messageId, NSError *error) {
+        NSLog(@"Sending message type: %@ with id: %@", message.mtype, message.messageId);
+        [self sendMessage:message completion:^(ChatMessage *message, NSError *error) {
+            callback(message, error);
+        }];
+    }];
+}
+
+-(void)resendMessageWithId:(NSString *)messageId completion:(void(^)(ChatMessage *message, NSError *error)) callback {
+    [[ChatDB getSharedInstance] getMessageByIdSyncronized:messageId completion:^(ChatMessage *message) {
+        if (message) {
+            NSLog(@"Message %@ found.", messageId);
+            message.status = MSG_STATUS_SENDING;
+            [self updateMessageStatusSynchronized:message.messageId withStatus:message.status completion:^{
+                [self notifyEvent:ChatEventMessageChanged message:message];
+                [self sendMessage:message completion:^(ChatMessage *message, NSError *error) {
+                    callback(message, nil);
+                }];
+            }];
+        }
+        else {
+            NSLog(@"Error. Message %@ not found.", messageId);
+            callback(nil, nil);
+        }
     }];
 }
 
@@ -325,25 +366,70 @@
     if (chatm.onBeforeMessageSend) {
         message = chatm.onBeforeMessageSend(message);
     }
-    if ([self.channel_type isEqualToString:MSG_CHANNEL_TYPE_GROUP]) {
-        NSLog(@"Sending Group message. User: %@", [FIRAuth auth].currentUser.uid);
-        [self sendMessageToGroup:message completion:^(ChatMessage *m, NSError *error) {
-            callback(m, error);
-        }];
-    } else {
-        NSLog(@"Sending Direct message. User: %@", [FIRAuth auth].currentUser.uid);
-        [self sendDirect:message completion:^(ChatMessage *m, NSError *error) {
-            callback(m, error);
+    
+    // custom handler can return a status = failed
+    if (message.status == MSG_STATUS_SENDING) {
+        if ([self.channel_type isEqualToString:MSG_CHANNEL_TYPE_GROUP]) {
+            NSLog(@"Sending Group message. User: %@", [FIRAuth auth].currentUser.uid);
+            [self sendMessageToGroup:message completion:^(ChatMessage *m, NSError *error) {
+                callback(m, error);
+            }];
+        } else {
+            NSLog(@"Sending Direct message. User: %@", [FIRAuth auth].currentUser.uid);
+            [self sendDirect:message completion:^(ChatMessage *m, NSError *error) {
+                callback(m, error);
+            }];
+        }
+    }
+    else { // status != sending stops sending pipeline
+        [self updateMessageStatusSynchronized:message.messageId withStatus:message.status completion:^{
+            [self notifyEvent:ChatEventMessageChanged message:message];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                callback(message, nil);
+            });
         }];
     }
 }
 
--(NSString *)createLocalMessage:(ChatMessage *)message {
+//-(void)sendMessage:(ChatMessage *)message completion:(void(^)(ChatMessage *message, NSError *error)) callback {
+//    ChatManager *chatm = [ChatManager getInstance];
+//    if (chatm.onBeforeMessageSend) {
+//        message = chatm.onBeforeMessageSend(message);
+//    }
+//
+//    // custom handler can return a status = failed
+//    // if status == sending
+//    if ([self.channel_type isEqualToString:MSG_CHANNEL_TYPE_GROUP]) {
+//        NSLog(@"Sending Group message. User: %@", [FIRAuth auth].currentUser.uid);
+//        [self sendMessageToGroup:message completion:^(ChatMessage *m, NSError *error) {
+//            callback(m, error);
+//        }];
+//    } else {
+//        NSLog(@"Sending Direct message. User: %@", [FIRAuth auth].currentUser.uid);
+//        [self sendDirect:message completion:^(ChatMessage *m, NSError *error) {
+//            callback(m, error);
+//        }];
+//    // else (status != sending stops sending pipeline
+////        [self updateMessageStatusSynchronized:message.messageId withStatus:message.status completion:^{
+////            [self notifyEvent:ChatEventMessageChanged message:message];
+////            dispatch_async(dispatch_get_main_queue(), ^{
+////                callback(message, error);
+////            });
+////        }];
+//        // notify subscribers
+//    // end
+//    }
+//}
+
+-(void)createLocalMessage:(ChatMessage *)message completion:(void(^)(NSString *messageId, NSError *error))callback {
     // save message locally
-    [self insertMessageInMemoryIfNotExists:message];
-    [self insertMessageOnDBIfNotExists:message];
-    [self notifyEvent:ChatEventMessageAdded message:message];
-    return message.messageId;
+    [[ChatDB getSharedInstance] insertMessageIfNotExistsSyncronized:message completion:^{
+        // TODO URGENT! Serial queue needed to avoid conflicting in writing on the same, shared, object!
+        [self insertMessageInMemoryIfNotExists:message completion:^{
+            [self notifyEvent:ChatEventMessageAdded message:message];
+            callback(message.messageId, nil);
+        }];
+    }];
 }
 
 -(void)sendDirect:(ChatMessage *)message completion:(void(^)(ChatMessage *message, NSError *error))callback {
@@ -358,23 +444,35 @@
         if (error) {
             NSLog(@"Data could not be saved because of an occurred error: %@", error);
             int status = MSG_STATUS_FAILED;
-            [self updateMessageStatus:status forMessage:message];
-            callback(message, error);
+//            [self updateMessageStatus:status forMessage:message];
+//            callback(message, error);
+            [self updateMessageStatusSynchronized:message.messageId withStatus:status completion:^{
+                [self notifyEvent:ChatEventMessageChanged message:message];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    callback(message, error);
+                });
+            }];
         } else {
             NSLog(@"Data saved successfully. Updating status & reloading tableView.");
             int status = MSG_STATUS_SENT;
             NSAssert([ref.key isEqualToString:message.messageId], @"REF.KEY %@ different by MESSAGE.ID %@",ref.key, message.messageId);
-            [self updateMessageStatus:status forMessage:message];
-            callback(message, error);
+//            [self updateMessageStatus:status forMessage:message];
+//            callback(message, error);
+            [self updateMessageStatusSynchronized:message.messageId withStatus:status completion:^{
+                [self notifyEvent:ChatEventMessageChanged message:message];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    callback(message, error);
+                });
+            }];
         }
     }];
 }
 
--(void)updateMessageStatus:(int)status forMessage:(ChatMessage *)message {
-    [self updateMessageStatusInMemory:message.messageId withStatus:status];
-    [self updateMessageStatusOnDB:message.messageId withStatus:status];
-    [self notifyEvent:ChatEventMessageChanged message:message];
-}
+//-(void)updateMessageStatus:(int)status forMessage:(ChatMessage *)message {
+//    [self updateMessageStatusInMemory:message.messageId withStatus:status];
+//    [self updateMessageStatusOnDB:message.messageId withStatus:status];
+//    [self notifyEvent:ChatEventMessageChanged message:message];
+//}
 
 -(void)sendMessageToGroup:(ChatMessage *)message completion:(void(^)(ChatMessage *message, NSError *error))callback {
     // create firebase reference
@@ -393,17 +491,29 @@
         if (error) {
             NSLog(@"Data could not be saved with error: %@", error);
             int status = MSG_STATUS_FAILED;
-            [self updateMessageStatusInMemory:ref.key withStatus:status];
-            [self updateMessageStatusOnDB:message.messageId withStatus:status];
-            [self notifyEvent:ChatEventMessageChanged message:message];
-            callback(message, error);
+//            [self updateMessageStatusInMemory:ref.key withStatus:status];
+//            [self updateMessageStatusOnDB:message.messageId withStatus:status];
+//            [self notifyEvent:ChatEventMessageChanged message:message];
+//            callback(message, error);
+            [self updateMessageStatusSynchronized:ref.key withStatus:status completion:^{
+                [self notifyEvent:ChatEventMessageChanged message:message];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    if(callback != nil) callback(message, error);
+                });
+            }];
         } else {
             NSLog(@"Data saved successfully. Updating status & reloading tableView.");
             int status = MSG_STATUS_SENT;
-            [self updateMessageStatusInMemory:ref.key withStatus:status];
-            [self updateMessageStatusOnDB:message.messageId withStatus:status];
-            [self notifyEvent:ChatEventMessageChanged message:message];
-            callback(message, error);
+//            [self updateMessageStatusInMemory:ref.key withStatus:status];
+//            [self updateMessageStatusOnDB:message.messageId withStatus:status];
+//            [self notifyEvent:ChatEventMessageChanged message:message];
+//            callback(message, error);
+            [self updateMessageStatusSynchronized:ref.key withStatus:status completion:^{
+                [self notifyEvent:ChatEventMessageChanged message:message];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    if(callback != nil) callback(message, error);
+                });
+            }];
         }
     }];
 }
@@ -445,10 +555,19 @@
 //}
 
 // Updates a just-sent memory-message with the new status: MSG_STATUS_FAILED or MSG_STATUS_SENT
--(void)updateMessageStatusInMemory:(NSString *)messageId withStatus:(int)status {
-    ChatMessage *message = [self findMessageInMemoryById:messageId];
-    message.status = status;
+
+-(void)updateMessageStatusInMemorySynchronized:(NSString *)messageId withStatus:(int)status completion:(void(^)(void))callback {
+    dispatch_async(serialMessagesMemoryQueue, ^{
+        ChatMessage *message = [self findMessageInMemoryById:messageId];
+        message.status = status;
+        if (callback != nil) callback();
+    });
 }
+
+//-(void)updateMessageStatusInMemory:(NSString *)messageId withStatus:(int)status {
+//    ChatMessage *message = [self findMessageInMemoryById:messageId];
+//    message.status = status;
+//}
 
 -(void)updateMessageInMemory:(NSString *)messageId status:(int)status text:(NSString *)text imageURL:(NSString *)imageURL {
     ChatMessage *m = [self findMessageInMemoryById:messageId];
@@ -466,39 +585,46 @@
     return nil;
 }
 
--(void)updateMessageStatusOnDB:(NSString *)messageId withStatus:(int)status {
-    [[ChatDB getSharedInstance] updateMessage:messageId withStatus:status];
+-(void)updateMessageStatusSynchronized:(NSString *)messageId withStatus:(int)status completion:(void(^)(void))callback {
+    [[ChatDB getSharedInstance] updateMessageSynchronized:messageId withStatus:status completion:^{
+        [self updateMessageStatusInMemorySynchronized:messageId withStatus:status completion:^{
+            if (callback != nil) callback();
+        }];
+    }];
 }
 
--(void)insertMessageOnDBIfNotExists:(ChatMessage *)message {
-    [[ChatDB getSharedInstance] insertMessageIfNotExists:message];
-}
+//-(void)insertMessageOnDBIfNotExists:(ChatMessage *)message {
+//    [[ChatDB getSharedInstance] insertMessageIfNotExists:message];
+//}
 
--(void)insertMessageInMemoryIfNotExists:(ChatMessage *)message {
-    // find message...
-    BOOL found = NO;
-    for (ChatMessage* msg in self.messages) {
-        if([msg.messageId isEqualToString: message.messageId]) {
-            NSLog(@"message found, skipping insert");
-            found = YES;
-            break;
+-(void)insertMessageInMemoryIfNotExists:(ChatMessage *)message completion:(void(^)(void))callback {
+    dispatch_async(serialMessagesMemoryQueue, ^{
+        // find message...
+        BOOL found = NO;
+        for (ChatMessage* msg in self.messages) {
+            if([msg.messageId isEqualToString: message.messageId]) {
+                NSLog(@"message found, skipping insert");
+                found = YES;
+                break;
+            }
         }
-    }
-    
-    if (found) {
-        return;
-    }
-    else {
-        NSUInteger newIndex = [self.messages indexOfObject:message
-                                     inSortedRange:(NSRange){0, [self.messages count]}
-                                           options:NSBinarySearchingInsertionIndex
-                                           usingComparator:^NSComparisonResult(id a, id b) {
-                                               NSDate *first = [(ChatMessage *)a date];
-                                               NSDate *second = [(ChatMessage *)b date];
-                                               return [first compare:second];
-                                           }];
-        [self.messages insertObject:message atIndex:newIndex];
-    }
+        
+        if (found) {
+            return;
+        }
+        else {
+            NSUInteger newIndex = [self.messages indexOfObject:message
+                                         inSortedRange:(NSRange){0, [self.messages count]}
+                                               options:NSBinarySearchingInsertionIndex
+                                               usingComparator:^NSComparisonResult(id a, id b) {
+                                                   NSDate *first = [(ChatMessage *)a date];
+                                                   NSDate *second = [(ChatMessage *)b date];
+                                                   return [first compare:second];
+                                               }];
+            [self.messages insertObject:message atIndex:newIndex];
+        }
+        if (callback != nil) callback();
+    });
 }
 
 -(void)uploadImage:(UIImage *)image fileName:(NSString *)fileName completion:(void(^)(NSURL *downloadURL, NSError *error))callback progressCallback:(void(^)(double fraction))progressCallback {
@@ -524,7 +650,7 @@
                                                        NSLog(@"an error occurred!");
                                                        callback(nil, error);
                                                    } else {
-//                                                       NSLog(@"Metadata contains file metadata such as size, content-type, and download URL");
+                                                       NSLog(@"Metadata contains file metadata such as size, content-type, and download URL");
                                                        
                                                        [storeRef downloadURLWithCompletion:^(NSURL * _Nullable URL, NSError * _Nullable error) {
                                                            if (error != nil) {
@@ -539,7 +665,8 @@
                                                        
                                                    }
                                                }];
-    FIRStorageHandle observer = [uploadTask observeStatus:FIRStorageTaskStatusProgress
+//    FIRStorageHandle observer =
+    [uploadTask observeStatus:FIRStorageTaskStatusProgress
                                                   handler:^(FIRStorageTaskSnapshot *snapshot) {
 //                                                      NSLog(@"uploading %@", snapshot);
 //                                                      NSLog(@"completion: %f, %lld", snapshot.progress.fractionCompleted, snapshot.progress.completedUnitCount);
@@ -564,10 +691,12 @@
     if (!eventCallbacks) {
         return;
     }
-    for (NSNumber *event_handle_key in eventCallbacks.allKeys) {
-        void (^callback)(ChatMessage *message) = [eventCallbacks objectForKey:event_handle_key];
-        callback(message);
-    }
+    dispatch_async(dispatch_get_main_queue(), ^{
+        for (NSNumber *event_handle_key in eventCallbacks.allKeys) {
+            void (^callback)(ChatMessage *message) = [eventCallbacks objectForKey:event_handle_key];
+            callback(message);
+        }
+    });
 }
 
 // v2

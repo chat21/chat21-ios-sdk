@@ -17,8 +17,8 @@
 #import "ChatConversationsVC.h"
 #import "ChatStringUtil.h"
 #import "ChatGroupInfoVC.h"
-#import "QBPopupMenu.h"
-#import "QBPopupMenuItem.h"
+//#import "QBPopupMenu.h"
+//#import "QBPopupMenuItem.h"
 #import "ChatTitleVC.h"
 #import "ChatImageCache.h"
 #import "ChatImageWrapper.h"
@@ -116,60 +116,7 @@
     [self.group completeGroupMembersMetadataWithCompletionBlock:^() {
         [self setSubTitle:[ChatUtil groupMembersFullnamesAsStringForUI:self.group.membersFull]];
     }];
-//    ChatContactsDB *db = [ChatContactsDB getSharedInstance];
-//    NSArray<NSString *> *contact_ids = [self.group.members allKeys];
-//    [db getMultipleContactsByIdsSyncronized:contact_ids completion:^(NSArray<ChatUser *> *contacts) {
-//        self.group.membersFull = contacts;
-//        [self setSubTitle:[ChatUtil groupMembersFullnamesAsStringForUI:contacts]];
-//    }];
 }
-
-//-(void)loadGroupInfo {
-//    self.usernameButton.hidden = YES;
-//    self.activityIndicator.hidden = NO;
-//    [self.activityIndicator startAnimating];
-//    [self setSubTitle:@""];
-//    //    self.statusLabel.text = @"";
-//    ChatManager *chatm = [ChatManager getInstance];
-//    NSString *group_id = self.group.groupId;
-//    __weak ChatMessagesVC *weakSelf = self;
-//    [chatm loadGroup:group_id completion:^(ChatGroup *group, BOOL error) {
-//        NSLog(@"Group %@ info loaded", group.name);
-//        weakSelf.usernameButton.hidden = NO;
-//        weakSelf.activityIndicator.hidden = YES;
-//        [weakSelf.activityIndicator stopAnimating];
-//        if (error) {
-//            [weakSelf setSubTitle:@"Errore gruppo"];
-//            //            weakSelf.statusLabel.text = @"Errore gruppo";
-//        }
-//        else {
-//            weakSelf.group = group;
-//            [weakSelf setupForGroupMode];
-//        }
-//    }];
-//}
-
-//-(void)loadGroupInfo:(ChatGroup *)group completion:(void (^)(BOOL error))callback {
-//    FIRDatabaseReference *rootRef = [[FIRDatabase database] reference];
-//    NSString *groups_path = [ChatUtil groupsPath];
-//    NSString *path = [[NSString alloc] initWithFormat:@"%@/%@", groups_path, group.groupId];
-//    NSLog(@"Load Group on path: %@", path);
-//    FIRDatabaseReference *groupRef = [rootRef child:path];
-//
-//    [groupRef observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
-//        NSLog(@"NEW GROUP SNAPSHOT: %@", snapshot);
-//        if (!snapshot || ![snapshot exists]) {
-//            NSLog(@"Errore gruppo: !snapshot || !snapshot.exists");
-//            callback(YES);
-//        }
-//        self.group = [ChatManager groupFromSnapshotFactory:snapshot];
-//        ChatGroupsHandler *gh = [ChatManager getSharedInstance].groupsHandler;
-//        [gh insertOrUpdateGroup:group];
-//        callback(NO);
-//    } withCancelBlock:^(NSError *error) {
-//        NSLog(@"%@", error.description);
-//    }];
-//}
 
 -(void)writeBoxEnabled {
     [self ImInGroup] ? [self hideBottomView:NO] : [self hideBottomView:YES];
@@ -211,10 +158,6 @@
     self.deleted_handle = [handler observeEvent:ChatEventMessageDeleted withCallback:^(ChatMessage *message) {
         [self messageDeleted:message];
     }];
-//    if (self.group) {
-//        [self monitorGroupUpdates];
-//    }
-//    NSLog(@"added_handle: %lu, changed_handle: %lu, deleted_handle: %lu", (unsigned long)self.added_handle, (unsigned long)self.changed_handle, (unsigned long)self.deleted_handle);
 }
 
 -(void)monitorGroupUpdates {
@@ -259,13 +202,6 @@
         self.tabBarController.tabBar.hidden=NO;
         [self removeSubscribers];
         [[ChatManager getInstance].groupsHandler removeSubscriber:self];
-        
-        //        for (NSString *k in self.imageDownloadsInProgress) {
-        //            NSLog(@"Removing downloader: %@", k);
-        //            SHPImageDownloader *iconDownloader = [self.imageDownloadsInProgress objectForKey:k];
-        //            [iconDownloader cancelDownload];
-        //            iconDownloader.delegate = nil;
-        //        }
         [self freeKeyboardNotifications];
         containerTVC.vc = nil;
         containerTVC.conversationHandler = nil;
@@ -565,19 +501,6 @@
              DBChooserResult *r = results[0];
              // properties: r.name, r.link, r.size, r.iconURL
              NSDictionary *thumbs = r.thumbnails;
-             // ** MEMO THUMBS **
-             //             if (thumbs) {
-             //                 NSArray*keys=[thumbs allKeys];
-             //                 for (NSObject *k in keys) {
-             //                     NSLog(@"r.thumb[%@]: %@", k, thumbs[k]);
-             //                 }
-             //                 NSLog(@"r.thumbs.64x64px %@", thumbs[@"64x64"]);
-             //                 NSLog(@"r.thumbs.200x200px %@", thumbs[@"200x200"]);
-             //                 NSLog(@"r.thumbs.640x480px %@", thumbs[@"640x480"]);
-             //             } else {
-             //                 NSLog(@"No r.thumbs");
-             //             }
-             // ** END MEMO **
              [self sendDropboxMessage:r.name link:[r.link absoluteString] size:[NSNumber numberWithLongLong:r.size] iconURL:[r.iconURL absoluteString] thumbs:thumbs];
          } else {
              NSLog(@"Action canceled");
@@ -876,11 +799,11 @@ static float messageTime = 0.5;
     customImageView.layer.borderWidth = 0;
 }
 
-- (IBAction)menuAction:(id)sender {
+//- (IBAction)menuAction:(id)sender {
     //[self.menuSheet showInView:self.parentViewController.tabBarController.view];
-}
+//}
 
--(void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
+//-(void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
     //    if (actionSheet == self.menuSheet) {
     //        NSString *option = [actionSheet buttonTitleAtIndex:buttonIndex];
     //
@@ -905,7 +828,7 @@ static float messageTime = 0.5;
     //            }
     //        }
     //    }
-}
+//}
 
 // ChatGroupsSubscriber protocol
 
@@ -1028,7 +951,8 @@ static float messageTime = 0.5;
             if (error) {
                 NSLog(@"Error during image upload.");
                 message.status = MSG_STATUS_FAILED;
-                [self.conversationHandler updateMessageStatus:MSG_STATUS_FAILED forMessage:message];
+//                [self.conversationHandler updateMessageStatus:MSG_STATUS_FAILED forMessage:message];
+                [self.conversationHandler updateMessageStatusSynchronized:message.messageId withStatus:MSG_STATUS_FAILED completion:nil];
             }
             else {
                 NSString *image_text = [ChatMessage imageTextPlaceholder:downloadURL.absoluteString];

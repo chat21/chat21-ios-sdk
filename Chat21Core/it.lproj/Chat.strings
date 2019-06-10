@@ -111,6 +111,7 @@
 "Remove" = "Rimuovi";
 "copy" = "Copia";
 "info" = "Info";
+"resend" = "Invia di nuovo";
 "digit message" = "Digita un messaggio";
 "ReadConversationAction" = "Letto";
 "UnreadConversationAction" = "Non letto";

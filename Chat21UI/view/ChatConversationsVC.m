@@ -424,10 +424,10 @@
         NSString *conversationId = conversation.conversationId;
         
         // instantly removes the conversation from memory & local db
-        [self.conversationsHandler removeLocalConversation:conversation];
-        [self removeConversationAtIndex:indexPath];
-        
-        // now remotly archives the conversation
+        [self.conversationsHandler removeLocalConversation:conversation completion:^{
+            [self removeConversationAtIndex:indexPath];
+        }];
+        // now remotely archives the conversation
         if ([conversationId hasPrefix:@"support-group-"]) {
             NSLog(@"Archiving and closing support conversation...");
             [ChatService archiveAndCloseSupportConversation:conversation completion:^(NSError *error) {
@@ -450,7 +450,6 @@
                 }
             }];
         }
-        // else if conv startsWith support-group-
     }];
     archiveAction.backgroundColor = [UIColor colorWithRed:0.286 green:0.439 blue:0.639 alpha:1.0];
     
@@ -462,9 +461,8 @@
         BOOL read_stastus = !conversation.is_new;
         conversation.is_new = read_stastus;
         // instantly updates the conversation in memory & local db
-        [self.conversationsHandler updateLocalConversation:conversation];
+        [self.conversationsHandler updateLocalConversation:conversation completion:nil];
         [ChatConversationsVC updateReadStatusForConversationCell:conversation atIndexPath:indexPath inTableView:self.tableView];
-        
         FIRDatabaseReference *conversation_ref = [self.conversationsHandler.conversationsRef child:conversation.conversationId];
         ChatManager *chat = [ChatManager getInstance];
         [chat updateConversationIsNew:conversation_ref is_new:read_stastus];
@@ -580,7 +578,7 @@
     
     selectedConversation.is_new = NO;
     // instantly updates the conversation in memory & on local db
-    [self.conversationsHandler updateLocalConversation:selectedConversation];
+    [self.conversationsHandler updateLocalConversation:selectedConversation completion:nil];
     [ChatConversationsVC updateReadStatusForConversationCell:selectedConversation atIndexPath:indexPath inTableView:self.tableView];
     ChatManager *chatm = [ChatManager getInstance];
     [chatm updateConversationIsNew:selectedConversation.ref is_new:selectedConversation.is_new];
@@ -791,12 +789,6 @@
     [self.tableView endUpdates];
     
     [self update_unread];
-    
-    // verify
-//    ChatConversation *conv = [[ChatDB getSharedInstance] getConversationById:removingConversation.conversationId];
-//    NSLog(@"Verifying conv %@", conv);
-//    NSArray *messages = [[ChatDB getSharedInstance] getAllMessagesForConversation:removingConversation.conversationId];
-//    NSLog(@"resting messages count %lu", (unsigned long)messages.count);
 }
 
 -(void)disposeResources {

@@ -58,6 +58,36 @@ static NSString *COPY_LINK_KEY = @"Copy link";
 
 //////////////// POPUPMENU /////////////
 
+-(QBPopupMenu *)popUpMenuForSelectedMessage {
+    //    QBPopupMenuItem *itemCopy = [QBPopupMenuItem itemWithTitle:@"Copicchia" target:self action:@selector(copicchia:)];
+    //    //        QBPopupMenuItem *item2 = [QBPopupMenuItem itemWithImage:[UIImage imageNamed:@"image"] target:self action:@selector(action:)];
+    //    self.popupMenu = [[QBPopupMenu alloc] initWithItems:@[itemCopy]];
+    NSMutableArray *items = [[NSMutableArray alloc] init];
+    QBPopupMenuItem *item_copy = [QBPopupMenuItem itemWithTitle:NSLocalizedString(@"copy", nil) target:self action:@selector(copy_action:)];
+    [items addObject:item_copy];
+    QBPopupMenuItem *item_info = [QBPopupMenuItem itemWithTitle:NSLocalizedString(@"info", nil) target:self action:@selector(info_action:)];
+    [items addObject:item_info];
+//     @[item_copy, item_info];
+    
+    if (self.selectedMessage.status == MSG_STATUS_FAILED) {
+        QBPopupMenuItem *item_resend = [QBPopupMenuItem itemWithTitle:NSLocalizedString(@"resend", nil) target:self action:@selector(resend_action:)];
+        [items addObject:item_resend];
+    }
+    //    QBPopupMenuItem *item_delete = [QBPopupMenuItem itemWithTitle:@"Copia" target:self action:@selector(delete_action:)];
+    
+    //    QBPopupMenuItem *item5 = [QBPopupMenuItem itemWithImage:[UIImage imageNamed:@"clip"] target:self action:@selector(action)];
+    //    QBPopupMenuItem *item6 = [QBPopupMenuItem itemWithTitle:@"Delete" image:[UIImage imageNamed:@"trash"] target:self action:@selector(action)];
+    
+    
+    QBPopupMenu *popupMenu = [[QBPopupMenu alloc] initWithItems:items];
+    popupMenu.highlightedColor = [[UIColor colorWithRed:0 green:0.478 blue:1.0 alpha:1.0] colorWithAlphaComponent:0.8];
+    popupMenu.height = 30;
+    popupMenu.navigationBarHeight = self.navigationController.navigationBar.frame.size.height;
+    popupMenu.statusBarHeight = [UIApplication sharedApplication].statusBarFrame.size.height;
+    //    popupMenu.delegate = self;
+    return popupMenu;
+}
+
 -(void)popUpMenu {
     //    QBPopupMenuItem *itemCopy = [QBPopupMenuItem itemWithTitle:@"Copicchia" target:self action:@selector(copicchia:)];
     //    //        QBPopupMenuItem *item2 = [QBPopupMenuItem itemWithImage:[UIImage imageNamed:@"image"] target:self action:@selector(action:)];
@@ -65,7 +95,6 @@ static NSString *COPY_LINK_KEY = @"Copy link";
     
     QBPopupMenuItem *item_copy = [QBPopupMenuItem itemWithTitle:NSLocalizedString(@"copy", nil) target:self action:@selector(copy_action:)];
     QBPopupMenuItem *item_info = [QBPopupMenuItem itemWithTitle:NSLocalizedString(@"info", nil) target:self action:@selector(info_action:)];
-//    QBPopupMenuItem *item_resend = [QBPopupMenuItem itemWithTitle:@"Copia" target:self action:@selector(resend_action:)];
 //    QBPopupMenuItem *item_delete = [QBPopupMenuItem itemWithTitle:@"Copia" target:self action:@selector(delete_action:)];
     
     //    QBPopupMenuItem *item5 = [QBPopupMenuItem itemWithImage:[UIImage imageNamed:@"clip"] target:self action:@selector(action)];
@@ -94,6 +123,14 @@ static NSString *COPY_LINK_KEY = @"Copy link";
 -(void)info_action:(id)sender {
     NSLog(@"Message info action!");
     [self performSegueWithIdentifier:@"info" sender:self];
+}
+
+-(void)resend_action:(id)sender {
+    NSString *selectedMessageId = self.selectedMessage.messageId;
+    NSLog(@"Resending message with id %@", selectedMessageId);
+    [self.conversationHandler resendMessageWithId:selectedMessageId completion:^(ChatMessage *message, NSError *error) {
+        NSLog(@"Message %@ successfully resent.", selectedMessageId);
+    }];
 }
 
 static NSString *MATCH_TYPE_URL = @"URL";
@@ -417,18 +454,19 @@ static NSString *MATCH_TYPE_CHAT_LINK = @"CHATLINK";
     UITableViewCell* cell = [self.tableView cellForRowAtIndexPath:pressIndexPath];
     UILabel *message_label = (UILabel *)[cell viewWithTag:10];
     self.selectedText = message_label.text;
-    UIView *sfondo_cella = (UIView *)[cell viewWithTag:50];
+    UIView *cell_background = (UIView *)[cell viewWithTag:50];
     NSLog(@"label.text: %@", message_label.text);
-    CGFloat abs_x = sfondo_cella.frame.origin.x + cell.frame.origin.x + self.view.frame.origin.x; // l'ultimo è zero
+    CGFloat abs_x = cell_background.frame.origin.x + cell.frame.origin.x + self.view.frame.origin.x; // l'ultimo è zero
     CGRect rectInTableView = [self.tableView rectForRowAtIndexPath:pressIndexPath];
     CGRect rectInSuperview = [self.tableView convertRect:rectInTableView toView:[self.tableView superview]];
-    CGFloat abs_y = rectInSuperview.origin.y + sfondo_cella.frame.origin.y;
+    CGFloat abs_y = rectInSuperview.origin.y + cell_background.frame.origin.y;
     NSLog(@"abs_y %f", abs_y);
     // absolute to view, not tableView
     CGRect absolute_to_view_rect = CGRectMake(abs_x, abs_y, message_label.frame.size.width, message_label.frame.size.height);
     // disable keyboard's gesture recognizer
     [self.vc dismissKeyboardFromTableView:NO];
-    [self.popupMenu showInView:self.tableView targetRect:absolute_to_view_rect animated:YES];
+    [[self popUpMenuForSelectedMessage] showInView:self.tableView targetRect:absolute_to_view_rect animated:YES];
+//    [self.popupMenu showInView:self.tableView targetRect:absolute_to_view_rect animated:YES];
     // test
     //    CGRect targetRect = absolute_to_view_rect;
     //    UIView *targetV = [[UIView alloc] initWithFrame:targetRect];

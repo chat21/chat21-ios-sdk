@@ -90,7 +90,7 @@
 
 //-(void)createOrUpdateConversation:(ChatConversation *)conversation;
 -(void)removeConversation:(ChatConversation *)conversation;
--(void)removeConversationFromDB:(NSString *)conversationId;
+//-(void)removeConversationFromDB:(NSString *)conversationId;
 -(void)updateConversationIsNew:(FIRDatabaseReference *)conversationRef is_new:(int)is_new;
 
 // === CONTACTS ===
@@ -113,7 +113,8 @@
 +(NSString *)profileBaseURL:(NSString *)profileId;
 
 @property (nonatomic, copy) ChatMessage *(^onBeforeMessageSend)(ChatMessage *msg);
-@property (nonatomic, copy) ChatMessage *(^onMessageArrived)(ChatMessage *msg);
+@property (nonatomic, copy) ChatMessage *(^onMessageNew)(ChatMessage *msg);
+@property (nonatomic, copy) ChatMessage *(^onMessageUpdate)(ChatMessage *msg);
 @property (nonatomic, copy) ChatConversation *(^onCoversationArrived)(ChatConversation *conv);
 @property (nonatomic, copy) ChatConversation *(^onCoversationUpdated)(ChatConversation *conv);
 

@@ -283,7 +283,7 @@
     double secondsElapsed = nowInSeconds - startDateInSeconds;
     //    NSLog(@"SECONDS ELAPSED %f", secondsElapsed);
     if (secondsElapsed < 60) {
-        NSLog(@"<60");
+//        NSLog(@"<60");
         timeMessagePart = [ChatLocal translate:@"FewSecondsAgoLKey"];
         unitMessagePart = @"";
     }

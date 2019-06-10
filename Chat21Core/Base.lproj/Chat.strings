@@ -110,6 +110,7 @@
 "Remove" = "Remove";
 "copy" = "Copy";
 "info" = "Info";
+"resend" = "Resend";
 "digit message" = "Digit a message";
 "ReadConversationAction" = "Read";
 "UnreadConversationAction" = "Unread";
