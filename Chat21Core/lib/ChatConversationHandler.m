@@ -114,12 +114,6 @@
         // IMPORTANT: this query ignores messages without a timestamp.
         // IMPORTANT: This callback is called also for newly locally created messages still not sent.
         NSLog(@"NEW MESSAGE SNAPSHOT: %@", snapshot);
-//        count = count + 1;
-//        NSLog(@"CURRENT ADDED COUNT: %d", count);
-//        if (count > 20) {
-//            NSLog(@"MAX ADDED COUNT: %d STOP!!", count);
-//            return;
-//        }
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
             NSLog(@"Asynch message processing pipeline started....");
             if (![self isValidMessageSnapshot:snapshot]) {
@@ -174,10 +168,13 @@
             ChatMessage *message = [ChatMessage messageFromfirebaseSnapshotFactory:snapshot];
             ChatManager *chatm = [ChatManager getInstance];
             if (chatm.onMessageUpdate) {
+                NSLog(@"onMessageUpdate found. Executing.");
                 message = chatm.onMessageUpdate(message);
                 if (message == nil) {
+                    NSLog(@"onMessageUpdate returned null. Stopping update pipeline.");
                     return;
                 }
+                NSLog(@"onMessageUpdate successfully ended.");
             }
             if (message.status == MSG_STATUS_SENDING || message.status == MSG_STATUS_SENT || message.status == MSG_STATUS_RETURN_RECEIPT) {
                  [[ChatDB getSharedInstance] getMessageByIdSyncronized:message.messageId completion:^(ChatMessage *saved_message) {

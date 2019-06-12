@@ -1658,13 +1658,20 @@
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="BVo-Jq-QUF"/>
                     </view>
-                    <navigationItem key="navigationItem" id="OQZ-Nu-xNm"/>
+                    <navigationItem key="navigationItem" id="OQZ-Nu-xNm">
+                        <barButtonItem key="rightBarButtonItem" title="stop" id="G58-Zm-6gk">
+                            <connections>
+                                <action selector="stopTestAction:" destination="a2h-tO-Ac8" id="oqc-iB-vHf"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
                     <connections>
                         <outlet property="bottomView" destination="nj3-Dw-Wo5" id="aKz-YN-edK"/>
                         <outlet property="bottomViewHeightConstraint" destination="QTk-UK-JiA" id="LNT-Ys-07R"/>
                         <outlet property="layoutContraintBottomBarMessageBottomView" destination="ciA-zB-iga" id="fcc-zI-4h7"/>
                         <outlet property="messageTextField" destination="82o-vg-8bE" id="l53-Qh-SQi"/>
                         <outlet property="sendButton" destination="nvi-z9-0uL" id="JUj-dX-Cyf"/>
+                        <outlet property="stopTestButton" destination="G58-Zm-6gk" id="mDG-SV-kcg"/>
                         <outlet property="viewContainer" destination="T46-i9-Q59" id="R2N-ie-Fm1"/>
                         <segue destination="AwH-i1-wi5" kind="show" identifier="GroupInfo" id="H6P-aU-qVr"/>
                         <segue destination="vpO-G0-0np" kind="presentation" identifier="imagePreview" id="L1S-as-9Vq"/>

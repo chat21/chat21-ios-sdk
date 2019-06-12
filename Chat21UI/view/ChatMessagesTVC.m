@@ -188,7 +188,8 @@ static NSString *MATCH_TYPE_CHAT_LINK = @"CHATLINK";
 }
 
 -(void)processLongTapOnImageMessage:(UIGestureRecognizer *)recognizer message:(ChatMessage *)message {
-    NSLog(@"Long tap on Image message not implemented.");
+    NSLog(@"Long tap on Image message.");
+    [self showCustomPopupMenu:recognizer];
 }
 
 -(void)processLongTapOnTextMessage:(UIGestureRecognizer *)recognizer message:(ChatMessage *)message {

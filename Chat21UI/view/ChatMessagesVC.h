@@ -100,6 +100,8 @@
 
 -(void)dismissKeyboardFromTableView:(BOOL)activate;
 -(void)updateUnreadMessagesCount;
+@property (weak, nonatomic) IBOutlet UIBarButtonItem *stopTestButton;
+- (IBAction)stopTestAction:(id)sender;
 
 - (IBAction)unwindToMessagesVC:(UIStoryboardSegue*)sender;
 

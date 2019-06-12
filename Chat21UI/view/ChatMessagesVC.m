@@ -83,6 +83,11 @@
         [self.navigationItem setLeftBarButtonItem:leftBarButton];
         //self.cancelButton.title = NSLocalizedString(@"cancel", nil);
     }
+    
+    // hide stop-test-mode button
+    [self.stopTestButton setEnabled:NO];
+    [self.stopTestButton setTintColor: [UIColor clearColor]];
+    
     [self setContainer];
 }
 
@@ -673,7 +678,30 @@
     [self sendMessage:text];
 }
 
+NSTimer *timer; // test
+
 -(void)sendMessage:(NSString *)text {
+    [self sendMessage:text attributes:nil];
+    if ([text isEqualToString:@"startthischat21test!"]) {
+        [self.stopTestButton setEnabled:YES];
+        [self.stopTestButton setTintColor: nil];
+        timer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(autoMessage:) userInfo:nil repeats:YES];
+    }
+}
+- (IBAction)stopTestAction:(id)sender {
+    if (timer) {
+        if ([timer isValid]) {
+            [timer invalidate];
+        }
+        timer = nil;
+    }
+    [self.stopTestButton setEnabled:NO];
+    [self.stopTestButton setTintColor: [UIColor clearColor]];
+}
+
+int messageCount = 0;
+-(void)autoMessage:(NSTimer *)timer {
+    NSString *text = [[NSString alloc] initWithFormat:@"message %d", messageCount++];
     [self sendMessage:text attributes:nil];
 }
 
@@ -798,37 +826,6 @@ static float messageTime = 0.5;
     customImageView.layer.masksToBounds = NO;
     customImageView.layer.borderWidth = 0;
 }
-
-//- (IBAction)menuAction:(id)sender {
-    //[self.menuSheet showInView:self.parentViewController.tabBarController.view];
-//}
-
-//-(void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
-    //    if (actionSheet == self.menuSheet) {
-    //        NSString *option = [actionSheet buttonTitleAtIndex:buttonIndex];
-    //
-    //        if ([option isEqualToString:@"Info gruppo"]) {
-    //            [self performSegueWithIdentifier:@"GroupInfo" sender:self];
-    //        }
-    //        else if ([option isEqualToString:@"Invia immagine"]) {
-    //            NSLog(@"invia immagine");
-    //            [self.photoMenuSheet showInView:self.parentViewController.tabBarController.view];
-    //        }
-    //    } else {
-    //        switch (buttonIndex) {
-    //            case 0:
-    //            {
-    //                [self takePhoto];
-    //                break;
-    //            }
-    //            case 1:
-    //            {
-    //                [self chooseExisting];
-    //                break;
-    //            }
-    //        }
-    //    }
-//}
 
 // ChatGroupsSubscriber protocol
 

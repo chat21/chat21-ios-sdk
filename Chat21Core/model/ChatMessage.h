@@ -13,9 +13,9 @@ static int const MSG_STATUS_FAILED = -100;
 static int const MSG_STATUS_SENDING = 0;
 static int const MSG_STATUS_UPLOADING = 5;
 static int const MSG_STATUS_QUEUED = 50;
-static int const MSG_STATUS_SENT = 100;
-static int const MSG_STATUS_RECEIVED = 200; // comunico al server che ho ricevuto il messaggio
-static int const MSG_STATUS_RETURN_RECEIPT = 250; // la doppia spunta
+static int const MSG_STATUS_SENT = 100; // single checkmark
+static int const MSG_STATUS_RECEIVED = 200; // communicates to backend that message was received
+static int const MSG_STATUS_RETURN_RECEIPT = 250; // double checkmark
 static int const MSG_STATUS_SEEN = 300;
 
 // firebase fields
