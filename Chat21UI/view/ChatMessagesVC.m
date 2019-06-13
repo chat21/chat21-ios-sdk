@@ -31,7 +31,7 @@
 #import "ChatPresenceHandler.h"
 #import "ChatContactsDB.h"
 #import "ChatLocal.h"
-#import <DBChooser/DBChooser.h>
+//#import <DBChooser/DBChooser.h>
 #import "ChatMessageMetadata.h"
 #import "ChatImageUtil.h"
 #import "ChatImagePreviewVC.h"
@@ -454,14 +454,14 @@
                                      alertControllerWithTitle:nil
                                      message:NSLocalizedString(@"Attach", nil)
                                      preferredStyle:UIAlertControllerStyleActionSheet];
-        UIAlertAction* dropbox = [UIAlertAction
-                               actionWithTitle:NSLocalizedString(@"Dropbox", nil)
-                               style:UIAlertActionStyleDefault
-                               handler:^(UIAlertAction * action)
-                               {
-                                   NSLog(@"Open dropbox");
-                                   [self openDropbox];
-                               }];
+//        UIAlertAction* dropbox = [UIAlertAction
+//                               actionWithTitle:NSLocalizedString(@"Dropbox", nil)
+//                               style:UIAlertActionStyleDefault
+//                               handler:^(UIAlertAction * action)
+//                               {
+//                                   NSLog(@"Open dropbox");
+//                                   [self openDropbox];
+//                               }];
         UIAlertAction* photo = [UIAlertAction
                               actionWithTitle:NSLocalizedString(@"Photo", nil)
                               style:UIAlertActionStyleDefault
@@ -487,7 +487,7 @@
                                  }];
     [alert addAction:photo];
     [alert addAction:photo_from_library];
-    [alert addAction:dropbox];
+//    [alert addAction:dropbox];
     [alert addAction:cancel];
     UIPopoverPresentationController *popPresenter = [alert
                                                      popoverPresentationController];
@@ -497,21 +497,21 @@
     [self presentViewController:alert animated:YES completion:nil];
 }
 
--(void)openDropbox {
-    [[DBChooser defaultChooser] openChooserForLinkType:DBChooserLinkTypePreview
-                                    fromViewController:self completion:^(NSArray *results)
-     {
-         if ([results count]) {
-             // Process results from Chooser
-             DBChooserResult *r = results[0];
-             // properties: r.name, r.link, r.size, r.iconURL
-             NSDictionary *thumbs = r.thumbnails;
-             [self sendDropboxMessage:r.name link:[r.link absoluteString] size:[NSNumber numberWithLongLong:r.size] iconURL:[r.iconURL absoluteString] thumbs:thumbs];
-         } else {
-             NSLog(@"Action canceled");
-         }
-     }];
-}
+//-(void)openDropbox {
+//    [[DBChooser defaultChooser] openChooserForLinkType:DBChooserLinkTypePreview
+//                                    fromViewController:self completion:^(NSArray *results)
+//     {
+//         if ([results count]) {
+//             // Process results from Chooser
+//             DBChooserResult *r = results[0];
+//             // properties: r.name, r.link, r.size, r.iconURL
+//             NSDictionary *thumbs = r.thumbnails;
+//             [self sendDropboxMessage:r.name link:[r.link absoluteString] size:[NSNumber numberWithLongLong:r.size] iconURL:[r.iconURL absoluteString] thumbs:thumbs];
+//         } else {
+//             NSLog(@"Action canceled");
+//         }
+//     }];
+//}
 
 -(void)sendDropboxMessage:(NSString *)name link:(NSString *)link size:(NSNumber *)size iconURL:(NSString *)iconURL thumbs:(NSDictionary *)thumbs {
     
