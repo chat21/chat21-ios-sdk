@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
+@import UIKit;
 @class Firebase;
 @class ChatNotificationView;
 @class ChatUser;

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>delete-profile-photo-uri</key>
+	<string>/api/%@/contacts/me/photo</string>
+	<key>profile-image-base-url</key>
+	<string>https://firebasestorage.googleapis.com/v0/b/%@/o</string>
+	<key>archive-and-support-conversation-uri</key>
+	<string>/supportapi/%@/groups/%@</string>
+	<key>archive-conversation-uri</key>
+	<string>/api/%@/conversations/%@</string>
+	<key>base-url</key>
+	<string>https://us-central1-chat-v2-dev.cloudfunctions.net</string>
+</dict>
+</plist>

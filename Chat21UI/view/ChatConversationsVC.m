@@ -131,40 +131,9 @@
     [self setupTitle:title];
 }
 
-//-(void)initImageCache {
-//    // cache setup
-//    self.imageCache = (ChatImageCache *) [self.applicationContext getVariable:@"chatUserIcons"];
-//    if (!self.imageCache) {
-//        self.imageCache = [[ChatImageCache alloc] init];
-//        self.imageCache.cacheName = @"chatUserIcons";
-//        // test
-//        // [self.imageCache listAllImagesFromDisk];
-//        // [self.imageCache empty];
-//        [self.applicationContext setVariable:@"chatUserIcons" withValue:self.imageCache];
-//    }
-//}
-
-//-(void)backButtonSetup {
-//    if (!self.backButton) {
-//        self.backButton = [[UIBarButtonItem alloc]
-//                           initWithTitle:@"Chat"
-//                           style:UIBarButtonItemStylePlain
-//                           target:self
-//                           action:@selector(backButtonClicked:)];
-//    }
-//    self.navigationItem.backBarButtonItem = self.backButton;
-//}
-
--(void)backButtonClicked:(UIBarButtonItem*)sender
-{
-    NSLog(@"Back");
-}
-
--(void)viewWillDisappear:(BOOL)animated {
-    [super viewWillDisappear:animated];
-    if (self.isMovingFromParentViewController) {
-        [self removeSubscribers];
-    }
+-(void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    [self initializeWithSignedUser];
 }
 
 -(void)viewDidAppear:(BOOL)animated {
@@ -196,12 +165,11 @@
     [self update_unread];
 }
 
--(void)viewWillAppear:(BOOL)animated {
-    [super viewWillAppear:animated];
-    
-    [self initializeWithSignedUser];
-    
-//    [self resetCurrentConversation];
+-(void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+    if (self.isMovingFromParentViewController) {
+        [self removeSubscribers];
+    }
 }
 
 -(void)initializeWithSignedUser {
@@ -215,40 +183,6 @@
         self.me = loggedUser;
         [self initChat];
         [self.tableView reloadData];
-    }
-//    if (loggedUser && !self.me) { // > just signed in / first load after startup
-//        self.me = loggedUser;
-//        [self initChat];
-//        [self.tableView reloadData];
-//    }
-//    else if (loggedUser && ![self.me.userId isEqualToString:loggedUserId]) {
-//        // user changed
-//        NSLog(@"User changed. Logged user is %@/%@ while self.me is %@/%@", loggedUser.userId, loggedUser.fullname, self.me.userId, self.me.fullname);
-//        [self logout];
-//        self.me = loggedUser;
-//        [self initChat];
-//        [self.tableView reloadData];
-//    }
-//    else if (!loggedUser && self.me) {
-//        NSAssert(false, @"You just signed out so you can't be here! This code must be unreacheable!");
-//        NSLog(@"**** You just logged out! Disposing current chat handlers...");
-//        // DEPRECATED
-//        self.me = nil;
-//        self.conversationsHandler = nil;
-////        ChatManager *chat = [ChatManager getInstance];
-////        [chat dispose];
-//        NSLog(@"reloadData !loggedUser && self.me");
-//        [self.tableView reloadData];
-//    }
-//    else if (!loggedUser) { // logged out
-//        NSAssert(false, @"Signed out you can't be here! This code must be unreacheable!");
-//        NSLog(@"**** User still not logged in.");
-//        // DEPRECATED
-//        // not signed in
-//        // do nothing
-//    }
-    else if (loggedUser && [loggedUserId isEqualToString:self.me.userId]) {
-//        NSLog(@"**** You are logged in with the same user. Do nothing.");
     }
 }
 

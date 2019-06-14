@@ -91,7 +91,7 @@
     }
     [CellConfigurator archiveLabel:cell archived:conversation.archived];
     UIImageView *groupProfileImageView = cell.profileImageView; //[cell viewWithTag:1];
-    [self setImageFor:groupProfileImageView imageURL:conversation.thumbImageURL typeDirect:NO];
+    [self setImageFor:groupProfileImageView imageURL:conversation.thumbImageURL isDirect:NO];
     date_label.text = [conversation dateFormattedForListView];
     if (conversation.is_new) {
         // BOLD STYLE
@@ -188,9 +188,8 @@
     
     last_message_label.hidden = NO;
     last_message_label.text = [conversation textForLastMessage:me];
-    
-//    [self setImageForCell:cell imageURL:conversation.thumbImageURL typeDirect:YES];
-    [self setImageFor:profileImageView imageURL:conversation.thumbImageURL typeDirect:YES];
+    [self setImageFor:profileImageView imageURL:conversation.thumbImageURL isDirect:YES];
+//    [self setImageFor:profileImageView imageURL:conversation.thumbImageURL typeDirect:YES];
     date_label.text = [conversation dateFormattedForListView];
     if (conversation.is_new) {
         // BOLD STYLE
@@ -251,10 +250,9 @@
 //    label.text = [ChatLocal translate:@"ArchivedBadgeLabel"];
 }
 
--(void)setImageFor:(UIImageView *)image_view imageURL:(NSString *)imageURL typeDirect:(BOOL)typeDirect {
-    // get from cache first
+-(void)setImageFor:(UIImageView *)image_view imageURL:(NSString *)imageURL isDirect:(BOOL)typeDirect {
+    NSLog(@"test");
     int size = CONVERSATION_LIST_CELL_SIZE;
-//    UIImageView *image_view = (UIImageView *)[cell viewWithTag:1];
     UIImage *image = [CellConfigurator setupPhotoCell:image_view typeDirect:typeDirect imageURL:imageURL imageCache:self.imageCache size:size];
     // then from remote
     if (image == nil) {
@@ -282,7 +280,6 @@
                 }
                 
                 if (conversationIndexPath && [CellConfigurator isIndexPathVisible:conversationIndexPath tableView:self.tableView]) {
-//                    UITableViewCell *cell = (id)[self.tableView cellForRowAtIndexPath:conversationIndexPath];
                     ChatBaseConversationCell *cell = (id)[self.tableView cellForRowAtIndexPath:conversationIndexPath];
                     UIImageView *image_view = cell.profileImageView; //(UIImageView *)[cell viewWithTag:1];
                     if (!cell) {
@@ -296,6 +293,49 @@
         }];
     }
 }
+
+//-(void)setImageFor:(UIImageView *)image_view imageURL:(NSString *)imageURL typeDirect:(BOOL)typeDirect {
+//    int size = CONVERSATION_LIST_CELL_SIZE;
+//    UIImage *image = [CellConfigurator setupPhotoCell:image_view typeDirect:typeDirect imageURL:imageURL imageCache:self.imageCache size:size];
+//    // then from remote
+//    if (image == nil) {
+//        [self.imageCache getImage:imageURL sized:size circle:YES completionHandler:^(NSString *imageURL, UIImage *image) {
+//            NSLog(@"requested-image-url-CONFIGURATOR: %@ > image: %@", imageURL, image);
+//            dispatch_async(dispatch_get_main_queue(), ^{
+//                NSLog(@"REQ-IMAGE-URL: %@ > IMAGE: %@", imageURL, image);
+//                if (!image) {
+//                    UIImage *avatar = [CellConfigurator avatarTypeDirect:typeDirect];
+//                    NSString *key = [self.imageCache urlAsKey:[NSURL URLWithString:imageURL]];
+//                    NSString *sized_key = [ChatDiskImageCache sizedKey:key size:size];
+//                    UIImage *resized_image = [ChatImageUtil scaleImage:avatar toSize:CGSizeMake(size, size)];
+//                    [self.imageCache addImageToMemoryCache:resized_image withKey:sized_key];
+//                    return;
+//                }
+//                // find indexpath of this imageURL (aka conversation).
+//                int index_path_row = 0;
+//                NSIndexPath *conversationIndexPath = nil;
+//                for (ChatConversation *conversation in self.conversations) {
+//                    if ([conversation.thumbImageURL isEqualToString:imageURL]) {
+//                        conversationIndexPath = [NSIndexPath indexPathForRow:index_path_row inSection:SECTION_CONVERSATIONS_INDEX];
+//                        break;
+//                    }
+//                    index_path_row++;
+//                }
+//
+//                if (conversationIndexPath && [CellConfigurator isIndexPathVisible:conversationIndexPath tableView:self.tableView]) {
+//                    ChatBaseConversationCell *cell = (id)[self.tableView cellForRowAtIndexPath:conversationIndexPath];
+//                    UIImageView *image_view = cell.profileImageView; //(UIImageView *)[cell viewWithTag:1];
+//                    if (!cell) {
+//                        return;
+//                    }
+//                    if (image) {
+//                        image_view.image = image;
+//                    }
+//                }
+//            });
+//        }];
+//    }
+//}
 
 +(UIImage *)setupDefaultImageFor:(UIImageView *)imageView typeDirect:(BOOL)typeDirect {
     UIImage *avatar = [CellConfigurator avatarTypeDirect:typeDirect];

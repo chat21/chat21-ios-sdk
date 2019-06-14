@@ -54,6 +54,7 @@ static NSString* const MSG_METADATA_IMAGE_WIDTH = @"width";
 static NSString* const MSG_METADATA_IMAGE_HEIGHT = @"height";
 
 @import Firebase;
+#import <UIKit/UIKit.h>
 
 //@class Firebase;
 @class FDataSnapshot;

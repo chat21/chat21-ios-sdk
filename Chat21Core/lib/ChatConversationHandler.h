@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import "ChatEventType.h"
+#import <UIKit/UIKit.h>
 
 @import Firebase;
 

@@ -9,6 +9,7 @@
 #import <Foundation/Foundation.h>
 
 @import Firebase;
+@import UIKit;
 
 @class ChatConversationHandler;
 @class ChatConversationsHandler;
@@ -34,6 +35,7 @@
 @property (nonatomic, strong) NSString *baseURL;
 @property (nonatomic, strong) NSString *archiveConversationURI;
 @property (nonatomic, strong) NSString *archiveAndCloseSupportConversationURI;
+@property (nonatomic, strong) NSString *profileImageBaseURL;
 @property (nonatomic, strong) NSString *deleteProfilePhotoURI;
 
 @property (nonatomic, strong) ChatUser *loggedUser;
@@ -50,7 +52,7 @@
 @property (assign, nonatomic) BOOL groupsMode;
 @property (assign, nonatomic) NSInteger tabBarIndex;
 
-+(void)configureWithAppId:(NSString *)app_id;
+//+(void)configureWithAppId:(NSString *)app_id;
 +(void)configure;
 +(ChatManager *)getInstance;
 -(void)getContactLocalDB:(NSString *)userid withCompletion:(void(^)(ChatUser *user))callback;

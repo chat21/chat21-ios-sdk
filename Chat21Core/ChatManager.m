@@ -41,27 +41,78 @@ static ChatManager *sharedInstance = nil;
     return self;
 }
 
+//+(void)configure {
+//    sharedInstance = [[super alloc] init];
+//    NSDictionary *dictionary = [NSDictionary dictionaryWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"Chat-Info" ofType:@"plist"]];
+//    // default values
+//    sharedInstance.tenant = @"chat";
+//    sharedInstance.baseURL = @"https://us-central1-chat-v2-dev.cloudfunctions.net";
+//    sharedInstance.archiveConversationURI = @"/api/%@/conversations/%@";
+//    sharedInstance.archiveAndCloseSupportConversationURI = @"/supportapi/%@/groups/%@";
+//    sharedInstance.profileImageBaseURL = @"https://firebasestorage.googleapis.com/v0/b/%@/o";
+//    sharedInstance.deleteProfilePhotoURI = @"";
+//    sharedInstance.groupsMode = YES;
+//    sharedInstance.tabBarIndex = 0;
+//    if (dictionary) {
+//        if ([dictionary objectForKey:@"tenant"]) {
+//            sharedInstance.tenant = [dictionary objectForKey:@"tenant"];
+//        }
+//        if ([dictionary objectForKey:@"groups-mode"]) {
+//            sharedInstance.groupsMode = [[dictionary objectForKey:@"groups-mode"] boolValue];
+//        }
+//        if ([dictionary objectForKey:@"conversations-tabbar-index"]) {
+//            sharedInstance.tabBarIndex = [[dictionary objectForKey:@"conversations-tabbar-index"] integerValue];
+//        }
+//        if ([dictionary objectForKey:@"base-url"]) {
+//            sharedInstance.baseURL = [dictionary objectForKey:@"base-url"];
+//        }
+//        if ([dictionary objectForKey:@"archive-conversation-uri"]) {
+//            sharedInstance.archiveConversationURI = [dictionary objectForKey:@"archive-conversation-uri"];
+//        }
+//        if ([dictionary objectForKey:@"profile-image-base-url"]) {
+//            sharedInstance.profileImageBaseURL = [dictionary objectForKey:@"profile-image-base-url"];
+//        }
+//        if ([dictionary objectForKey:@"archive-and-support-conversation-uri"]) {
+//            sharedInstance.archiveAndCloseSupportConversationURI = [dictionary objectForKey:@"archive-and-support-conversation-uri"];
+//        }
+//        if ([dictionary objectForKey:@"delete-profile-photo-uri"]) {
+//            sharedInstance.deleteProfilePhotoURI = [dictionary objectForKey:@"delete-profile-photo-uri"];
+//        }
+//    }
+//    sharedInstance.loggedUser = nil;
+//}
+//
+//+(void)configureWithAppId:(NSString *)app_id {
+//    sharedInstance = [[super alloc] init];
+//    [FIRDatabase database].persistenceEnabled = NO;
+//    sharedInstance.tenant = app_id;
+//    sharedInstance.loggedUser = nil;
+//    sharedInstance.groupsMode = NO;
+//}
+//
+//+(ChatManager *)getInstance {
+//    return sharedInstance;
+//}
+
 +(void)configure {
-    sharedInstance = [[super alloc] init];
-    NSDictionary *dictionary = [NSDictionary dictionaryWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"Chat-Info" ofType:@"plist"]];
+//    ChatManager *sharedInstance = [ChatManager getInstance];
+    [ChatManager configureServices];
+    [ChatManager configureCustomInfo];
+
+    ChatManager *inst = [ChatManager getInstance];
+    NSLog(@"tenant %@", inst.tenant);
+//    sharedInstance.loggedUser = nil;
+}
+
++(void)configureServices {
+    NSDictionary *dictionary = [NSDictionary dictionaryWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"Chat-Services" ofType:@"plist"]];
     // default values
-    sharedInstance.tenant = @"chat";
+    ChatManager *sharedInstance = [ChatManager getInstance];
     sharedInstance.baseURL = @"https://us-central1-chat-v2-dev.cloudfunctions.net";
     sharedInstance.archiveConversationURI = @"/api/%@/conversations/%@";
     sharedInstance.archiveAndCloseSupportConversationURI = @"/supportapi/%@/groups/%@";
     sharedInstance.deleteProfilePhotoURI = @"";
-    sharedInstance.groupsMode = YES;
-    sharedInstance.tabBarIndex = 0;
     if (dictionary) {
-        if ([dictionary objectForKey:@"tenant"]) {
-            sharedInstance.tenant = [dictionary objectForKey:@"tenant"];
-        }
-        if ([dictionary objectForKey:@"groups-mode"]) {
-            sharedInstance.groupsMode = [[dictionary objectForKey:@"groups-mode"] boolValue];
-        }
-        if ([dictionary objectForKey:@"conversations-tabbar-index"]) {
-            sharedInstance.tabBarIndex = [[dictionary objectForKey:@"conversations-tabbar-index"] integerValue];
-        }
         if ([dictionary objectForKey:@"base-url"]) {
             sharedInstance.baseURL = [dictionary objectForKey:@"base-url"];
         }
@@ -74,21 +125,45 @@ static ChatManager *sharedInstance = nil;
         if ([dictionary objectForKey:@"delete-profile-photo-uri"]) {
             sharedInstance.deleteProfilePhotoURI = [dictionary objectForKey:@"delete-profile-photo-uri"];
         }
+        if ([dictionary objectForKey:@"profile-image-base-url"]) {
+            sharedInstance.profileImageBaseURL = [dictionary objectForKey:@"profile-image-base-url"];
+        }
     }
-    sharedInstance.loggedUser = nil;
 }
 
-+(void)configureWithAppId:(NSString *)app_id {
-    sharedInstance = [[super alloc] init];
-    [FIRDatabase database].persistenceEnabled = NO;
-    sharedInstance.tenant = app_id;
-    sharedInstance.loggedUser = nil;
-    sharedInstance.groupsMode = NO;
++(void)configureCustomInfo {
+    NSDictionary *dictionary = [NSDictionary dictionaryWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"Chat-Info" ofType:@"plist"]];
+    // default values
+    ChatManager *sharedInstance = [ChatManager getInstance];
+    sharedInstance.tenant = @"chat";
+    sharedInstance.groupsMode = YES;
+    sharedInstance.tabBarIndex = 0;
+    if (dictionary) {
+        if ([dictionary objectForKey:@"tenant"]) {
+            sharedInstance.tenant = [dictionary objectForKey:@"tenant"];
+        }
+        if ([dictionary objectForKey:@"groups-mode"]) {
+            sharedInstance.groupsMode = [[dictionary objectForKey:@"groups-mode"] boolValue];
+        }
+        if ([dictionary objectForKey:@"conversations-tabbar-index"]) {
+            sharedInstance.tabBarIndex = [[dictionary objectForKey:@"conversations-tabbar-index"] integerValue];
+        }
+    }
 }
 
 +(ChatManager *)getInstance {
+    static ChatManager *sharedInstance = nil;
+    static dispatch_once_t pred;
+
+    if (sharedInstance) return sharedInstance;
+    dispatch_once(&pred, ^{
+        sharedInstance = [[ChatManager alloc] init];
+    });
     return sharedInstance;
 }
+
+
+
 
 -(void)addConversationHandler:(ChatConversationHandler *)handler {
 //    NSLog(@"Adding handler with key: %@", handler.conversationId);
@@ -657,12 +732,6 @@ static ChatManager *sharedInstance = nil;
 }
 
 -(void)deleteProfileImage:(NSString *)profileId completion:(void(^)(NSError *error))callback {
-//    NSString *baseURL = [ChatUtil profileBaseURL:profileId];
-//    NSLog(@"baseURL to delete: %@", baseURL);
-//    NSURL *url = [NSURL URLWithString:baseURL];
-//    NSString *cache_key = [self.imageCache urlAsKey:url];
-//    NSLog(@"baseURL key: %@", cache_key);
-//    [self.imageCache deleteFilesFromCacheStartingWith:cache_key];
     [self.imageCache deleteFilesFromDiskCacheOfProfile:profileId];
     [ChatService deleteProfilePhoto:profileId completion:^(NSError *error) {
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -709,13 +778,15 @@ static NSString *PROFILE_THUMB_PHOTO_NAME = @"thumb_photo.jpg";
 }
 
 +(NSString *)profileBaseURL:(NSString *)profileId {
+    NSLog(@"Someone called me.");
     // RETURNS:
     // https://firebasestorage.googleapis.com/v0/b/chat-v2-dev.appspot.com/o/profiles/PROFILE-ID
     NSDictionary *google_info_dict = [NSDictionary dictionaryWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"GoogleService-Info" ofType:@"plist"]];
-    NSDictionary *chat_info_dict = [NSDictionary dictionaryWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"Chat-Info" ofType:@"plist"]];
+//    NSDictionary *chat_info_dict = [NSDictionary dictionaryWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"Chat-Info" ofType:@"plist"]];
     NSString *bucket = [google_info_dict objectForKey:@"STORAGE_BUCKET"];
-    NSString *profile_image_base_url = [chat_info_dict objectForKey:@"profile-image-base-url"];
-    NSString *base_url = [[NSString alloc] initWithFormat:profile_image_base_url, bucket ];
+//    NSString *profile_image_base_url = [chat_info_dict objectForKey:@"profile-image-base-url"];
+    NSString *profile_image_base_url = [ChatManager getInstance].profileImageBaseURL;
+    NSString *base_url = [[NSString alloc] initWithFormat:profile_image_base_url, bucket];
     NSString *profile_base_url = [[NSString alloc] initWithFormat:@"%@/profiles%%2F%@", base_url, profileId];
 //    NSLog(@"profile_base_url: %@", profile_base_url);
     return profile_base_url;
